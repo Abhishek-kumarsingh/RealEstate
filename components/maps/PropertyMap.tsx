@@ -18,7 +18,16 @@ import {
   Square,
   Circle,
   Trash2,
-  MousePointer
+  MousePointer,
+  GraduationCap,
+  ShoppingCart,
+  Train,
+  Car,
+  Coffee,
+  Hospital,
+  Layers,
+  Eye,
+  EyeOff
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -54,12 +63,15 @@ interface PropertyMapProps {
   selectedProperty?: Property | null;
   onPropertySelect?: (property: Property) => void;
   onPropertyHover?: (property: Property | null) => void;
+  onSearchAreaChange?: (properties: Property[]) => void;
   className?: string;
   height?: string;
   showControls?: boolean;
   showFilters?: boolean;
   enableClustering?: boolean;
   clusterRadius?: number;
+  enableDrawing?: boolean;
+  showNeighborhoodInsights?: boolean;
 }
 
 interface PropertyCluster {
@@ -76,17 +88,67 @@ interface MapBounds {
   west: number;
 }
 
+interface SearchArea {
+  id: string;
+  type: 'rectangle' | 'circle';
+  bounds: MapBounds;
+  center?: { lat: number; lng: number };
+  radius?: number;
+  pixelBounds?: { x: number; y: number; width: number; height: number };
+}
+
+type DrawingMode = 'none' | 'rectangle' | 'circle';
+
+interface NeighborhoodPoint {
+  id: string;
+  name: string;
+  type: 'school' | 'amenity' | 'transit';
+  category: string;
+  coordinates: { lat: number; lng: number };
+  rating?: number;
+  description?: string;
+  distance?: string;
+}
+
+interface NeighborhoodOverlays {
+  schools: boolean;
+  amenities: boolean;
+  transit: boolean;
+}
+
+// Mock neighborhood data
+const mockNeighborhoodPoints: NeighborhoodPoint[] = [
+  // Schools
+  { id: 'school1', name: 'Lincoln Elementary', type: 'school', category: 'Elementary', coordinates: { lat: 34.0522, lng: -118.2437 }, rating: 4.5, description: 'Highly rated public elementary school' },
+  { id: 'school2', name: 'Roosevelt High School', type: 'school', category: 'High School', coordinates: { lat: 34.0612, lng: -118.2347 }, rating: 4.2, description: 'Award-winning high school with STEM programs' },
+  { id: 'school3', name: 'UCLA', type: 'school', category: 'University', coordinates: { lat: 34.0689, lng: -118.4452 }, rating: 4.8, description: 'Top-ranked public university' },
+
+  // Amenities
+  { id: 'amenity1', name: 'Whole Foods Market', type: 'amenity', category: 'Grocery', coordinates: { lat: 34.0422, lng: -118.2537 }, rating: 4.3, description: 'Organic grocery store' },
+  { id: 'amenity2', name: 'Starbucks Coffee', type: 'amenity', category: 'Coffee', coordinates: { lat: 34.0522, lng: -118.2337 }, rating: 4.1, description: 'Popular coffee chain' },
+  { id: 'amenity3', name: 'Cedars-Sinai Medical', type: 'amenity', category: 'Hospital', coordinates: { lat: 34.0755, lng: -118.3785 }, rating: 4.6, description: 'Leading medical center' },
+  { id: 'amenity4', name: 'Beverly Center', type: 'amenity', category: 'Shopping', coordinates: { lat: 34.0755, lng: -118.3618 }, rating: 4.2, description: 'Major shopping mall' },
+
+  // Transit
+  { id: 'transit1', name: 'Union Station', type: 'transit', category: 'Train', coordinates: { lat: 34.0560, lng: -118.2368 }, description: 'Major transit hub' },
+  { id: 'transit2', name: 'Hollywood/Highland', type: 'transit', category: 'Metro', coordinates: { lat: 34.1016, lng: -118.3387 }, description: 'Metro Red Line station' },
+  { id: 'transit3', name: 'LAX Airport', type: 'transit', category: 'Airport', coordinates: { lat: 33.9425, lng: -118.4081 }, description: 'Los Angeles International Airport' },
+];
+
 const PropertyMap: React.FC<PropertyMapProps> = ({
   properties,
   selectedProperty,
   onPropertySelect,
   onPropertyHover,
+  onSearchAreaChange,
   className,
   height = "400px",
   showControls = true,
   showFilters = false,
   enableClustering = true,
-  clusterRadius = 50
+  clusterRadius = 50,
+  enableDrawing = false,
+  showNeighborhoodInsights = false
 }) => {
   const [zoom, setZoom] = useState(10);
   const [center, setCenter] = useState({ lat: 34.0522, lng: -118.2437 }); // LA center
@@ -97,6 +159,23 @@ const PropertyMap: React.FC<PropertyMapProps> = ({
   const [typeFilter, setTypeFilter] = useState<string>('all');
   const [clusters, setClusters] = useState<PropertyCluster[]>([]);
   const [expandedCluster, setExpandedCluster] = useState<PropertyCluster | null>(null);
+
+  // Drawing state
+  const [drawingMode, setDrawingMode] = useState<DrawingMode>('none');
+  const [searchAreas, setSearchAreas] = useState<SearchArea[]>([]);
+  const [isDrawing, setIsDrawing] = useState(false);
+  const [drawStart, setDrawStart] = useState<{ x: number; y: number } | null>(null);
+  const [currentDraw, setCurrentDraw] = useState<{ x: number; y: number; width: number; height: number } | null>(null);
+  const [propertiesInArea, setPropertiesInArea] = useState<Property[]>(properties);
+
+  // Neighborhood insights state
+  const [neighborhoodOverlays, setNeighborhoodOverlays] = useState<NeighborhoodOverlays>({
+    schools: false,
+    amenities: false,
+    transit: false
+  });
+  const [hoveredNeighborhoodPoint, setHoveredNeighborhoodPoint] = useState<NeighborhoodPoint | null>(null);
+
   const mapRef = useRef<HTMLDivElement>(null);
 
   // Calculate map bounds based on properties
@@ -232,6 +311,51 @@ const PropertyMap: React.FC<PropertyMapProps> = ({
     setClusters(newClusters);
   }, [filteredProperties, zoom, enableClustering, clusterRadius]);
 
+  // Convert pixel coordinates to lat/lng
+  const pixelToLatLng = (x: number, y: number, mapWidth: number, mapHeight: number) => {
+    const bounds = calculateBounds(properties);
+
+    const lng = bounds.west + (x / mapWidth) * (bounds.east - bounds.west);
+    const lat = bounds.north - (y / mapHeight) * (bounds.north - bounds.south);
+
+    return { lat, lng };
+  };
+
+  // Check if a property is within a search area
+  const isPropertyInArea = (property: Property, area: SearchArea): boolean => {
+    const { lat, lng } = property.location.coordinates;
+
+    if (area.type === 'rectangle') {
+      return lat >= area.bounds.south &&
+             lat <= area.bounds.north &&
+             lng >= area.bounds.west &&
+             lng <= area.bounds.east;
+    } else if (area.type === 'circle' && area.center && area.radius) {
+      const distance = Math.sqrt(
+        Math.pow(lat - area.center.lat, 2) + Math.pow(lng - area.center.lng, 2)
+      );
+      return distance <= area.radius;
+    }
+
+    return false;
+  };
+
+  // Filter properties by search areas
+  const filterPropertiesByAreas = (props: Property[]): Property[] => {
+    if (searchAreas.length === 0) return props;
+
+    return props.filter(property =>
+      searchAreas.some(area => isPropertyInArea(property, area))
+    );
+  };
+
+  // Update filtered properties when search areas change
+  useEffect(() => {
+    const areaFilteredProperties = filterPropertiesByAreas(filteredProperties);
+    setPropertiesInArea(areaFilteredProperties);
+    onSearchAreaChange?.(areaFilteredProperties);
+  }, [searchAreas, filteredProperties, onSearchAreaChange]);
+
   // Convert lat/lng to pixel coordinates
   const latLngToPixel = (lat: number, lng: number, mapWidth: number, mapHeight: number) => {
     const bounds = calculateBounds(filteredProperties);
@@ -309,6 +433,115 @@ const PropertyMap: React.FC<PropertyMapProps> = ({
     setHoveredProperty(null);
   };
 
+  // Drawing event handlers
+  const handleMouseDown = (e: React.MouseEvent) => {
+    if (drawingMode === 'none' || !enableDrawing) return;
+
+    const rect = mapRef.current?.getBoundingClientRect();
+    if (!rect) return;
+
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+
+    setIsDrawing(true);
+    setDrawStart({ x, y });
+    setCurrentDraw({ x, y, width: 0, height: 0 });
+  };
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!isDrawing || !drawStart || drawingMode === 'none') return;
+
+    const rect = mapRef.current?.getBoundingClientRect();
+    if (!rect) return;
+
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+
+    if (drawingMode === 'rectangle') {
+      setCurrentDraw({
+        x: Math.min(drawStart.x, x),
+        y: Math.min(drawStart.y, y),
+        width: Math.abs(x - drawStart.x),
+        height: Math.abs(y - drawStart.y)
+      });
+    } else if (drawingMode === 'circle') {
+      const radius = Math.sqrt(
+        Math.pow(x - drawStart.x, 2) + Math.pow(y - drawStart.y, 2)
+      );
+      setCurrentDraw({
+        x: drawStart.x - radius,
+        y: drawStart.y - radius,
+        width: radius * 2,
+        height: radius * 2
+      });
+    }
+  };
+
+  const handleMouseUp = (e: React.MouseEvent) => {
+    if (!isDrawing || !drawStart || !currentDraw || drawingMode === 'none') return;
+
+    const rect = mapRef.current?.getBoundingClientRect();
+    if (!rect) return;
+
+    // Create search area
+    const newArea: SearchArea = {
+      id: `area-${Date.now()}`,
+      type: drawingMode,
+      bounds: { north: 0, south: 0, east: 0, west: 0 },
+      pixelBounds: currentDraw
+    };
+
+    if (drawingMode === 'rectangle') {
+      const topLeft = pixelToLatLng(currentDraw.x, currentDraw.y, rect.width, rect.height);
+      const bottomRight = pixelToLatLng(
+        currentDraw.x + currentDraw.width,
+        currentDraw.y + currentDraw.height,
+        rect.width,
+        rect.height
+      );
+
+      newArea.bounds = {
+        north: topLeft.lat,
+        south: bottomRight.lat,
+        east: bottomRight.lng,
+        west: topLeft.lng
+      };
+    } else if (drawingMode === 'circle') {
+      const center = pixelToLatLng(drawStart.x, drawStart.y, rect.width, rect.height);
+      const edge = pixelToLatLng(
+        drawStart.x + currentDraw.width / 2,
+        drawStart.y,
+        rect.width,
+        rect.height
+      );
+      const radius = Math.abs(edge.lng - center.lng);
+
+      newArea.center = center;
+      newArea.radius = radius;
+      newArea.bounds = {
+        north: center.lat + radius,
+        south: center.lat - radius,
+        east: center.lng + radius,
+        west: center.lng - radius
+      };
+    }
+
+    setSearchAreas(prev => [...prev, newArea]);
+    setIsDrawing(false);
+    setDrawStart(null);
+    setCurrentDraw(null);
+    setDrawingMode('none');
+  };
+
+  const clearSearchAreas = () => {
+    setSearchAreas([]);
+    setDrawingMode('none');
+  };
+
+  const removeSearchArea = (areaId: string) => {
+    setSearchAreas(prev => prev.filter(area => area.id !== areaId));
+  };
+
   const handleZoomIn = () => {
     setZoom(prev => Math.min(prev + 1, 18));
   };
@@ -330,8 +563,14 @@ const PropertyMap: React.FC<PropertyMapProps> = ({
       {/* Map Container */}
       <div
         ref={mapRef}
-        className="relative bg-gradient-to-br from-blue-50 to-green-50 dark:from-blue-950 dark:to-green-950"
+        className={cn(
+          "relative bg-gradient-to-br from-blue-50 to-green-50 dark:from-blue-950 dark:to-green-950",
+          drawingMode !== 'none' && "cursor-crosshair"
+        )}
         style={{ height: isFullscreen ? '100vh' : height }}
+        onMouseDown={handleMouseDown}
+        onMouseMove={handleMouseMove}
+        onMouseUp={handleMouseUp}
       >
         {/* Grid Background */}
         <div
@@ -344,6 +583,76 @@ const PropertyMap: React.FC<PropertyMapProps> = ({
             backgroundSize: '20px 20px'
           }}
         />
+
+        {/* Search Area Overlays */}
+        {searchAreas.map((area) => {
+          const mapRect = mapRef.current?.getBoundingClientRect();
+          if (!mapRect || !area.pixelBounds) return null;
+
+          const { x, y, width, height } = area.pixelBounds;
+
+          return (
+            <div key={area.id} className="absolute pointer-events-none">
+              {area.type === 'rectangle' ? (
+                <div
+                  className="absolute border-2 border-primary bg-primary/10 rounded"
+                  style={{
+                    left: x,
+                    top: y,
+                    width: width,
+                    height: height
+                  }}
+                />
+              ) : (
+                <div
+                  className="absolute border-2 border-primary bg-primary/10 rounded-full"
+                  style={{
+                    left: x,
+                    top: y,
+                    width: width,
+                    height: height
+                  }}
+                />
+              )}
+
+              {/* Remove button */}
+              <button
+                className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center hover:bg-red-600 transition-colors pointer-events-auto"
+                style={{ left: x + width - 12, top: y - 12 }}
+                onClick={() => removeSearchArea(area.id)}
+              >
+                <Trash2 className="w-3 h-3" />
+              </button>
+            </div>
+          );
+        })}
+
+        {/* Current Drawing Overlay */}
+        {isDrawing && currentDraw && (
+          <div className="absolute pointer-events-none">
+            {drawingMode === 'rectangle' ? (
+              <div
+                className="absolute border-2 border-dashed border-primary bg-primary/5"
+                style={{
+                  left: currentDraw.x,
+                  top: currentDraw.y,
+                  width: currentDraw.width,
+                  height: currentDraw.height
+                }}
+              />
+            ) : (
+              <div
+                className="absolute border-2 border-dashed border-primary bg-primary/5 rounded-full"
+                style={{
+                  left: currentDraw.x,
+                  top: currentDraw.y,
+                  width: currentDraw.width,
+                  height: currentDraw.height
+                }}
+              />
+            )}
+          </div>
+        )}
 
         {/* Cluster Markers */}
         {clusters.map((cluster) => {
@@ -549,6 +858,51 @@ const PropertyMap: React.FC<PropertyMapProps> = ({
             >
               {isFullscreen ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
             </Button>
+
+            {/* Drawing Controls */}
+            {enableDrawing && (
+              <>
+                <div className="border-t border-gray-300 my-1"></div>
+                <Button
+                  size="icon"
+                  variant={drawingMode === 'rectangle' ? 'default' : 'secondary'}
+                  onClick={() => setDrawingMode(drawingMode === 'rectangle' ? 'none' : 'rectangle')}
+                  className="bg-white/90 hover:bg-white"
+                  title="Draw Rectangle"
+                >
+                  <Square className="h-4 w-4" />
+                </Button>
+                <Button
+                  size="icon"
+                  variant={drawingMode === 'circle' ? 'default' : 'secondary'}
+                  onClick={() => setDrawingMode(drawingMode === 'circle' ? 'none' : 'circle')}
+                  className="bg-white/90 hover:bg-white"
+                  title="Draw Circle"
+                >
+                  <Circle className="h-4 w-4" />
+                </Button>
+                <Button
+                  size="icon"
+                  variant="secondary"
+                  onClick={() => setDrawingMode('none')}
+                  className="bg-white/90 hover:bg-white"
+                  title="Select Mode"
+                >
+                  <MousePointer className="h-4 w-4" />
+                </Button>
+                {searchAreas.length > 0 && (
+                  <Button
+                    size="icon"
+                    variant="destructive"
+                    onClick={clearSearchAreas}
+                    className="bg-red-500/90 hover:bg-red-500"
+                    title="Clear All Areas"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                )}
+              </>
+            )}
           </div>
         )}
 
@@ -624,12 +978,34 @@ const PropertyMap: React.FC<PropertyMapProps> = ({
                 </div>
               </>
             )}
+            {enableDrawing && (
+              <>
+                <div className="border-t border-gray-300 dark:border-gray-600 my-2"></div>
+                <div className="text-xs text-muted-foreground space-y-1">
+                  <div>🔲 Rectangle: Draw search area</div>
+                  <div>⭕ Circle: Draw search radius</div>
+                  <div>🗑️ Click X to remove areas</div>
+                  {searchAreas.length > 0 && (
+                    <div className="text-primary font-medium">
+                      {propertiesInArea.length} properties in search areas
+                    </div>
+                  )}
+                </div>
+              </>
+            )}
           </div>
         </div>
 
         {/* Property Count */}
         <div className="absolute bottom-4 right-4 bg-white/90 dark:bg-gray-800/90 rounded-lg px-3 py-2 text-sm font-medium">
-          {filteredProperties.length} Properties
+          {searchAreas.length > 0 ? (
+            <div className="text-center">
+              <div>{propertiesInArea.length} in search areas</div>
+              <div className="text-xs text-muted-foreground">of {filteredProperties.length} total</div>
+            </div>
+          ) : (
+            <div>{filteredProperties.length} Properties</div>
+          )}
         </div>
       </div>
     </Card>

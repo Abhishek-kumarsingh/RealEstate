@@ -73,6 +73,7 @@ export default function PropertiesMapPage() {
   const [viewMode, setViewMode] = useState<'map' | 'grid' | 'list'>('map');
   const [searchQuery, setSearchQuery] = useState('');
   const [filteredProperties, setFilteredProperties] = useState<Property[]>(properties);
+  const [searchAreaProperties, setSearchAreaProperties] = useState<Property[]>(properties);
 
   // Filter properties based on search
   useEffect(() => {
@@ -108,6 +109,10 @@ export default function PropertiesMapPage() {
 
   const handlePropertyHover = (property: Property | null) => {
     setHoveredProperty(property);
+  };
+
+  const handleSearchAreaChange = (properties: Property[]) => {
+    setSearchAreaProperties(properties);
   };
 
   return (
@@ -171,11 +176,13 @@ export default function PropertiesMapPage() {
                   selectedProperty={selectedProperty}
                   onPropertySelect={handlePropertySelect}
                   onPropertyHover={handlePropertyHover}
+                  onSearchAreaChange={handleSearchAreaChange}
                   height="600px"
                   showControls={true}
                   showFilters={true}
                   enableClustering={true}
                   clusterRadius={60}
+                  enableDrawing={true}
                   className="w-full"
                 />
               </div>
@@ -288,24 +295,32 @@ export default function PropertiesMapPage() {
                   </CardHeader>
                   <CardContent className="space-y-3">
                     <div className="flex justify-between">
-                      <span className="text-sm text-muted-foreground">Total Properties</span>
-                      <span className="font-medium">{filteredProperties.length}</span>
+                      <span className="text-sm text-muted-foreground">
+                        {searchAreaProperties.length !== filteredProperties.length ? 'In Search Areas' : 'Total Properties'}
+                      </span>
+                      <span className="font-medium">{searchAreaProperties.length}</span>
                     </div>
+                    {searchAreaProperties.length !== filteredProperties.length && (
+                      <div className="flex justify-between">
+                        <span className="text-sm text-muted-foreground">Total Available</span>
+                        <span className="font-medium">{filteredProperties.length}</span>
+                      </div>
+                    )}
                     <div className="flex justify-between">
                       <span className="text-sm text-muted-foreground">For Sale</span>
-                      <span className="font-medium">{filteredProperties.filter(p => p.type === 'sale').length}</span>
+                      <span className="font-medium">{searchAreaProperties.filter(p => p.type === 'sale').length}</span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-sm text-muted-foreground">For Rent</span>
-                      <span className="font-medium">{filteredProperties.filter(p => p.type === 'rent').length}</span>
+                      <span className="font-medium">{searchAreaProperties.filter(p => p.type === 'rent').length}</span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-sm text-muted-foreground">Commercial</span>
-                      <span className="font-medium">{filteredProperties.filter(p => p.type === 'commercial').length}</span>
+                      <span className="font-medium">{searchAreaProperties.filter(p => p.type === 'commercial').length}</span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-sm text-muted-foreground">Featured</span>
-                      <span className="font-medium">{filteredProperties.filter(p => p.featured).length}</span>
+                      <span className="font-medium">{searchAreaProperties.filter(p => p.featured).length}</span>
                     </div>
                   </CardContent>
                 </Card>
