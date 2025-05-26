@@ -63,6 +63,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
       { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
       { name: 'Properties', href: '/dashboard/properties', icon: Building },
       { name: 'Users', href: '/dashboard/users', icon: Users },
+      { name: 'Messages', href: '/dashboard/messages', icon: MessageCircle },
       { name: 'Agents', href: '/dashboard/agents', icon: User },
       { name: 'Reports', href: '/dashboard/reports', icon: FileText },
       { name: 'Settings', href: '/dashboard/settings', icon: Settings },
@@ -71,6 +72,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
       { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
       { name: 'My Properties', href: '/dashboard/properties', icon: Building },
       { name: 'Add Property', href: '/dashboard/properties/new', icon: Plus },
+      { name: 'Messages', href: '/dashboard/messages', icon: MessageCircle },
       { name: 'Inquiries', href: '/dashboard/inquiries', icon: MessageCircle },
       { name: 'Profile', href: '/dashboard/profile', icon: User },
       { name: 'Settings', href: '/dashboard/settings', icon: Settings },
@@ -78,6 +80,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
     user: [
       { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
       { name: 'Favorites', href: '/dashboard/favorites', icon: Heart },
+      { name: 'Messages', href: '/dashboard/messages', icon: MessageCircle },
       { name: 'Inquiries', href: '/dashboard/inquiries', icon: MessageCircle },
       { name: 'Profile', href: '/dashboard/profile', icon: User },
       { name: 'Settings', href: '/dashboard/settings', icon: Settings },

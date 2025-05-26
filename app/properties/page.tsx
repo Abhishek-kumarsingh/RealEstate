@@ -8,7 +8,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Loader2, Search, Filter } from 'lucide-react';
+import { Loader2, Search, Filter, MapPin } from 'lucide-react';
+import Link from 'next/link';
 
 interface Property {
   _id: string;
@@ -46,13 +47,13 @@ export default function PropertiesPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [filters, setFilters] = useState({
-    type: '',
+    type: 'all',
     location: '',
     minPrice: '',
     maxPrice: '',
-    category: '',
-    bedrooms: '',
-    bathrooms: '',
+    category: 'all',
+    bedrooms: 'all',
+    bathrooms: 'all',
   });
 
   const searchParams = useSearchParams();
@@ -60,13 +61,13 @@ export default function PropertiesPage() {
   useEffect(() => {
     // Initialize filters from URL params
     const initialFilters = {
-      type: searchParams.get('type') || '',
+      type: searchParams.get('type') || 'all',
       location: searchParams.get('location') || '',
       minPrice: searchParams.get('minPrice') || '',
       maxPrice: searchParams.get('maxPrice') || '',
-      category: searchParams.get('category') || '',
-      bedrooms: searchParams.get('bedrooms') || '',
-      bathrooms: searchParams.get('bathrooms') || '',
+      category: searchParams.get('category') || 'all',
+      bedrooms: searchParams.get('bedrooms') || 'all',
+      bathrooms: searchParams.get('bathrooms') || 'all',
     };
     setFilters(initialFilters);
     fetchProperties(initialFilters);
@@ -80,7 +81,7 @@ export default function PropertiesPage() {
       // Build query params
       const params: Record<string, string> = {};
       Object.entries(currentFilters).forEach(([key, value]) => {
-        if (value) {
+        if (value && value !== 'all') {
           params[key] = value;
         }
       });
@@ -105,13 +106,13 @@ export default function PropertiesPage() {
 
   const clearFilters = () => {
     const clearedFilters = {
-      type: '',
+      type: 'all',
       location: '',
       minPrice: '',
       maxPrice: '',
-      category: '',
-      bedrooms: '',
-      bathrooms: '',
+      category: 'all',
+      bedrooms: 'all',
+      bathrooms: 'all',
     };
     setFilters(clearedFilters);
     fetchProperties(clearedFilters);
@@ -120,7 +121,15 @@ export default function PropertiesPage() {
   return (
     <div className="container mx-auto px-6 lg:px-8 py-8 mt-20">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-4">Properties</h1>
+        <div className="flex items-center justify-between mb-4">
+          <h1 className="text-3xl font-bold">Properties</h1>
+          <Button asChild variant="outline" className="flex items-center gap-2">
+            <Link href="/properties/map">
+              <MapPin className="h-4 w-4" />
+              Map View
+            </Link>
+          </Button>
+        </div>
 
         {/* Filters */}
         <Card className="mb-6">
@@ -139,7 +148,7 @@ export default function PropertiesPage() {
                     <SelectValue placeholder="Any type" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">Any type</SelectItem>
+                    <SelectItem value="all">Any type</SelectItem>
                     <SelectItem value="sale">For Sale</SelectItem>
                     <SelectItem value="rent">For Rent</SelectItem>
                     <SelectItem value="commercial">Commercial</SelectItem>
@@ -183,7 +192,7 @@ export default function PropertiesPage() {
                     <SelectValue placeholder="Any category" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">Any category</SelectItem>
+                    <SelectItem value="all">Any category</SelectItem>
                     <SelectItem value="house">House</SelectItem>
                     <SelectItem value="apartment">Apartment</SelectItem>
                     <SelectItem value="condo">Condo</SelectItem>
@@ -199,7 +208,7 @@ export default function PropertiesPage() {
                     <SelectValue placeholder="Any" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">Any</SelectItem>
+                    <SelectItem value="all">Any</SelectItem>
                     <SelectItem value="1">1+</SelectItem>
                     <SelectItem value="2">2+</SelectItem>
                     <SelectItem value="3">3+</SelectItem>
@@ -216,7 +225,7 @@ export default function PropertiesPage() {
                     <SelectValue placeholder="Any" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">Any</SelectItem>
+                    <SelectItem value="all">Any</SelectItem>
                     <SelectItem value="1">1+</SelectItem>
                     <SelectItem value="2">2+</SelectItem>
                     <SelectItem value="3">3+</SelectItem>

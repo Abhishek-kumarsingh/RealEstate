@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import { propertiesApi, inquiriesApi } from '@/lib/api';
 import { useAuth } from '@/lib/contexts/AuthContext';
+import { useChat } from '@/lib/contexts/ChatContext';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -12,8 +13,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { 
-  MapPin, Bed, Bath, Maximize, Calendar, DollarSign, 
+import {
+  MapPin, Bed, Bath, Maximize, Calendar, DollarSign,
   Heart, MessageCircle, Phone, Mail, Send, Loader2,
   ArrowLeft, Share, Star
 } from 'lucide-react';
@@ -23,6 +24,7 @@ import Image from 'next/image';
 export default function PropertyDetailPage() {
   const params = useParams();
   const { user, token } = useAuth();
+  const { createChat, setActiveChat } = useChat();
   const [property, setProperty] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -73,7 +75,7 @@ export default function PropertyDetailPage() {
           phone: inquiryData.phone
         }
       }, token);
-      
+
       setInquirySuccess(true);
       setShowInquiryForm(false);
       setInquiryData({
@@ -96,8 +98,18 @@ export default function PropertyDetailPage() {
       minimumFractionDigits: 0,
       maximumFractionDigits: 0,
     }).format(price);
-    
+
     return type === 'rent' ? `${formatted}/mo` : formatted;
+  };
+
+  const handleStartChat = () => {
+    if (!user || !property) return;
+
+    const chat = createChat(property.agent.email, property._id);
+    setActiveChat(chat);
+
+    // Scroll to top to show floating chat
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   if (loading) {
@@ -259,7 +271,7 @@ export default function PropertyDetailPage() {
                   <p className="text-sm text-muted-foreground">Real Estate Agent</p>
                 </div>
               </div>
-              
+
               <div className="space-y-3">
                 <div className="flex items-center gap-2 text-sm">
                   <Mail className="h-4 w-4 text-muted-foreground" />
@@ -274,20 +286,33 @@ export default function PropertyDetailPage() {
               </div>
 
               <div className="mt-6 space-y-2">
+                {user && (
+                  <Button
+                    className="w-full"
+                    onClick={handleStartChat}
+                  >
+                    <MessageCircle className="mr-2 h-4 w-4" />
+                    Start Chat
+                  </Button>
+                )}
+
                 {property.agent.phone && (
                   <Button className="w-full" variant="outline">
                     <Phone className="mr-2 h-4 w-4" />
                     Call Agent
                   </Button>
                 )}
-                <Button 
+
+                <Button
                   className="w-full"
+                  variant="outline"
                   onClick={() => setShowInquiryForm(true)}
                   disabled={!user}
                 >
-                  <MessageCircle className="mr-2 h-4 w-4" />
-                  Send Message
+                  <Send className="mr-2 h-4 w-4" />
+                  Send Inquiry
                 </Button>
+
                 {!user && (
                   <p className="text-xs text-muted-foreground text-center">
                     <Link href="/login" className="text-primary hover:underline">
@@ -321,7 +346,7 @@ export default function PropertyDetailPage() {
                       rows={4}
                     />
                   </div>
-                  
+
                   <div className="grid grid-cols-1 gap-4">
                     <div>
                       <Label htmlFor="name">Name</Label>
@@ -332,7 +357,7 @@ export default function PropertyDetailPage() {
                         required
                       />
                     </div>
-                    
+
                     <div>
                       <Label htmlFor="email">Email</Label>
                       <Input
@@ -343,7 +368,7 @@ export default function PropertyDetailPage() {
                         required
                       />
                     </div>
-                    
+
                     <div>
                       <Label htmlFor="phone">Phone (Optional)</Label>
                       <Input
@@ -354,7 +379,7 @@ export default function PropertyDetailPage() {
                       />
                     </div>
                   </div>
-                  
+
                   <div className="flex gap-2">
                     <Button type="submit" disabled={inquiryLoading} className="flex-1">
                       {inquiryLoading ? (
@@ -369,8 +394,8 @@ export default function PropertyDetailPage() {
                         </>
                       )}
                     </Button>
-                    <Button 
-                      type="button" 
+                    <Button
+                      type="button"
                       variant="outline"
                       onClick={() => setShowInquiryForm(false)}
                     >

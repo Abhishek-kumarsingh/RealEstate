@@ -3,9 +3,11 @@ import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import { ThemeProvider } from '@/components/theme-provider';
 import { AuthProvider } from '@/lib/contexts/AuthContext';
+import { ChatProvider } from '@/lib/contexts/ChatContext';
 import { Toaster } from '@/components/ui/toaster';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
+import FloatingChatButton from '@/components/chat/FloatingChatButton';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -24,12 +26,15 @@ export default function RootLayout({
       <body className={inter.className}>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           <AuthProvider>
-            <div className="flex min-h-screen flex-col">
-              <Header />
-              <main className="flex-1">{children}</main>
-              <Footer />
-            </div>
-            <Toaster />
+            <ChatProvider>
+              <div className="flex min-h-screen flex-col">
+                <Header />
+                <main className="flex-1">{children}</main>
+                <Footer />
+              </div>
+              <FloatingChatButton />
+              <Toaster />
+            </ChatProvider>
           </AuthProvider>
         </ThemeProvider>
       </body>
