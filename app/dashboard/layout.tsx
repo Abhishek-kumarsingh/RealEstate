@@ -2,23 +2,16 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
+import { useAuth } from '@/lib/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { ModeToggle } from '@/components/layout/ModeToggle';
-import { 
+import {
   Home, Users, Building, FileText, Settings, LogOut, Menu, X,
-  LayoutDashboard, Plus, Heart, MessageCircle, User, Bell
+  LayoutDashboard, Plus, Heart, MessageCircle, User, Bell, Loader2
 } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { cn } from '@/lib/utils';
-
-// Mock user data - in a real app, this would come from an authentication provider
-const currentUser = {
-  name: 'John Doe',
-  email: 'john.doe@example.com',
-  role: 'admin', // 'admin', 'agent', or 'user'
-  avatar: 'https://images.pexels.com/photos/614810/pexels-photo-614810.jpeg',
-};
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -26,8 +19,17 @@ interface DashboardLayoutProps {
 
 const DashboardLayout = ({ children }: DashboardLayoutProps) => {
   const pathname = usePathname();
+  const router = useRouter();
+  const { user, logout, loading } = useAuth();
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  // Redirect to login if not authenticated
+  useEffect(() => {
+    if (!loading && !user) {
+      router.push('/login');
+    }
+  }, [user, loading, router]);
 
   // Close mobile menu on larger screens
   useEffect(() => {
@@ -40,6 +42,20 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
+
+  // Show loading spinner while checking authentication
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
+    );
+  }
+
+  // Don't render dashboard if not authenticated
+  if (!user) {
+    return null;
+  }
 
   // Navigation based on user role
   const navigation = {
@@ -68,7 +84,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
     ],
   };
 
-  const userNavigation = navigation[currentUser.role as keyof typeof navigation];
+  const userNavigation = navigation[user.role as keyof typeof navigation];
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -105,8 +121,8 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
           <ModeToggle />
 
           <Avatar>
-            <AvatarImage src={currentUser.avatar} alt={currentUser.name} />
-            <AvatarFallback>{currentUser.name.charAt(0)}</AvatarFallback>
+            <AvatarImage src={user.avatar} alt={user.name} />
+            <AvatarFallback>{user.name.charAt(0).toUpperCase()}</AvatarFallback>
           </Avatar>
         </nav>
       </header>
@@ -154,12 +170,13 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
                   {isSidebarOpen && <span>Back to Website</span>}
                 </Link>
               </Button>
-              
+
               <Button
                 variant="ghost"
                 className={cn("w-full justify-start text-muted-foreground hover:text-destructive", {
                   "justify-center": !isSidebarOpen,
                 })}
+                onClick={logout}
               >
                 <LogOut className="mr-2 h-5 w-5" />
                 {isSidebarOpen && <span>Log out</span>}
@@ -186,12 +203,12 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
               <div className="mb-6">
                 <div className="flex items-center gap-4 mb-4">
                   <Avatar>
-                    <AvatarImage src={currentUser.avatar} alt={currentUser.name} />
-                    <AvatarFallback>{currentUser.name.charAt(0)}</AvatarFallback>
+                    <AvatarImage src={user.avatar} alt={user.name} />
+                    <AvatarFallback>{user.name.charAt(0).toUpperCase()}</AvatarFallback>
                   </Avatar>
                   <div>
-                    <div className="font-medium">{currentUser.name}</div>
-                    <div className="text-sm text-muted-foreground">{currentUser.email}</div>
+                    <div className="font-medium">{user.name}</div>
+                    <div className="text-sm text-muted-foreground">{user.email}</div>
                   </div>
                 </div>
               </div>
@@ -225,10 +242,14 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
                     <span>Back to Website</span>
                   </Link>
                 </Button>
-                
+
                 <Button
                   variant="ghost"
                   className="w-full justify-start text-muted-foreground hover:text-destructive"
+                  onClick={() => {
+                    logout();
+                    setIsMobileMenuOpen(false);
+                  }}
                 >
                   <LogOut className="mr-2 h-5 w-5" />
                   <span>Log out</span>

@@ -3,11 +3,43 @@
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Property } from '@/lib/data/properties';
+import { useAuth } from '@/lib/contexts/AuthContext';
+import { favoritesApi } from '@/lib/api';
 import { Heart, MapPin, Maximize, Hotel, Bath, ExternalLink } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+
+interface Property {
+  _id: string;
+  title: string;
+  description: string;
+  price: number;
+  type: 'sale' | 'rent' | 'commercial';
+  category: string;
+  location: {
+    address: string;
+    city: string;
+    state: string;
+    zipCode: string;
+  };
+  features: {
+    bedrooms: number;
+    bathrooms: number;
+    area: number;
+    yearBuilt: number;
+  };
+  amenities: string[];
+  images: string[];
+  status: string;
+  featured: boolean;
+  agent: {
+    name: string;
+    email: string;
+    phone: string;
+    avatar: string;
+  };
+}
 
 interface PropertyCardProps {
   property: Property;
@@ -18,6 +50,8 @@ interface PropertyCardProps {
 const PropertyCard = ({ property, featured = false, className }: PropertyCardProps) => {
   const [isFavorite, setIsFavorite] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
+  const [favoriteLoading, setFavoriteLoading] = useState(false);
+  const { user, token } = useAuth();
 
   useEffect(() => {
     // Simulate AOS animation on component mount
@@ -27,11 +61,28 @@ const PropertyCard = ({ property, featured = false, className }: PropertyCardPro
     return () => clearTimeout(timer);
   }, []);
 
-  const toggleFavorite = (e: React.MouseEvent) => {
+  const toggleFavorite = async (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    setIsFavorite(!isFavorite);
-    // Here you would also call an API to save the favorite status
+
+    if (!user || !token) {
+      // Redirect to login or show message
+      return;
+    }
+
+    setFavoriteLoading(true);
+    try {
+      if (isFavorite) {
+        await favoritesApi.remove(property._id, token);
+      } else {
+        await favoritesApi.add(property._id, token);
+      }
+      setIsFavorite(!isFavorite);
+    } catch (error) {
+      console.error('Error toggling favorite:', error);
+    } finally {
+      setFavoriteLoading(false);
+    }
   };
 
   const formatPrice = (price: number) => {
@@ -68,8 +119,8 @@ const PropertyCard = ({ property, featured = false, className }: PropertyCardPro
   };
 
   return (
-    <Link href={`/properties/${property.id}`}>
-      <div 
+    <Link href={`/properties/${property._id}`}>
+      <div
         className={cn(
           'group bg-card rounded-xl shadow-md overflow-hidden transition-all duration-300 h-full hover:shadow-lg',
           isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8',
@@ -79,20 +130,20 @@ const PropertyCard = ({ property, featured = false, className }: PropertyCardPro
       >
         {/* Property Image */}
         <div className={cn(
-          'relative overflow-hidden', 
+          'relative overflow-hidden',
           featured ? 'lg:w-1/2 aspect-video lg:aspect-auto' : 'aspect-[4/3]'
         )}>
-          <Image 
-            src={property.images[0]} 
+          <Image
+            src={property.images[0]}
             alt={property.title}
             className="object-cover transition-transform duration-500 group-hover:scale-110"
             fill
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
           />
-          
+
           {/* Overlay elements */}
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-80" />
-          
+
           {/* Status indicator */}
           <div className="absolute top-4 left-4 flex gap-2">
             <Badge className={getPropertyTypeColor(property.type)}>
@@ -106,45 +157,46 @@ const PropertyCard = ({ property, featured = false, className }: PropertyCardPro
           </div>
 
           {/* Favorite button */}
-          <Button 
-            variant="ghost" 
-            size="icon" 
+          <Button
+            variant="ghost"
+            size="icon"
             className="absolute top-3 right-3 text-white hover:bg-white/20 hover:text-white"
             onClick={toggleFavorite}
+            disabled={favoriteLoading || !user}
           >
             <Heart className={cn(
               "h-5 w-5 transition-colors",
               isFavorite ? "fill-red-500 text-red-500" : "fill-transparent"
             )} />
           </Button>
-          
+
           {/* Price tag */}
           <div className="absolute bottom-4 left-4">
             <div className="text-white font-bold text-xl">{formatPrice(property.price)}</div>
           </div>
         </div>
-        
+
         {/* Property Details */}
         <div className={cn(
-          'p-5', 
+          'p-5',
           featured ? 'lg:w-1/2 lg:p-6' : ''
         )}>
           <h3 className="font-semibold text-lg mb-2 line-clamp-1">{property.title}</h3>
-          
+
           <div className="flex items-center text-muted-foreground mb-3">
             <MapPin className="h-4 w-4 mr-1 flex-shrink-0" />
             <span className="text-sm truncate">
               {property.location.address}, {property.location.city}, {property.location.state}
             </span>
           </div>
-          
+
           <p className={cn(
-            "text-muted-foreground text-sm mb-4", 
+            "text-muted-foreground text-sm mb-4",
             featured ? "line-clamp-3" : "line-clamp-2"
           )}>
             {property.description}
           </p>
-          
+
           <div className="flex items-center justify-between border-t border-border pt-4">
             <div className="flex items-center gap-3">
               <div className="flex items-center">
@@ -160,7 +212,7 @@ const PropertyCard = ({ property, featured = false, className }: PropertyCardPro
                 <span className="text-sm">{property.features.area} sqft</span>
               </div>
             </div>
-            
+
             {featured && (
               <Button size="sm" className="mt-2">
                 <ExternalLink className="h-4 w-4 mr-2" />
@@ -168,12 +220,12 @@ const PropertyCard = ({ property, featured = false, className }: PropertyCardPro
               </Button>
             )}
           </div>
-          
+
           {featured && (
             <div className="mt-4 flex items-center">
               <div className="relative h-10 w-10 rounded-full overflow-hidden mr-3">
-                <Image 
-                  src={property.agent.avatar} 
+                <Image
+                  src={property.agent.avatar}
                   alt={property.agent.name}
                   fill
                   className="object-cover"
