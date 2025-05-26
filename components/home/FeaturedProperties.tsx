@@ -28,7 +28,7 @@ const FeaturedProperties = () => {
   }, []);
 
   return (
-    <section className="container mx-auto px-4">
+    <section className="container mx-auto">
       <SectionHeading
         title="Featured Properties"
         subtitle="Discover our hand-picked premium listings"

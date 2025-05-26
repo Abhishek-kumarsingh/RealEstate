@@ -54,7 +54,7 @@ export default function PropertiesPage() {
     bedrooms: '',
     bathrooms: '',
   });
-  
+
   const searchParams = useSearchParams();
 
   useEffect(() => {
@@ -76,7 +76,7 @@ export default function PropertiesPage() {
     try {
       setLoading(true);
       setError('');
-      
+
       // Build query params
       const params: Record<string, string> = {};
       Object.entries(currentFilters).forEach(([key, value]) => {
@@ -84,7 +84,7 @@ export default function PropertiesPage() {
           params[key] = value;
         }
       });
-      
+
       const response = await propertiesApi.getAll(params);
       setProperties(response.properties || []);
     } catch (err: any) {
@@ -118,10 +118,10 @@ export default function PropertiesPage() {
   };
 
   return (
-    <div className="container mx-auto px-4 py-8 mt-20">
+    <div className="container mx-auto px-6 lg:px-8 py-8 mt-20">
       <div className="mb-8">
         <h1 className="text-3xl font-bold mb-4">Properties</h1>
-        
+
         {/* Filters */}
         <Card className="mb-6">
           <CardHeader>
@@ -146,7 +146,7 @@ export default function PropertiesPage() {
                   </SelectContent>
                 </Select>
               </div>
-              
+
               <div>
                 <label className="text-sm font-medium mb-2 block">Location</label>
                 <Input
@@ -155,7 +155,7 @@ export default function PropertiesPage() {
                   onChange={(e) => handleFilterChange('location', e.target.value)}
                 />
               </div>
-              
+
               <div>
                 <label className="text-sm font-medium mb-2 block">Min Price</label>
                 <Input
@@ -165,7 +165,7 @@ export default function PropertiesPage() {
                   onChange={(e) => handleFilterChange('minPrice', e.target.value)}
                 />
               </div>
-              
+
               <div>
                 <label className="text-sm font-medium mb-2 block">Max Price</label>
                 <Input
@@ -175,7 +175,7 @@ export default function PropertiesPage() {
                   onChange={(e) => handleFilterChange('maxPrice', e.target.value)}
                 />
               </div>
-              
+
               <div>
                 <label className="text-sm font-medium mb-2 block">Category</label>
                 <Select value={filters.category} onValueChange={(value) => handleFilterChange('category', value)}>
@@ -191,7 +191,7 @@ export default function PropertiesPage() {
                   </SelectContent>
                 </Select>
               </div>
-              
+
               <div>
                 <label className="text-sm font-medium mb-2 block">Bedrooms</label>
                 <Select value={filters.bedrooms} onValueChange={(value) => handleFilterChange('bedrooms', value)}>
@@ -208,7 +208,7 @@ export default function PropertiesPage() {
                   </SelectContent>
                 </Select>
               </div>
-              
+
               <div>
                 <label className="text-sm font-medium mb-2 block">Bathrooms</label>
                 <Select value={filters.bathrooms} onValueChange={(value) => handleFilterChange('bathrooms', value)}>
@@ -225,7 +225,7 @@ export default function PropertiesPage() {
                 </Select>
               </div>
             </div>
-            
+
             <div className="flex gap-2">
               <Button onClick={handleSearch} className="flex items-center gap-2">
                 <Search className="h-4 w-4" />

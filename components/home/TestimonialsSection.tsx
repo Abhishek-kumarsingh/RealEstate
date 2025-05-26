@@ -38,17 +38,17 @@ const testimonials = [
 
 const TestimonialsSection = () => {
   return (
-    <section className="container mx-auto px-4 py-8">
+    <section className="container mx-auto py-8">
       <SectionHeading
         title="What Our Clients Say"
         subtitle="Hear from the people who found their perfect property with us"
         alignment="center"
       />
-      
+
       <div className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-8">
         {testimonials.map((testimonial, index) => (
-          <div 
-            key={testimonial.id} 
+          <div
+            key={testimonial.id}
             className="bg-card rounded-xl p-6 shadow-sm border border-border"
             data-aos="fade-up"
             data-aos-delay={index * 100}
@@ -64,10 +64,10 @@ const TestimonialsSection = () => {
                 />
               ))}
             </div>
-            
+
             {/* Content */}
             <p className="text-card-foreground mb-6">{testimonial.content}</p>
-            
+
             {/* Author */}
             <div className="flex items-center mt-auto">
               <Avatar className="h-10 w-10 mr-3">

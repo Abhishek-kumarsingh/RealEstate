@@ -37,14 +37,14 @@ const blogPosts = [
 
 const BlogSection = () => {
   return (
-    <section className="container mx-auto px-4">
+    <section className="container mx-auto">
       <div className="flex flex-col md:flex-row md:items-end md:justify-between mb-12">
         <SectionHeading
           title="Real Estate Guides & Tips"
           subtitle="Expert advice to help you make informed decisions"
           alignment="left"
         />
-        
+
         <Link href="/blog" className="mt-4 md:mt-0">
           <Button variant="ghost">
             View All Articles
@@ -52,15 +52,15 @@ const BlogSection = () => {
           </Button>
         </Link>
       </div>
-      
+
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         {blogPosts.map((post, index) => (
-          <Link 
-            key={post.id} 
+          <Link
+            key={post.id}
             href={`/blog/${post.slug}`}
             className="group"
           >
-            <article 
+            <article
               className="h-full flex flex-col rounded-xl overflow-hidden bg-card border border-border shadow-sm transition-all duration-300 hover:shadow-md"
               data-aos="fade-up"
               data-aos-delay={index * 100}
@@ -73,19 +73,19 @@ const BlogSection = () => {
                   className="object-cover transition-transform duration-500 group-hover:scale-110"
                 />
               </div>
-              
+
               <div className="p-6 flex flex-col flex-1">
                 <div className="flex items-center text-muted-foreground mb-3">
                   <Calendar className="h-4 w-4 mr-2" />
                   <span className="text-sm">{post.date}</span>
                 </div>
-                
+
                 <h3 className="text-xl font-semibold mb-2 group-hover:text-primary transition-colors">
                   {post.title}
                 </h3>
-                
+
                 <p className="text-muted-foreground mb-4 line-clamp-2">{post.excerpt}</p>
-                
+
                 <div className="mt-auto">
                   <span className="text-primary font-medium inline-flex items-center group-hover:underline">
                     Read More

@@ -4,7 +4,7 @@ import { Home, Mail, Phone, MapPin, Facebook, Twitter, Instagram, Linkedin } fro
 const Footer = () => {
   return (
     <footer className="bg-card text-card-foreground">
-      <div className="container mx-auto px-4 py-12">
+      <div className="container mx-auto px-6 lg:px-8 py-12">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {/* Company Info */}
           <div>
@@ -37,7 +37,7 @@ const Footer = () => {
             <ul className="space-y-2">
               {['Home', 'Properties', 'Agents', 'Blog', 'About Us', 'Contact Us', 'FAQ'].map((item) => (
                 <li key={item}>
-                  <Link 
+                  <Link
                     href={`/${item.toLowerCase().replace(/\s+/g, '-')}`}
                     className="text-muted-foreground hover:text-primary transition-colors"
                   >
@@ -62,7 +62,7 @@ const Footer = () => {
                 'Office Spaces'
               ].map((item) => (
                 <li key={item}>
-                  <Link 
+                  <Link
                     href={`/properties?category=${item.toLowerCase().replace(/\s+/g, '-')}`}
                     className="text-muted-foreground hover:text-primary transition-colors"
                   >
@@ -80,13 +80,13 @@ const Footer = () => {
               Subscribe to our newsletter for the latest property listings and real estate news.
             </p>
             <form className="space-y-3">
-              <input 
-                type="email" 
-                placeholder="Your email address" 
+              <input
+                type="email"
+                placeholder="Your email address"
                 className="w-full px-4 py-2 rounded-md border border-input bg-background focus:outline-none focus:ring-2 focus:ring-primary/50"
               />
-              <button 
-                type="submit" 
+              <button
+                type="submit"
                 className="w-full bg-primary text-primary-foreground hover:bg-primary/90 px-4 py-2 rounded-md transition-colors"
               >
                 Subscribe
@@ -103,7 +103,7 @@ const Footer = () => {
                   { icon: Instagram, label: 'Instagram' },
                   { icon: Linkedin, label: 'LinkedIn' }
                 ].map((social) => (
-                  <a 
+                  <a
                     key={social.label}
                     href="#"
                     className="bg-secondary hover:bg-primary text-secondary-foreground hover:text-primary-foreground p-2 rounded-full transition-colors"

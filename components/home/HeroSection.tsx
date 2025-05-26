@@ -23,7 +23,7 @@ const HeroSection = () => {
     params.append('minPrice', priceRange[0].toString());
     params.append('maxPrice', priceRange[1].toString());
     if (propertyType !== 'any') params.append('propertyType', propertyType);
-    
+
     router.push(`/properties?${params.toString()}`);
   };
 
@@ -44,9 +44,9 @@ const HeroSection = () => {
   return (
     <div className="relative min-h-[90vh] flex items-center bg-card">
       {/* Background Image */}
-      <div 
+      <div
         className="absolute inset-0 bg-cover bg-center"
-        style={{ 
+        style={{
           backgroundImage: 'url("https://images.pexels.com/photos/1396122/pexels-photo-1396122.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2")',
           backgroundPosition: 'center 30%'
         }}
@@ -54,16 +54,16 @@ const HeroSection = () => {
         <div className="absolute inset-0 bg-black/40" />
       </div>
 
-      <div className="container mx-auto px-4 relative z-10">
+      <div className="container mx-auto px-6 lg:px-8 relative z-10">
         <div className="max-w-4xl mx-auto text-center text-white mb-8">
-          <h1 
+          <h1
             className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4"
             data-aos="fade-up"
             data-aos-delay="100"
           >
             Find Your Dream Property
           </h1>
-          <p 
+          <p
             className="text-lg md:text-xl opacity-90 mb-8"
             data-aos="fade-up"
             data-aos-delay="200"
@@ -73,7 +73,7 @@ const HeroSection = () => {
         </div>
 
         {/* Search Widget */}
-        <div 
+        <div
           className="bg-background/95 backdrop-blur-sm rounded-xl shadow-xl overflow-hidden max-w-4xl mx-auto"
           data-aos="fade-up"
           data-aos-delay="300"
@@ -113,7 +113,7 @@ const HeroSection = () => {
                     </select>
                   </div>
                 </div>
-                
+
                 <div>
                   <div className="flex justify-between mb-2 text-sm">
                     <span>Price Range</span>
@@ -167,7 +167,7 @@ const HeroSection = () => {
                     </select>
                   </div>
                 </div>
-                
+
                 <div>
                   <div className="flex justify-between mb-2 text-sm">
                     <span>Monthly Rent</span>
@@ -221,7 +221,7 @@ const HeroSection = () => {
                     </select>
                   </div>
                 </div>
-                
+
                 <div>
                   <div className="flex justify-between mb-2 text-sm">
                     <span>Price Range</span>

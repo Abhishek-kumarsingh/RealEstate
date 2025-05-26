@@ -2,6 +2,23 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer components {
+  /* Professional container with consistent margins */
+  .container {
+    @apply max-w-7xl mx-auto;
+  }
+
+  /* Professional page wrapper */
+  .page-wrapper {
+    @apply px-6 lg:px-8 py-8;
+  }
+
+  /* Professional section spacing */
+  .section-spacing {
+    @apply py-16 lg:py-24;
+  }
+}
+
 :root {
   --foreground-rgb: 0, 0, 0;
   --background-start-rgb: 214, 219, 220;

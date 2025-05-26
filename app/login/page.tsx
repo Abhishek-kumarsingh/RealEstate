@@ -17,7 +17,7 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  
+
   const { login, user } = useAuth();
   const router = useRouter();
 
@@ -34,13 +34,13 @@ export default function LoginPage() {
     setLoading(true);
 
     const result = await login(email, password);
-    
+
     if (result.success) {
       router.push('/dashboard');
     } else {
       setError(result.error || 'Login failed');
     }
-    
+
     setLoading(false);
   };
 
@@ -49,7 +49,7 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-muted/20 px-4">
+    <div className="min-h-screen flex items-center justify-center bg-muted/20 px-6 lg:px-8">
       <Card className="w-full max-w-md">
         <CardHeader className="space-y-1">
           <CardTitle className="text-2xl font-bold text-center">Welcome back</CardTitle>
@@ -57,7 +57,7 @@ export default function LoginPage() {
             Enter your credentials to access your account
           </CardDescription>
         </CardHeader>
-        
+
         <form onSubmit={handleSubmit}>
           <CardContent className="space-y-4">
             {error && (
@@ -65,7 +65,7 @@ export default function LoginPage() {
                 <AlertDescription>{error}</AlertDescription>
               </Alert>
             )}
-            
+
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
               <Input
@@ -78,7 +78,7 @@ export default function LoginPage() {
                 disabled={loading}
               />
             </div>
-            
+
             <div className="space-y-2">
               <Label htmlFor="password">Password</Label>
               <div className="relative">
@@ -108,7 +108,7 @@ export default function LoginPage() {
               </div>
             </div>
           </CardContent>
-          
+
           <CardFooter className="flex flex-col space-y-4">
             <Button type="submit" className="w-full" disabled={loading}>
               {loading ? (
@@ -120,14 +120,14 @@ export default function LoginPage() {
                 'Sign in'
               )}
             </Button>
-            
+
             <div className="text-center text-sm text-muted-foreground">
               Don't have an account?{' '}
               <Link href="/register" className="text-primary hover:underline">
                 Sign up
               </Link>
             </div>
-            
+
             <div className="text-center text-sm text-muted-foreground">
               <Link href="/" className="hover:underline">
                 Back to home

@@ -262,10 +262,10 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
         {/* Main content */}
         <main
           className={cn(
-            "flex-1 overflow-y-auto bg-muted/20 p-4 lg:pl-64",
+            "flex-1 overflow-y-auto bg-muted/20 p-6 lg:p-8 lg:pl-64",
             {
-              "lg:pl-64": isSidebarOpen,
-              "lg:pl-20": !isSidebarOpen,
+              "lg:pl-72": isSidebarOpen,
+              "lg:pl-28": !isSidebarOpen,
             }
           )}
         >

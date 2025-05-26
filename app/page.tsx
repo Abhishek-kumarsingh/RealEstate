@@ -6,12 +6,20 @@ import BlogSection from '@/components/home/BlogSection';
 
 export default function Home() {
   return (
-    <div className="flex flex-col gap-16 pb-16">
+    <div className="flex flex-col">
       <HeroSection />
-      <FeaturedProperties />
-      <CategorySection />
-      <TestimonialsSection />
-      <BlogSection />
+      <div className="section-spacing px-6 lg:px-8">
+        <FeaturedProperties />
+      </div>
+      <div className="section-spacing px-6 lg:px-8 bg-muted/30">
+        <CategorySection />
+      </div>
+      <div className="section-spacing px-6 lg:px-8">
+        <TestimonialsSection />
+      </div>
+      <div className="section-spacing px-6 lg:px-8 bg-muted/30">
+        <BlogSection />
+      </div>
     </div>
   );
 }

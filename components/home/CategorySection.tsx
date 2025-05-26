@@ -32,21 +32,21 @@ const categories = [
 
 const CategorySection = () => {
   return (
-    <section className="container mx-auto px-4">
+    <section className="container mx-auto">
       <SectionHeading
         title="Explore by Category"
         subtitle="Browse properties by type to find what you're looking for"
         alignment="center"
       />
-      
+
       <div className="mt-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         {categories.map((category, index) => (
-          <Link 
-            key={category.name} 
+          <Link
+            key={category.name}
             href={category.href}
             className="group"
           >
-            <div 
+            <div
               className="rounded-xl overflow-hidden relative aspect-square transition-all duration-300 hover:shadow-lg"
               data-aos="fade-up"
               data-aos-delay={index * 100}
