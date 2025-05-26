@@ -1,3 +1,9 @@
+import { config } from 'dotenv';
+import { resolve } from 'path';
+
+// Load environment variables
+config({ path: resolve(process.cwd(), '.env.local') });
+
 import mongoose from 'mongoose';
 import connectDB from '../lib/mongodb';
 import User from '../lib/models/User';
@@ -6,15 +12,15 @@ import Property from '../lib/models/Property';
 async function seedDatabase() {
   try {
     await connectDB();
-    
+
     console.log('🌱 Starting database seeding...');
-    
+
     // Clear existing data
     await User.deleteMany({});
     await Property.deleteMany({});
-    
+
     console.log('🗑️  Cleared existing data');
-    
+
     // Create users
     const adminUser = new User({
       name: 'Admin User',
@@ -24,7 +30,7 @@ async function seedDatabase() {
       avatar: 'https://images.pexels.com/photos/614810/pexels-photo-614810.jpeg',
       isVerified: true
     });
-    
+
     const agentUser1 = new User({
       name: 'Sarah Johnson',
       email: 'sarah.johnson@realestatehub.com',
@@ -35,7 +41,7 @@ async function seedDatabase() {
       bio: 'Experienced real estate agent specializing in luxury properties.',
       isVerified: true
     });
-    
+
     const agentUser2 = new User({
       name: 'Michael Chen',
       email: 'michael.chen@realestatehub.com',
@@ -46,7 +52,7 @@ async function seedDatabase() {
       bio: 'Downtown specialist with 10+ years of experience.',
       isVerified: true
     });
-    
+
     const regularUser = new User({
       name: 'John Doe',
       email: 'john.doe@example.com',
@@ -55,16 +61,16 @@ async function seedDatabase() {
       avatar: 'https://images.pexels.com/photos/1222271/pexels-photo-1222271.jpeg',
       isVerified: true
     });
-    
+
     await Promise.all([
       adminUser.save(),
       agentUser1.save(),
       agentUser2.save(),
       regularUser.save()
     ]);
-    
+
     console.log('👥 Created users');
-    
+
     // Create properties
     const properties = [
       {
@@ -78,7 +84,10 @@ async function seedDatabase() {
           city: 'Malibu',
           state: 'CA',
           zipCode: '90265',
-          coordinates: { lat: 34.025922, lng: -118.779757 }
+          coordinates: {
+            type: 'Point',
+            coordinates: [-118.779757, 34.025922] // [longitude, latitude]
+          }
         },
         features: {
           bedrooms: 5,
@@ -106,7 +115,10 @@ async function seedDatabase() {
           city: 'Los Angeles',
           state: 'CA',
           zipCode: '90017',
-          coordinates: { lat: 34.052235, lng: -118.243683 }
+          coordinates: {
+            type: 'Point',
+            coordinates: [-118.243683, 34.052235] // [longitude, latitude]
+          }
         },
         features: {
           bedrooms: 2,
@@ -134,7 +146,10 @@ async function seedDatabase() {
           city: 'Pasadena',
           state: 'CA',
           zipCode: '91101',
-          coordinates: { lat: 34.147785, lng: -118.144515 }
+          coordinates: {
+            type: 'Point',
+            coordinates: [-118.144515, 34.147785] // [longitude, latitude]
+          }
         },
         features: {
           bedrooms: 4,
@@ -152,9 +167,9 @@ async function seedDatabase() {
         agent: agentUser1._id
       }
     ];
-    
+
     await Property.insertMany(properties);
-    
+
     console.log('🏠 Created properties');
     console.log('✅ Database seeding completed successfully!');
     console.log('\n📋 Test Accounts:');
@@ -162,7 +177,7 @@ async function seedDatabase() {
     console.log('Agent 1: sarah.johnson@realestatehub.com / agent123');
     console.log('Agent 2: michael.chen@realestatehub.com / agent123');
     console.log('User: john.doe@example.com / user123');
-    
+
   } catch (error) {
     console.error('❌ Error seeding database:', error);
   } finally {

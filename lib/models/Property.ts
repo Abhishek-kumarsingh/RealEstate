@@ -13,8 +13,8 @@ export interface IProperty extends Document {
     state: string;
     zipCode: string;
     coordinates: {
-      lat: number;
-      lng: number;
+      type: string;
+      coordinates: [number, number]; // [longitude, latitude]
     };
   };
   features: {
@@ -77,13 +77,20 @@ const PropertySchema = new Schema<IProperty>({
       required: [true, 'Zip code is required']
     },
     coordinates: {
-      lat: {
-        type: Number,
-        required: [true, 'Latitude is required']
+      type: {
+        type: String,
+        enum: ['Point'],
+        default: 'Point'
       },
-      lng: {
-        type: Number,
-        required: [true, 'Longitude is required']
+      coordinates: {
+        type: [Number],
+        required: [true, 'Coordinates are required'],
+        validate: {
+          validator: function(v: number[]) {
+            return v.length === 2;
+          },
+          message: 'Coordinates must be an array of [longitude, latitude]'
+        }
       }
     }
   },
@@ -137,8 +144,8 @@ const PropertySchema = new Schema<IProperty>({
 });
 
 // Index for search functionality
-PropertySchema.index({ 
-  title: 'text', 
+PropertySchema.index({
+  title: 'text',
   description: 'text',
   'location.city': 'text',
   'location.state': 'text',
