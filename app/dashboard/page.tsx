@@ -21,7 +21,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faRobot } from '@fortawesome/free-solid-svg-icons';
 
 // Import new components we'll create
-// import AIRecommendations from '@/components/dashboard/AIRecommendations';
+import AIRecommendations from '@/components/dashboard/AIRecommendationsSimple';
 import MarketAnalytics from '@/components/dashboard/MarketAnalytics';
 // import ChatSystem from '@/components/dashboard/ChatSystem';
 // import MortgageCalculator from '@/components/dashboard/MortgageCalculator';
@@ -525,10 +525,7 @@ export default function DashboardPage() {
 
         {/* AI Recommendations Tab */}
         <TabsContent value="ai-recommendations" className="space-y-6">
-          <div className="p-8 text-center">
-            <h3 className="text-lg font-semibold">AI Recommendations</h3>
-            <p className="text-muted-foreground">Component temporarily disabled</p>
-          </div>
+          <AIRecommendations />
         </TabsContent>
 
         {/* Market Analytics Tab */}

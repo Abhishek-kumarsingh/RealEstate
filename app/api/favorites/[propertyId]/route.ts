@@ -8,6 +8,13 @@ async function removeFromFavorites(
   { params }: { params: { propertyId: string } }
 ) {
   try {
+    if (!prisma) {
+      return NextResponse.json(
+        { error: 'Database connection not available' },
+        { status: 503 }
+      );
+    }
+
     const deletedFavorite = await prisma.favorite.deleteMany({
       where: {
         userId: request.user?.userId,

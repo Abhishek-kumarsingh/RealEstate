@@ -6,8 +6,8 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Progress } from '@/components/ui/progress';
-import { 
-  Brain, Heart, TrendingUp, MapPin, DollarSign, 
+import {
+  Brain, Heart, TrendingUp, MapPin, DollarSign,
   Home, Star, Clock, Users, Zap
 } from 'lucide-react';
 
@@ -133,7 +133,7 @@ export default function AIRecommendations() {
                     <Heart className="h-4 w-4" />
                   </Button>
                 </div>
-                
+
                 <CardContent className="p-4">
                   <div className="space-y-3">
                     <div>
@@ -225,11 +225,11 @@ export default function AIRecommendations() {
                     <div className="text-right">
                       <div className="flex items-center gap-1 text-sm text-muted-foreground">
                         <Users className="h-4 w-4" />
-                        {Math.floor(Math.random() * 50) + 20} views
+                        {Math.floor(Math.random() * 50 + 20)} views
                       </div>
                       <div className="flex items-center gap-1 text-sm text-muted-foreground">
                         <Clock className="h-4 w-4" />
-                        {Math.floor(Math.random() * 10) + 1} inquiries
+                        {Math.floor(Math.random() * 10 + 1)} inquiries
                       </div>
                     </div>
                   </div>
@@ -281,7 +281,7 @@ export default function AIRecommendations() {
                       </p>
                     </div>
                   </div>
-                  
+
                   <div className="flex items-start gap-3">
                     <div className="rounded-full bg-blue-100 p-2 text-blue-600">
                       <Clock className="h-4 w-4" />
@@ -342,8 +342,8 @@ export default function AIRecommendations() {
                     <label className="text-sm font-medium">Property Type</label>
                     <div className="flex gap-2 mt-2">
                       {['House', 'Condo', 'Loft', 'Any'].map((type) => (
-                        <Badge 
-                          key={type} 
+                        <Badge
+                          key={type}
                           variant={type === 'Any' ? 'default' : 'secondary'}
                           className="cursor-pointer"
                         >
@@ -364,8 +364,8 @@ export default function AIRecommendations() {
                     <label className="text-sm font-medium">Must-Have Features</label>
                     <div className="flex flex-wrap gap-2 mt-2">
                       {['Parking', 'Gym', 'Pool', 'Garden', 'Balcony'].map((feature) => (
-                        <Badge 
-                          key={feature} 
+                        <Badge
+                          key={feature}
                           variant={['Parking', 'Gym'].includes(feature) ? 'default' : 'secondary'}
                           className="cursor-pointer"
                         >

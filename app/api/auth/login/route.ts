@@ -5,6 +5,14 @@ import bcrypt from 'bcryptjs';
 
 export async function POST(request: NextRequest) {
   try {
+    // Check if Prisma client is available
+    if (!prisma) {
+      return NextResponse.json(
+        { error: 'Database connection not available' },
+        { status: 503 }
+      );
+    }
+
     const { email, password } = await request.json();
 
     // Validate required fields
@@ -16,7 +24,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Find user by email
-    const user = await prisma.user.findUnique({
+    const user = await prisma!.user.findUnique({
       where: { email: email.toLowerCase() }
     });
 

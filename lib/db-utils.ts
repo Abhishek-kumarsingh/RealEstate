@@ -4,6 +4,9 @@ import { Prisma } from '@prisma/client'
 // Database connection utility
 export async function connectDB() {
   try {
+    if (!prisma) {
+      throw new Error('Prisma client not available')
+    }
     await prisma.$connect()
     console.log('✅ Connected to PostgreSQL database')
     return true
@@ -157,6 +160,10 @@ export async function createAuditLog(data: {
   userAgent?: string
 }) {
   try {
+    if (!prisma) {
+      console.warn('Prisma client not available, skipping audit log')
+      return
+    }
     await prisma.auditLog.create({
       data: {
         ...data,

@@ -6,6 +6,14 @@ import { createAuditLog } from '@/lib/db-utils'
 
 export async function POST(request: NextRequest) {
   try {
+    // Check if Prisma client is available
+    if (!prisma) {
+      return NextResponse.json(
+        { error: 'Database connection not available' },
+        { status: 503 }
+      )
+    }
+
     const { email, password } = await request.json()
 
     // Validate required fields

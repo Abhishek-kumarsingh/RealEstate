@@ -6,6 +6,14 @@ import { createAuditLog } from '@/lib/db-utils'
 
 export async function POST(request: NextRequest) {
   try {
+    // Check if Prisma client is available
+    if (!prisma) {
+      return NextResponse.json(
+        { error: 'Database connection not available' },
+        { status: 503 }
+      )
+    }
+
     const { name, email, password, role = 'USER' } = await request.json()
 
     // Validate required fields
@@ -34,7 +42,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Check if user already exists
-    const existingUser = await prisma.user.findUnique({
+    const existingUser = await prisma!.user.findUnique({
       where: { email: email.toLowerCase() }
     })
 
@@ -50,7 +58,7 @@ export async function POST(request: NextRequest) {
     const hashedPassword = await bcrypt.hash(password, saltRounds)
 
     // Create user
-    const user = await prisma.user.create({
+    const user = await prisma!.user.create({
       data: {
         name: name.trim(),
         email: email.toLowerCase().trim(),
@@ -91,7 +99,7 @@ export async function POST(request: NextRequest) {
     )
 
     // Create user session
-    await prisma.userSession.create({
+    await prisma!.userSession.create({
       data: {
         userId: user.id,
         token,

@@ -4,6 +4,13 @@ import { prisma } from '@/lib/prisma';
 
 async function getProfile(request: AuthenticatedRequest) {
   try {
+    if (!prisma) {
+      return NextResponse.json(
+        { error: 'Database connection not available' },
+        { status: 503 }
+      );
+    }
+
     const user = await prisma.user.findUnique({
       where: { id: request.user?.userId },
       select: {
@@ -42,6 +49,13 @@ async function getProfile(request: AuthenticatedRequest) {
 
 async function updateProfile(request: AuthenticatedRequest) {
   try {
+    if (!prisma) {
+      return NextResponse.json(
+        { error: 'Database connection not available' },
+        { status: 503 }
+      );
+    }
+
     const { name, phone, bio, avatar } = await request.json();
 
     // Prepare update data
