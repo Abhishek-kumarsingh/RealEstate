@@ -267,15 +267,15 @@ const AreaDetailPage = () => {
               strongShadow={true}
             />
 
-            <div className="mt-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            <div className="mt-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               {area.keyFeatures.map((feature, index) => (
-                <Card key={index} className="card-height-compact group hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2">
-                  <CardContent className="p-8 text-center">
-                    <div className="mb-4">
-                      <feature.icon className="h-12 w-12 mx-auto text-primary group-hover:scale-110 transition-transform duration-300" />
+                <Card key={index} className="h-48 group hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1">
+                  <CardContent className="p-4 text-center h-full flex flex-col justify-center">
+                    <div className="mb-3">
+                      <feature.icon className="h-8 w-8 mx-auto text-primary group-hover:scale-110 transition-transform duration-300" />
                     </div>
-                    <h3 className="font-bold text-lg mb-3">{feature.title}</h3>
-                    <p className="text-muted-foreground text-sm leading-relaxed">{feature.description}</p>
+                    <h3 className="font-semibold text-base mb-2">{feature.title}</h3>
+                    <p className="text-muted-foreground text-xs leading-relaxed">{feature.description}</p>
                   </CardContent>
                 </Card>
               ))}
@@ -316,36 +316,36 @@ const AreaDetailPage = () => {
             strongShadow={true}
           />
 
-          <div className="mt-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            <Card className="card-height-compact bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 border-blue-200 dark:border-blue-800">
-              <CardContent className="p-8 text-center">
-                <Home className="h-12 w-12 mx-auto mb-4 text-blue-600" />
-                <div className="text-3xl font-bold text-blue-700 dark:text-blue-300">{area.properties}</div>
-                <div className="text-blue-600 dark:text-blue-400 font-medium">Properties Available</div>
+          <div className="mt-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <Card className="h-32 bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 border-blue-200 dark:border-blue-800">
+              <CardContent className="p-4 text-center h-full flex flex-col justify-center">
+                <Home className="h-6 w-6 mx-auto mb-2 text-blue-600" />
+                <div className="text-xl font-bold text-blue-700 dark:text-blue-300">{area.properties}</div>
+                <div className="text-xs text-blue-600 dark:text-blue-400 font-medium">Properties Available</div>
               </CardContent>
             </Card>
 
-            <Card className="card-height-compact bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 border-green-200 dark:border-green-800">
-              <CardContent className="p-8 text-center">
-                <DollarSign className="h-12 w-12 mx-auto mb-4 text-green-600" />
-                <div className="text-3xl font-bold text-green-700 dark:text-green-300">{area.avgPrice}</div>
-                <div className="text-green-600 dark:text-green-400 font-medium">Average Price</div>
+            <Card className="h-32 bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 border-green-200 dark:border-green-800">
+              <CardContent className="p-4 text-center h-full flex flex-col justify-center">
+                <DollarSign className="h-6 w-6 mx-auto mb-2 text-green-600" />
+                <div className="text-xl font-bold text-green-700 dark:text-green-300">{area.avgPrice}</div>
+                <div className="text-xs text-green-600 dark:text-green-400 font-medium">Average Price</div>
               </CardContent>
             </Card>
 
-            <Card className="card-height-compact bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20 border-purple-200 dark:border-purple-800">
-              <CardContent className="p-8 text-center">
-                <TrendingUp className="h-12 w-12 mx-auto mb-4 text-purple-600" />
-                <div className="text-3xl font-bold text-purple-700 dark:text-purple-300">{area.priceChange}</div>
-                <div className="text-purple-600 dark:text-purple-400 font-medium">Price Growth</div>
+            <Card className="h-32 bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20 border-purple-200 dark:border-purple-800">
+              <CardContent className="p-4 text-center h-full flex flex-col justify-center">
+                <TrendingUp className="h-6 w-6 mx-auto mb-2 text-purple-600" />
+                <div className="text-xl font-bold text-purple-700 dark:text-purple-300">{area.priceChange}</div>
+                <div className="text-xs text-purple-600 dark:text-purple-400 font-medium">Price Growth</div>
               </CardContent>
             </Card>
 
-            <Card className="card-height-compact bg-gradient-to-br from-orange-50 to-orange-100 dark:from-orange-900/20 dark:to-orange-800/20 border-orange-200 dark:border-orange-800">
-              <CardContent className="p-8 text-center">
-                <BarChart3 className="h-12 w-12 mx-auto mb-4 text-orange-600" />
-                <div className="text-3xl font-bold text-orange-700 dark:text-orange-300">{area.marketTrends.investmentRating}</div>
-                <div className="text-orange-600 dark:text-orange-400 font-medium">Investment Rating</div>
+            <Card className="h-32 bg-gradient-to-br from-orange-50 to-orange-100 dark:from-orange-900/20 dark:to-orange-800/20 border-orange-200 dark:border-orange-800">
+              <CardContent className="p-4 text-center h-full flex flex-col justify-center">
+                <BarChart3 className="h-6 w-6 mx-auto mb-2 text-orange-600" />
+                <div className="text-xl font-bold text-orange-700 dark:text-orange-300">{area.marketTrends.investmentRating}</div>
+                <div className="text-xs text-orange-600 dark:text-orange-400 font-medium">Investment Rating</div>
               </CardContent>
             </Card>
           </div>
@@ -382,16 +382,16 @@ const AreaDetailPage = () => {
             strongShadow={true}
           />
 
-          <div className="mt-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="mt-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {area.amenities.map((amenity, index) => (
-              <Card key={index} className="card-height-compact group hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-800 dark:to-slate-900">
-                <CardContent className="p-8 text-center">
-                  <div className="mb-4">
-                    <amenity.icon className="h-12 w-12 mx-auto text-primary group-hover:scale-110 transition-transform duration-300" />
+              <Card key={index} className="h-40 group hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-800 dark:to-slate-900">
+                <CardContent className="p-4 text-center h-full flex flex-col justify-center">
+                  <div className="mb-3">
+                    <amenity.icon className="h-8 w-8 mx-auto text-primary group-hover:scale-110 transition-transform duration-300" />
                   </div>
-                  <div className="font-bold text-lg mb-2">{amenity.name}</div>
-                  <div className="text-2xl font-bold text-primary">{amenity.count}</div>
-                  <div className="text-sm text-muted-foreground">Available</div>
+                  <div className="font-semibold text-sm mb-1">{amenity.name}</div>
+                  <div className="text-lg font-bold text-primary">{amenity.count}</div>
+                  <div className="text-xs text-muted-foreground">Available</div>
                 </CardContent>
               </Card>
             ))}
@@ -406,39 +406,39 @@ const AreaDetailPage = () => {
             strongShadow={true}
           />
 
-          <div className="mt-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            <Card className="card-height-compact bg-gradient-to-br from-emerald-50 to-emerald-100 dark:from-emerald-900/20 dark:to-emerald-800/20 border-emerald-200 dark:border-emerald-800 group hover:shadow-xl transition-all duration-300">
-              <CardContent className="p-8 text-center">
-                <TrendingUp className="h-12 w-12 mx-auto mb-4 text-emerald-600 group-hover:scale-110 transition-transform duration-300" />
-                <div className="text-sm font-medium text-emerald-600 dark:text-emerald-400 mb-2">Price Growth</div>
-                <div className="text-3xl font-bold text-emerald-700 dark:text-emerald-300">{area.marketTrends.priceGrowth}</div>
+          <div className="mt-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <Card className="h-36 bg-gradient-to-br from-emerald-50 to-emerald-100 dark:from-emerald-900/20 dark:to-emerald-800/20 border-emerald-200 dark:border-emerald-800 group hover:shadow-lg transition-all duration-300">
+              <CardContent className="p-4 text-center h-full flex flex-col justify-center">
+                <TrendingUp className="h-6 w-6 mx-auto mb-2 text-emerald-600 group-hover:scale-110 transition-transform duration-300" />
+                <div className="text-xs font-medium text-emerald-600 dark:text-emerald-400 mb-1">Price Growth</div>
+                <div className="text-xl font-bold text-emerald-700 dark:text-emerald-300">{area.marketTrends.priceGrowth}</div>
                 <div className="text-xs text-emerald-600/70 dark:text-emerald-400/70">Year over year</div>
               </CardContent>
             </Card>
 
-            <Card className="card-height-compact bg-gradient-to-br from-indigo-50 to-indigo-100 dark:from-indigo-900/20 dark:to-indigo-800/20 border-indigo-200 dark:border-indigo-800 group hover:shadow-xl transition-all duration-300">
-              <CardContent className="p-8 text-center">
-                <Users className="h-12 w-12 mx-auto mb-4 text-indigo-600 group-hover:scale-110 transition-transform duration-300" />
-                <div className="text-sm font-medium text-indigo-600 dark:text-indigo-400 mb-2">Demand Level</div>
-                <div className="text-3xl font-bold text-indigo-700 dark:text-indigo-300">{area.marketTrends.demandLevel}</div>
+            <Card className="h-36 bg-gradient-to-br from-indigo-50 to-indigo-100 dark:from-indigo-900/20 dark:to-indigo-800/20 border-indigo-200 dark:border-indigo-800 group hover:shadow-lg transition-all duration-300">
+              <CardContent className="p-4 text-center h-full flex flex-col justify-center">
+                <Users className="h-6 w-6 mx-auto mb-2 text-indigo-600 group-hover:scale-110 transition-transform duration-300" />
+                <div className="text-xs font-medium text-indigo-600 dark:text-indigo-400 mb-1">Demand Level</div>
+                <div className="text-xl font-bold text-indigo-700 dark:text-indigo-300">{area.marketTrends.demandLevel}</div>
                 <div className="text-xs text-indigo-600/70 dark:text-indigo-400/70">Current market</div>
               </CardContent>
             </Card>
 
-            <Card className="card-height-compact bg-gradient-to-br from-amber-50 to-amber-100 dark:from-amber-900/20 dark:to-amber-800/20 border-amber-200 dark:border-amber-800 group hover:shadow-xl transition-all duration-300">
-              <CardContent className="p-8 text-center">
-                <BarChart3 className="h-12 w-12 mx-auto mb-4 text-amber-600 group-hover:scale-110 transition-transform duration-300" />
-                <div className="text-sm font-medium text-amber-600 dark:text-amber-400 mb-2">Investment Rating</div>
-                <div className="text-3xl font-bold text-amber-700 dark:text-amber-300">{area.marketTrends.investmentRating}</div>
+            <Card className="h-36 bg-gradient-to-br from-amber-50 to-amber-100 dark:from-amber-900/20 dark:to-amber-800/20 border-amber-200 dark:border-amber-800 group hover:shadow-lg transition-all duration-300">
+              <CardContent className="p-4 text-center h-full flex flex-col justify-center">
+                <BarChart3 className="h-6 w-6 mx-auto mb-2 text-amber-600 group-hover:scale-110 transition-transform duration-300" />
+                <div className="text-xs font-medium text-amber-600 dark:text-amber-400 mb-1">Investment Rating</div>
+                <div className="text-xl font-bold text-amber-700 dark:text-amber-300">{area.marketTrends.investmentRating}</div>
                 <div className="text-xs text-amber-600/70 dark:text-amber-400/70">Expert rating</div>
               </CardContent>
             </Card>
 
-            <Card className="card-height-compact bg-gradient-to-br from-rose-50 to-rose-100 dark:from-rose-900/20 dark:to-rose-800/20 border-rose-200 dark:border-rose-800 group hover:shadow-xl transition-all duration-300">
-              <CardContent className="p-8 text-center">
-                <DollarSign className="h-12 w-12 mx-auto mb-4 text-rose-600 group-hover:scale-110 transition-transform duration-300" />
-                <div className="text-sm font-medium text-rose-600 dark:text-rose-400 mb-2">Rental Yield</div>
-                <div className="text-3xl font-bold text-rose-700 dark:text-rose-300">{area.marketTrends.rentalYield}</div>
+            <Card className="h-36 bg-gradient-to-br from-rose-50 to-rose-100 dark:from-rose-900/20 dark:to-rose-800/20 border-rose-200 dark:border-rose-800 group hover:shadow-lg transition-all duration-300">
+              <CardContent className="p-4 text-center h-full flex flex-col justify-center">
+                <DollarSign className="h-6 w-6 mx-auto mb-2 text-rose-600 group-hover:scale-110 transition-transform duration-300" />
+                <div className="text-xs font-medium text-rose-600 dark:text-rose-400 mb-1">Rental Yield</div>
+                <div className="text-xl font-bold text-rose-700 dark:text-rose-300">{area.marketTrends.rentalYield}</div>
                 <div className="text-xs text-rose-600/70 dark:text-rose-400/70">Annual return</div>
               </CardContent>
             </Card>

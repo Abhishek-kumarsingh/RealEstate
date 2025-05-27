@@ -180,7 +180,7 @@ export default function PropertiesPage() {
             <div className="flex items-center gap-2">
               <ArrowUpDown className="h-4 w-4 text-muted-foreground" />
               <Select value={sortBy} onValueChange={setSortBy}>
-                <SelectTrigger className="w-40">
+                <SelectTrigger className="w-40 h-8 text-xs">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -229,7 +229,7 @@ export default function PropertiesPage() {
               <div>
                 <label className="text-sm font-medium mb-2 block">Type</label>
                 <Select value={filters.type} onValueChange={(value) => handleFilterChange('type', value)}>
-                  <SelectTrigger>
+                  <SelectTrigger className="h-8 text-xs">
                     <SelectValue placeholder="Any type" />
                   </SelectTrigger>
                   <SelectContent>
@@ -247,6 +247,7 @@ export default function PropertiesPage() {
                   placeholder="City, state, or address"
                   value={filters.location}
                   onChange={(e) => handleFilterChange('location', e.target.value)}
+                  className="h-8 text-xs"
                 />
               </div>
 
@@ -257,6 +258,7 @@ export default function PropertiesPage() {
                   placeholder="Min price"
                   value={filters.minPrice}
                   onChange={(e) => handleFilterChange('minPrice', e.target.value)}
+                  className="h-8 text-xs"
                 />
               </div>
 
@@ -267,13 +269,14 @@ export default function PropertiesPage() {
                   placeholder="Max price"
                   value={filters.maxPrice}
                   onChange={(e) => handleFilterChange('maxPrice', e.target.value)}
+                  className="h-8 text-xs"
                 />
               </div>
 
               <div>
                 <label className="text-sm font-medium mb-2 block">Category</label>
                 <Select value={filters.category} onValueChange={(value) => handleFilterChange('category', value)}>
-                  <SelectTrigger>
+                  <SelectTrigger className="h-8 text-xs">
                     <SelectValue placeholder="Any category" />
                   </SelectTrigger>
                   <SelectContent>
@@ -289,7 +292,7 @@ export default function PropertiesPage() {
               <div>
                 <label className="text-sm font-medium mb-2 block">Bedrooms</label>
                 <Select value={filters.bedrooms} onValueChange={(value) => handleFilterChange('bedrooms', value)}>
-                  <SelectTrigger>
+                  <SelectTrigger className="h-8 text-xs">
                     <SelectValue placeholder="Any" />
                   </SelectTrigger>
                   <SelectContent>
@@ -306,7 +309,7 @@ export default function PropertiesPage() {
               <div>
                 <label className="text-sm font-medium mb-2 block">Bathrooms</label>
                 <Select value={filters.bathrooms} onValueChange={(value) => handleFilterChange('bathrooms', value)}>
-                  <SelectTrigger>
+                  <SelectTrigger className="h-8 text-xs">
                     <SelectValue placeholder="Any" />
                   </SelectTrigger>
                   <SelectContent>
@@ -321,11 +324,20 @@ export default function PropertiesPage() {
             </div>
 
             <div className="flex gap-2">
-              <Button onClick={handleSearch} className="flex items-center gap-2">
-                <Search className="h-4 w-4" />
-                Search
+              <Button 
+                onClick={handleSearch} 
+                size="sm" 
+                className="flex items-center gap-1.5 h-8 px-3 text-xs font-semibold rounded-md shadow-sm hover:shadow-md transition-all"
+              >
+                <Search className="h-3.5 w-3.5" />
+                Search Properties
               </Button>
-              <Button variant="outline" onClick={clearFilters}>
+              <Button 
+                variant="outline" 
+                onClick={clearFilters} 
+                size="sm" 
+                className="h-8 px-3 text-xs font-medium"
+              >
                 Clear Filters
               </Button>
             </div>
