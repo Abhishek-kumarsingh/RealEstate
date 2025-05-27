@@ -211,7 +211,7 @@ model Property {
   city          String
   state         String
   zipCode       String
-  country       String       @default("USA")
+  country       String       @default("IN")
   latitude      Float?
   longitude     Float?
   neighborhood  String?

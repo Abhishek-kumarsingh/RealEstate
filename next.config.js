@@ -7,7 +7,7 @@ const nextConfig = {
     ignoreBuildErrors: false,
   },
   images: {
-    domains: ['images.pexels.com', 'localhost'],
+    domains: ['images.pexels.com', 'localhost', 'res.cloudinary.com', 'placeholder.com'],
     unoptimized: false
   },
   experimental: {

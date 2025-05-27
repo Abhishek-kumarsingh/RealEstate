@@ -102,7 +102,8 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
 
   // Use the user role navigation if it exists, otherwise default to user navigation
   const userNavigation =
-    navigation[user.role as keyof typeof navigation] || navigation.user;
+    navigation[user.role?.toLowerCase() as keyof typeof navigation] ||
+    navigation.user;
 
   return (
     <div className="min-h-screen flex flex-col">

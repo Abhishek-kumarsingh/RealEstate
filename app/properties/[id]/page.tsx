@@ -1,25 +1,43 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { useParams } from 'next/navigation';
-import { propertiesApi, inquiriesApi } from '@/lib/api';
-import { useAuth } from '@/lib/contexts/AuthContext';
-import { useChat } from '@/lib/contexts/ChatContext';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Textarea } from '@/components/ui/textarea';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Alert, AlertDescription } from '@/components/ui/alert';
+import { useState, useEffect } from "react";
+import { useParams } from "next/navigation";
+import { propertiesApi, inquiriesApi } from "@/lib/api";
+import { useAuth } from "@/lib/contexts/AuthContext";
+import { useChat } from "@/lib/contexts/ChatContext";
 import {
-  MapPin, Bed, Bath, Maximize, Calendar, DollarSign,
-  Heart, MessageCircle, Phone, Mail, Send, Loader2,
-  ArrowLeft, Share, Star
-} from 'lucide-react';
-import Link from 'next/link';
-import Image from 'next/image';
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import {
+  MapPin,
+  Bed,
+  Bath,
+  Maximize,
+  Calendar,
+  DollarSign,
+  Heart,
+  MessageCircle,
+  Phone,
+  Mail,
+  Send,
+  Loader2,
+  ArrowLeft,
+  Share,
+  Star,
+} from "lucide-react";
+import Link from "next/link";
+import Image from "next/image";
 
 export default function PropertyDetailPage() {
   const params = useParams();
@@ -27,13 +45,13 @@ export default function PropertyDetailPage() {
   const { createChat, setActiveChat } = useChat();
   const [property, setProperty] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const [showInquiryForm, setShowInquiryForm] = useState(false);
   const [inquiryData, setInquiryData] = useState({
-    message: '',
-    name: user?.name || '',
-    email: user?.email || '',
-    phone: ''
+    message: "",
+    name: user?.name || "",
+    email: user?.email || "",
+    phone: "",
   });
   const [inquiryLoading, setInquiryLoading] = useState(false);
   const [inquirySuccess, setInquirySuccess] = useState(false);
@@ -44,129 +62,25 @@ export default function PropertyDetailPage() {
     }
   }, [params.id]);
 
-  // Mock property data for demo purposes
-  const getMockProperty = (id: string) => {
-    const mockProperties = {
-      'mock-1': {
-        _id: 'mock-1',
-        title: 'Luxury Villa with Ocean View',
-        description: 'Stunning 4-bedroom villa with panoramic ocean views, private pool, and modern amenities. This exceptional property offers the perfect blend of luxury and comfort, featuring spacious living areas, high-end finishes, and breathtaking views of the ocean. The villa includes a private swimming pool, landscaped gardens, and a two-car garage.',
-        price: 25000000,
-        type: 'sale',
-        category: 'residential',
-        location: {
-          address: '123 Ocean Drive',
-          city: 'Mumbai',
-          state: 'Maharashtra',
-          zipCode: '400001'
-        },
-        features: {
-          bedrooms: 4,
-          bathrooms: 3,
-          area: 3500,
-          yearBuilt: 2020
-        },
-        amenities: ['Swimming Pool', 'Garden', 'Parking', 'Security', 'Ocean View', 'Modern Kitchen', 'Balcony'],
-        images: ['https://images.pexels.com/photos/1396132/pexels-photo-1396132.jpeg'],
-        status: 'available',
-        featured: true,
-        agent: {
-          name: 'Sarah Johnson',
-          email: 'sarah@realestate.com',
-          phone: '+91 98765 43210',
-          avatar: 'https://images.pexels.com/photos/1239291/pexels-photo-1239291.jpeg'
-        }
-      },
-      'mock-2': {
-        _id: 'mock-2',
-        title: 'Modern Downtown Apartment',
-        description: 'Contemporary 2-bedroom apartment in the heart of the city with premium amenities. This stylish apartment features floor-to-ceiling windows, modern appliances, and access to building amenities including a fitness center and rooftop terrace.',
-        price: 15000000,
-        type: 'sale',
-        category: 'residential',
-        location: {
-          address: '456 City Center',
-          city: 'Delhi',
-          state: 'Delhi',
-          zipCode: '110001'
-        },
-        features: {
-          bedrooms: 2,
-          bathrooms: 2,
-          area: 1200,
-          yearBuilt: 2021
-        },
-        amenities: ['Gym', 'Parking', 'Security', 'Elevator', 'Rooftop Terrace', 'Modern Kitchen'],
-        images: ['https://images.pexels.com/photos/1370704/pexels-photo-1370704.jpeg'],
-        status: 'available',
-        featured: true,
-        agent: {
-          name: 'Michael Chen',
-          email: 'michael@realestate.com',
-          phone: '+91 98765 43211',
-          avatar: 'https://images.pexels.com/photos/1222271/pexels-photo-1222271.jpeg'
-        }
-      },
-      'mock-3': {
-        _id: 'mock-3',
-        title: 'Spacious Family Home',
-        description: 'Perfect family home with large garden, 3 bedrooms, and excellent school district. This charming property offers comfortable living spaces, a beautiful garden for children to play, and is located in a quiet neighborhood with top-rated schools nearby.',
-        price: 18000000,
-        type: 'sale',
-        category: 'residential',
-        location: {
-          address: '789 Suburb Lane',
-          city: 'Bangalore',
-          state: 'Karnataka',
-          zipCode: '560001'
-        },
-        features: {
-          bedrooms: 3,
-          bathrooms: 2,
-          area: 2200,
-          yearBuilt: 2019
-        },
-        amenities: ['Garden', 'Parking', 'Storage', 'Balcony', 'Family Room', 'Study Room'],
-        images: ['https://images.pexels.com/photos/1643383/pexels-photo-1643383.jpeg'],
-        status: 'available',
-        featured: true,
-        agent: {
-          name: 'Emily Rodriguez',
-          email: 'emily@realestate.com',
-          phone: '+91 98765 43212',
-          avatar: 'https://images.pexels.com/photos/1181686/pexels-photo-1181686.jpeg'
-        }
-      }
-    };
-
-    return mockProperties[id as keyof typeof mockProperties];
-  };
-
   const fetchProperty = async () => {
     try {
       setLoading(true);
-      setError('');
-
-      // First try to get mock property
-      const mockProperty = getMockProperty(params.id as string);
-      if (mockProperty) {
-        setProperty(mockProperty);
-        setLoading(false);
-        return;
-      }
+      setError("");
 
       // Skip API call during build or if window is not available (SSR)
-      if (typeof window === 'undefined') {
-        setError('Property not found');
+      if (typeof window === "undefined") {
+        setError("Property not found");
         setLoading(false);
         return;
       }
 
       // If not a mock property, try to fetch from API
       const response = await propertiesApi.getById(params.id as string);
+      console.log(response.property);
+
       setProperty(response.property);
     } catch (err: any) {
-      setError(err.message || 'Failed to fetch property');
+      setError(err.message || "Failed to fetch property");
     } finally {
       setLoading(false);
     }
@@ -181,68 +95,53 @@ export default function PropertyDetailPage() {
 
     setInquiryLoading(true);
     try {
-      await inquiriesApi.create({
-        propertyId: property._id,
-        message: inquiryData.message,
-        contactInfo: {
-          name: inquiryData.name,
-          email: inquiryData.email,
-          phone: inquiryData.phone
-        }
-      }, token);
+      await inquiriesApi.create(
+        {
+          propertyId: property.id,
+          message: inquiryData.message,
+          contactInfo: {
+            name: inquiryData.name,
+            email: inquiryData.email,
+            phone: inquiryData.phone,
+          },
+        },
+        token
+      );
 
       setInquirySuccess(true);
       setShowInquiryForm(false);
       setInquiryData({
-        message: '',
-        name: user.name || '',
-        email: user.email || '',
-        phone: ''
+        message: "",
+        name: user.name || "",
+        email: user.email || "",
+        phone: "",
       });
     } catch (err: any) {
-      console.error('Error sending inquiry:', err);
+      console.error("Error sending inquiry:", err);
     } finally {
       setInquiryLoading(false);
     }
   };
 
   const formatPrice = (price: number, type: string) => {
-    const formatted = new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
+    const formatted = new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: "USD",
       minimumFractionDigits: 0,
       maximumFractionDigits: 0,
     }).format(price);
 
-    return type === 'rent' ? `${formatted}/mo` : formatted;
-  };
-
-  const formatLocation = (location: any) => {
-    if (typeof location === 'string') {
-      return location;
-    }
-
-    if (location && typeof location === 'object') {
-      // Try to build a readable address from the location object
-      const parts = [];
-      if (location.address) parts.push(location.address);
-      if (location.city) parts.push(location.city);
-      if (location.state) parts.push(location.state);
-
-      return parts.length > 0 ? parts.join(', ') : 'Location not specified';
-    }
-
-    return 'Location not specified';
+    return type === "rent" ? `${formatted}/mo` : formatted;
   };
 
   const handleStartChat = () => {
     if (!user || !property) return;
 
-    const chat = createChat(property.agent.email, property._id);
+    const chat = createChat(property.agent.email, property.id);
     setActiveChat(chat);
 
     // Scroll to top to show floating chat
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   if (loading) {
@@ -260,7 +159,7 @@ export default function PropertyDetailPage() {
       <div className="container mx-auto px-6 lg:px-8 py-8 mt-20">
         <Card>
           <CardContent className="flex flex-col items-center justify-center py-12">
-            <p className="text-red-500 mb-4">{error || 'Property not found'}</p>
+            <p className="text-red-500 mb-4">{error || "Property not found"}</p>
             <Link href="/properties">
               <Button>Back to Properties</Button>
             </Link>
@@ -285,7 +184,8 @@ export default function PropertyDetailPage() {
       {inquirySuccess && (
         <Alert className="mb-6">
           <AlertDescription>
-            Your inquiry has been sent successfully! The agent will contact you soon.
+            Your inquiry has been sent successfully! The agent will contact you
+            soon.
           </AlertDescription>
         </Alert>
       )}
@@ -296,14 +196,19 @@ export default function PropertyDetailPage() {
           {/* Image Gallery */}
           <div className="relative aspect-video rounded-xl overflow-hidden">
             <Image
-              src={property.images[0]}
+              src={property.images[0].url}
               alt={property.title}
               fill
               className="object-cover"
             />
             <div className="absolute top-4 left-4">
               <Badge className="bg-primary text-primary-foreground">
-                For {property.type === 'sale' ? 'Sale' : property.type === 'rent' ? 'Rent' : 'Commercial'}
+                For{" "}
+                {property.type === "sale"
+                  ? "Sale"
+                  : property.type === "rent"
+                  ? "Rent"
+                  : "Commercial"}
               </Badge>
             </div>
             <div className="absolute top-4 right-4 flex gap-2">
@@ -321,10 +226,20 @@ export default function PropertyDetailPage() {
             <CardHeader>
               <div className="flex items-start justify-between">
                 <div>
-                  <CardTitle className="text-2xl mb-2">{property.title}</CardTitle>
+                  <CardTitle className="text-2xl mb-2">
+                    {property.title}
+                  </CardTitle>
                   <CardDescription className="flex items-center gap-2 text-base">
                     <MapPin className="h-4 w-4" />
-                    {formatLocation(property.location)}
+                    {property.address +
+                      ", " +
+                      property.city +
+                      ", " +
+                      property.state +
+                      " " +
+                      property.zipCode +
+                      " " +
+                      property.country}
                   </CardDescription>
                 </div>
                 <div className="text-right">
@@ -345,19 +260,19 @@ export default function PropertyDetailPage() {
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
                 <div className="flex items-center gap-2">
                   <Bed className="h-5 w-5 text-muted-foreground" />
-                  <span>{property.features.bedrooms} Beds</span>
+                  <span>{property.bedrooms} Beds</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <Bath className="h-5 w-5 text-muted-foreground" />
-                  <span>{property.features.bathrooms} Baths</span>
+                  <span>{property.bathrooms} Baths</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <Maximize className="h-5 w-5 text-muted-foreground" />
-                  <span>{property.features.area.toLocaleString()} sq ft</span>
+                  <span>{property.area} sq ft</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <Calendar className="h-5 w-5 text-muted-foreground" />
-                  <span>Built {property.features.yearBuilt}</span>
+                  <span>Built {property.yearBuilt}</span>
                 </div>
               </div>
 
@@ -374,11 +289,13 @@ export default function PropertyDetailPage() {
                 <div>
                   <h3 className="text-lg font-semibold mb-3">Amenities</h3>
                   <div className="flex flex-wrap gap-2">
-                    {property.amenities.map((amenity: string, index: number) => (
-                      <Badge key={index} variant="outline">
-                        {amenity}
-                      </Badge>
-                    ))}
+                    {property.amenities.map(
+                      (amenity: string, index: number) => (
+                        <Badge key={index} variant="outline">
+                          {amenity}
+                        </Badge>
+                      )
+                    )}
                   </div>
                 </div>
               )}
@@ -396,12 +313,19 @@ export default function PropertyDetailPage() {
             <CardContent>
               <div className="flex items-center gap-4 mb-4">
                 <Avatar className="h-12 w-12">
-                  <AvatarImage src={property.agent.avatar} alt={property.agent.name} />
-                  <AvatarFallback>{property.agent.name.charAt(0).toUpperCase()}</AvatarFallback>
+                  <AvatarImage
+                    src={property.agent.avatar}
+                    alt={property.agent.name}
+                  />
+                  <AvatarFallback>
+                    {property.agent.name.charAt(0).toUpperCase()}
+                  </AvatarFallback>
                 </Avatar>
                 <div>
                   <h4 className="font-semibold">{property.agent.name}</h4>
-                  <p className="text-sm text-muted-foreground">Real Estate Agent</p>
+                  <p className="text-sm text-muted-foreground">
+                    Real Estate Agent
+                  </p>
                 </div>
               </div>
 
@@ -420,10 +344,7 @@ export default function PropertyDetailPage() {
 
               <div className="mt-6 space-y-2">
                 {user && (
-                  <Button
-                    className="w-full"
-                    onClick={handleStartChat}
-                  >
+                  <Button className="w-full" onClick={handleStartChat}>
                     <MessageCircle className="mr-2 h-4 w-4" />
                     Start Chat
                   </Button>
@@ -448,9 +369,13 @@ export default function PropertyDetailPage() {
 
                 {!user && (
                   <p className="text-xs text-muted-foreground text-center">
-                    <Link href="/login" className="text-primary hover:underline">
+                    <Link
+                      href="/login"
+                      className="text-primary hover:underline"
+                    >
                       Login
-                    </Link> to contact agent
+                    </Link>{" "}
+                    to contact agent
                   </p>
                 )}
               </div>
@@ -474,7 +399,12 @@ export default function PropertyDetailPage() {
                       id="message"
                       placeholder="I'm interested in this property..."
                       value={inquiryData.message}
-                      onChange={(e) => setInquiryData(prev => ({ ...prev, message: e.target.value }))}
+                      onChange={(e) =>
+                        setInquiryData((prev) => ({
+                          ...prev,
+                          message: e.target.value,
+                        }))
+                      }
                       required
                       rows={4}
                     />
@@ -486,7 +416,12 @@ export default function PropertyDetailPage() {
                       <Input
                         id="name"
                         value={inquiryData.name}
-                        onChange={(e) => setInquiryData(prev => ({ ...prev, name: e.target.value }))}
+                        onChange={(e) =>
+                          setInquiryData((prev) => ({
+                            ...prev,
+                            name: e.target.value,
+                          }))
+                        }
                         required
                       />
                     </div>
@@ -497,7 +432,12 @@ export default function PropertyDetailPage() {
                         id="email"
                         type="email"
                         value={inquiryData.email}
-                        onChange={(e) => setInquiryData(prev => ({ ...prev, email: e.target.value }))}
+                        onChange={(e) =>
+                          setInquiryData((prev) => ({
+                            ...prev,
+                            email: e.target.value,
+                          }))
+                        }
                         required
                       />
                     </div>
@@ -508,13 +448,22 @@ export default function PropertyDetailPage() {
                         id="phone"
                         type="tel"
                         value={inquiryData.phone}
-                        onChange={(e) => setInquiryData(prev => ({ ...prev, phone: e.target.value }))}
+                        onChange={(e) =>
+                          setInquiryData((prev) => ({
+                            ...prev,
+                            phone: e.target.value,
+                          }))
+                        }
                       />
                     </div>
                   </div>
 
                   <div className="flex gap-2">
-                    <Button type="submit" disabled={inquiryLoading} className="flex-1">
+                    <Button
+                      type="submit"
+                      disabled={inquiryLoading}
+                      className="flex-1"
+                    >
                       {inquiryLoading ? (
                         <>
                           <Loader2 className="mr-2 h-4 w-4 animate-spin" />

@@ -1,6 +1,10 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
-import { requireAuth, requireRole, AuthenticatedRequest } from '@/lib/middleware/auth';
+import { NextRequest, NextResponse } from "next/server";
+import { prisma } from "@/lib/prisma";
+import {
+  requireAuth,
+  requireRole,
+  AuthenticatedRequest,
+} from "@/lib/middleware/auth";
 
 // GET /api/properties - Get all properties with filtering
 export async function GET(request: NextRequest) {
@@ -11,35 +15,38 @@ export async function GET(request: NextRequest) {
     const where: any = {};
 
     // Type filter
-    const type = searchParams.get('type');
-    if (type && ['SALE', 'RENT', 'COMMERCIAL'].includes(type.toUpperCase())) {
+    const type = searchParams.get("type");
+    if (type && ["SALE", "RENT", "COMMERCIAL"].includes(type.toUpperCase())) {
       where.type = type.toUpperCase();
     }
 
     // Status filter
-    const status = searchParams.get('status');
-    if (status && ['AVAILABLE', 'PENDING', 'SOLD'].includes(status.toUpperCase())) {
+    const status = searchParams.get("status");
+    if (
+      status &&
+      ["AVAILABLE", "PENDING", "SOLD"].includes(status.toUpperCase())
+    ) {
       where.status = status.toUpperCase();
     } else {
       // Default to available properties only
-      where.status = 'AVAILABLE';
+      where.status = "AVAILABLE";
     }
 
     // Featured filter
-    const featured = searchParams.get('featured');
-    if (featured === 'true') {
+    const featured = searchParams.get("featured");
+    if (featured === "true") {
       where.featured = true;
     }
 
     // Category filter
-    const category = searchParams.get('category');
+    const category = searchParams.get("category");
     if (category) {
       where.category = category.toUpperCase();
     }
 
     // Price range filter
-    const minPrice = searchParams.get('minPrice');
-    const maxPrice = searchParams.get('maxPrice');
+    const minPrice = searchParams.get("minPrice");
+    const maxPrice = searchParams.get("maxPrice");
     if (minPrice || maxPrice) {
       where.price = {};
       if (minPrice) where.price.gte = parseInt(minPrice);
@@ -47,29 +54,29 @@ export async function GET(request: NextRequest) {
     }
 
     // Location filter
-    const location = searchParams.get('location');
+    const location = searchParams.get("location");
     if (location) {
       where.OR = [
-        { city: { contains: location, mode: 'insensitive' } },
-        { state: { contains: location, mode: 'insensitive' } },
-        { address: { contains: location, mode: 'insensitive' } }
+        { city: { contains: location, mode: "insensitive" } },
+        { state: { contains: location, mode: "insensitive" } },
+        { address: { contains: location, mode: "insensitive" } },
       ];
     }
 
     // Features filters
-    const bedrooms = searchParams.get('bedrooms');
+    const bedrooms = searchParams.get("bedrooms");
     if (bedrooms) {
       where.bedrooms = { gte: parseInt(bedrooms) };
     }
 
-    const bathrooms = searchParams.get('bathrooms');
+    const bathrooms = searchParams.get("bathrooms");
     if (bathrooms) {
       where.bathrooms = { gte: parseInt(bathrooms) };
     }
 
     // Area filter
-    const minArea = searchParams.get('minArea');
-    const maxArea = searchParams.get('maxArea');
+    const minArea = searchParams.get("minArea");
+    const maxArea = searchParams.get("maxArea");
     if (minArea || maxArea) {
       where.area = {};
       if (minArea) where.area.gte = parseInt(minArea);
@@ -77,17 +84,17 @@ export async function GET(request: NextRequest) {
     }
 
     // Pagination
-    const page = parseInt(searchParams.get('page') || '1');
-    const limit = parseInt(searchParams.get('limit') || '10');
+    const page = parseInt(searchParams.get("page") || "1");
+    const limit = parseInt(searchParams.get("limit") || "10");
     const skip = (page - 1) * limit;
 
     // Sort
-    const sortParam = searchParams.get('sort') || 'createdAt';
+    const sortParam = searchParams.get("sort") || "createdAt";
     const orderBy: any = {};
-    if (sortParam.startsWith('-')) {
-      orderBy[sortParam.substring(1)] = 'desc';
+    if (sortParam.startsWith("-")) {
+      orderBy[sortParam.substring(1)] = "desc";
     } else {
-      orderBy[sortParam] = 'asc';
+      orderBy[sortParam] = "asc";
     }
 
     // Execute query
@@ -101,32 +108,34 @@ export async function GET(request: NextRequest) {
               name: true,
               email: true,
               phone: true,
-              avatar: true
-            }
+              avatar: true,
+            },
           },
-          images: true
+          images: true,
         },
         orderBy,
         skip,
-        take: limit
+        take: limit,
       }),
-      prisma.property.count({ where })
+      prisma.property.count({ where }),
     ]);
 
-    return NextResponse.json({
-      properties,
-      pagination: {
-        page,
-        limit,
-        total,
-        pages: Math.ceil(total / limit)
-      }
-    }, { status: 200 });
-
-  } catch (error: any) {
-    console.error('Properties fetch error:', error);
     return NextResponse.json(
-      { error: 'Internal server error' },
+      {
+        properties,
+        pagination: {
+          page,
+          limit,
+          total,
+          pages: Math.ceil(total / limit),
+        },
+      },
+      { status: 200 }
+    );
+  } catch (error: any) {
+    console.error("Properties fetch error:", error);
+    return NextResponse.json(
+      { error: "Internal server error" },
       { status: 500 }
     );
   }
@@ -138,9 +147,9 @@ async function createProperty(request: AuthenticatedRequest) {
     const propertyData = await request.json();
 
     // Set the agent to the current user (unless admin is creating for another agent)
-    if (request.user?.role === 'AGENT') {
+    if (request.user?.role === "AGENT") {
       propertyData.agentId = request.user.userId;
-    } else if (request.user?.role === 'ADMIN' && !propertyData.agentId) {
+    } else if (request.user?.role === "ADMIN" && !propertyData.agentId) {
       propertyData.agentId = request.user.userId;
     }
 
@@ -163,9 +172,9 @@ async function createProperty(request: AuthenticatedRequest) {
       yearBuilt,
       amenities,
       images,
-      status = 'AVAILABLE',
+      status = "AVAILABLE",
       featured = false,
-      agentId
+      agentId,
     } = propertyData;
 
     const property = await prisma.property.create({
@@ -190,13 +199,14 @@ async function createProperty(request: AuthenticatedRequest) {
         featured,
         agentId,
         // Create images if provided
-        images: images ? {
-          create: images.map((url: string, index: number) => ({
-            url,
-            alt: `Property image ${index + 1}`,
-            isPrimary: index === 0
-          }))
-        } : undefined
+        images: images
+          ? {
+              create: images.map((url: string, index: number) => ({
+                url,
+                isPrimary: index === 0,
+              })),
+            }
+          : undefined,
       },
       include: {
         agent: {
@@ -205,26 +215,28 @@ async function createProperty(request: AuthenticatedRequest) {
             name: true,
             email: true,
             phone: true,
-            avatar: true
-          }
+            avatar: true,
+          },
         },
-        images: true
-      }
+        images: true,
+      },
     });
 
-    return NextResponse.json({
-      message: 'Property created successfully',
-      property
-    }, { status: 201 });
-
+    return NextResponse.json(
+      {
+        message: "Property created successfully",
+        property,
+      },
+      { status: 201 }
+    );
   } catch (error: any) {
-    console.error('Property creation error:', error);
+    console.error("Property creation error:", error);
 
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: "Internal server error" },
       { status: 500 }
     );
   }
 }
 
-export const POST = requireRole(['AGENT', 'ADMIN'])(createProperty);
+export const POST = requireRole(["AGENT", "ADMIN"])(createProperty);
