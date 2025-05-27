@@ -11,8 +11,102 @@ import Image from 'next/image';
 import SectionHeading from '@/components/ui/section-heading';
 import { cn } from '@/lib/utils';
 
+// Mock data for featured properties
+const mockFeaturedProperties = [
+  {
+    _id: 'mock-1',
+    title: 'Luxury Villa with Ocean View',
+    description: 'Stunning 4-bedroom villa with panoramic ocean views, private pool, and modern amenities.',
+    price: 25000000,
+    type: 'sale',
+    category: 'residential',
+    location: {
+      address: '123 Ocean Drive',
+      city: 'Mumbai',
+      state: 'Maharashtra',
+      zipCode: '400001'
+    },
+    features: {
+      bedrooms: 4,
+      bathrooms: 3,
+      area: 3500,
+      yearBuilt: 2020
+    },
+    amenities: ['Swimming Pool', 'Garden', 'Parking', 'Security'],
+    images: ['https://images.pexels.com/photos/1396132/pexels-photo-1396132.jpeg'],
+    status: 'available',
+    featured: true,
+    agent: {
+      name: 'Sarah Johnson',
+      email: 'sarah@realestate.com',
+      phone: '+91 98765 43210',
+      avatar: 'https://images.pexels.com/photos/1239291/pexels-photo-1239291.jpeg'
+    }
+  },
+  {
+    _id: 'mock-2',
+    title: 'Modern Downtown Apartment',
+    description: 'Contemporary 2-bedroom apartment in the heart of the city with premium amenities.',
+    price: 15000000,
+    type: 'sale',
+    category: 'residential',
+    location: {
+      address: '456 City Center',
+      city: 'Delhi',
+      state: 'Delhi',
+      zipCode: '110001'
+    },
+    features: {
+      bedrooms: 2,
+      bathrooms: 2,
+      area: 1200,
+      yearBuilt: 2021
+    },
+    amenities: ['Gym', 'Parking', 'Security', 'Elevator'],
+    images: ['https://images.pexels.com/photos/1370704/pexels-photo-1370704.jpeg'],
+    status: 'available',
+    featured: true,
+    agent: {
+      name: 'Michael Chen',
+      email: 'michael@realestate.com',
+      phone: '+91 98765 43211',
+      avatar: 'https://images.pexels.com/photos/1222271/pexels-photo-1222271.jpeg'
+    }
+  },
+  {
+    _id: 'mock-3',
+    title: 'Spacious Family Home',
+    description: 'Perfect family home with large garden, 3 bedrooms, and excellent school district.',
+    price: 18000000,
+    type: 'sale',
+    category: 'residential',
+    location: {
+      address: '789 Suburb Lane',
+      city: 'Bangalore',
+      state: 'Karnataka',
+      zipCode: '560001'
+    },
+    features: {
+      bedrooms: 3,
+      bathrooms: 2,
+      area: 2200,
+      yearBuilt: 2019
+    },
+    amenities: ['Garden', 'Parking', 'Storage', 'Balcony'],
+    images: ['https://images.pexels.com/photos/1643383/pexels-photo-1643383.jpeg'],
+    status: 'available',
+    featured: true,
+    agent: {
+      name: 'Emily Rodriguez',
+      email: 'emily@realestate.com',
+      phone: '+91 98765 43212',
+      avatar: 'https://images.pexels.com/photos/1181686/pexels-photo-1181686.jpeg'
+    }
+  }
+];
+
 const FeaturedProperties = () => {
-  const [featuredProperties, setFeaturedProperties] = useState([]);
+  const [featuredProperties, setFeaturedProperties] = useState(mockFeaturedProperties);
   const [loading, setLoading] = useState(true);
   const [hoveredProperty, setHoveredProperty] = useState<number | null>(null);
 
@@ -20,9 +114,14 @@ const FeaturedProperties = () => {
     const fetchFeaturedProperties = async () => {
       try {
         const response = await propertiesApi.getAll({ featured: 'true', limit: '3' });
-        setFeaturedProperties(response.properties || []);
+        // If we get real properties from the database, use them; otherwise use mock data
+        if (response.properties && response.properties.length > 0) {
+          setFeaturedProperties(response.properties);
+        }
+        // If no real properties, we keep the mock data that was set in useState
       } catch (error) {
         console.error('Error fetching featured properties:', error);
+        // Keep using mock data on error
       } finally {
         setLoading(false);
       }

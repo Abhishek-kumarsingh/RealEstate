@@ -44,10 +44,118 @@ export default function PropertyDetailPage() {
     }
   }, [params.id]);
 
+  // Mock property data for demo purposes
+  const getMockProperty = (id: string) => {
+    const mockProperties = {
+      'mock-1': {
+        _id: 'mock-1',
+        title: 'Luxury Villa with Ocean View',
+        description: 'Stunning 4-bedroom villa with panoramic ocean views, private pool, and modern amenities. This exceptional property offers the perfect blend of luxury and comfort, featuring spacious living areas, high-end finishes, and breathtaking views of the ocean. The villa includes a private swimming pool, landscaped gardens, and a two-car garage.',
+        price: 25000000,
+        type: 'sale',
+        category: 'residential',
+        location: {
+          address: '123 Ocean Drive',
+          city: 'Mumbai',
+          state: 'Maharashtra',
+          zipCode: '400001'
+        },
+        features: {
+          bedrooms: 4,
+          bathrooms: 3,
+          area: 3500,
+          yearBuilt: 2020
+        },
+        amenities: ['Swimming Pool', 'Garden', 'Parking', 'Security', 'Ocean View', 'Modern Kitchen', 'Balcony'],
+        images: ['https://images.pexels.com/photos/1396132/pexels-photo-1396132.jpeg'],
+        status: 'available',
+        featured: true,
+        agent: {
+          name: 'Sarah Johnson',
+          email: 'sarah@realestate.com',
+          phone: '+91 98765 43210',
+          avatar: 'https://images.pexels.com/photos/1239291/pexels-photo-1239291.jpeg'
+        }
+      },
+      'mock-2': {
+        _id: 'mock-2',
+        title: 'Modern Downtown Apartment',
+        description: 'Contemporary 2-bedroom apartment in the heart of the city with premium amenities. This stylish apartment features floor-to-ceiling windows, modern appliances, and access to building amenities including a fitness center and rooftop terrace.',
+        price: 15000000,
+        type: 'sale',
+        category: 'residential',
+        location: {
+          address: '456 City Center',
+          city: 'Delhi',
+          state: 'Delhi',
+          zipCode: '110001'
+        },
+        features: {
+          bedrooms: 2,
+          bathrooms: 2,
+          area: 1200,
+          yearBuilt: 2021
+        },
+        amenities: ['Gym', 'Parking', 'Security', 'Elevator', 'Rooftop Terrace', 'Modern Kitchen'],
+        images: ['https://images.pexels.com/photos/1370704/pexels-photo-1370704.jpeg'],
+        status: 'available',
+        featured: true,
+        agent: {
+          name: 'Michael Chen',
+          email: 'michael@realestate.com',
+          phone: '+91 98765 43211',
+          avatar: 'https://images.pexels.com/photos/1222271/pexels-photo-1222271.jpeg'
+        }
+      },
+      'mock-3': {
+        _id: 'mock-3',
+        title: 'Spacious Family Home',
+        description: 'Perfect family home with large garden, 3 bedrooms, and excellent school district. This charming property offers comfortable living spaces, a beautiful garden for children to play, and is located in a quiet neighborhood with top-rated schools nearby.',
+        price: 18000000,
+        type: 'sale',
+        category: 'residential',
+        location: {
+          address: '789 Suburb Lane',
+          city: 'Bangalore',
+          state: 'Karnataka',
+          zipCode: '560001'
+        },
+        features: {
+          bedrooms: 3,
+          bathrooms: 2,
+          area: 2200,
+          yearBuilt: 2019
+        },
+        amenities: ['Garden', 'Parking', 'Storage', 'Balcony', 'Family Room', 'Study Room'],
+        images: ['https://images.pexels.com/photos/1643383/pexels-photo-1643383.jpeg'],
+        status: 'available',
+        featured: true,
+        agent: {
+          name: 'Emily Rodriguez',
+          email: 'emily@realestate.com',
+          phone: '+91 98765 43212',
+          avatar: 'https://images.pexels.com/photos/1181686/pexels-photo-1181686.jpeg'
+        }
+      }
+    };
+
+    return mockProperties[id as keyof typeof mockProperties];
+  };
+
   const fetchProperty = async () => {
     try {
       setLoading(true);
       setError('');
+
+      // First try to get mock property
+      const mockProperty = getMockProperty(params.id as string);
+      if (mockProperty) {
+        setProperty(mockProperty);
+        setLoading(false);
+        return;
+      }
+
+      // If not a mock property, try to fetch from API
       const response = await propertiesApi.getById(params.id as string);
       setProperty(response.property);
     } catch (err: any) {
