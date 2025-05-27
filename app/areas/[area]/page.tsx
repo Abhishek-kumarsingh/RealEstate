@@ -50,6 +50,34 @@ const getAreaDetails = (areaName: string) => {
         { name: 'Khar', distance: '2 km', avgPrice: '₹2.2 Cr' },
         { name: 'Santacruz', distance: '3 km', avgPrice: '₹1.8 Cr' },
         { name: 'Juhu', distance: '4 km', avgPrice: '₹3.1 Cr' }
+      ],
+      gallery: [
+        'https://images.pexels.com/photos/1370704/pexels-photo-1370704.jpeg',
+        'https://images.pexels.com/photos/1134166/pexels-photo-1134166.jpeg',
+        'https://images.pexels.com/photos/1007657/pexels-photo-1007657.jpeg',
+        'https://images.pexels.com/photos/1134176/pexels-photo-1134176.jpeg'
+      ],
+      keyFeatures: [
+        {
+          title: 'Entertainment Hub',
+          description: 'Vibrant nightlife and entertainment options',
+          icon: Building
+        },
+        {
+          title: 'Shopping Paradise',
+          description: 'Premium shopping malls and boutiques',
+          icon: ShoppingBag
+        },
+        {
+          title: 'Sea Link Access',
+          description: 'Direct connectivity via Bandra-Worli Sea Link',
+          icon: Car
+        },
+        {
+          title: 'Celebrity Homes',
+          description: 'Home to Bollywood celebrities and affluent residents',
+          icon: Users
+        }
       ]
     },
     'downtown-delhi-delhi': {
@@ -152,6 +180,34 @@ const getAreaDetails = (areaName: string) => {
         { name: 'Cyber City', distance: '2 km', avgPrice: '₹1.5 Cr' },
         { name: 'DLF Phase 1', distance: '3 km', avgPrice: '₹1.8 Cr' },
         { name: 'Sohna Road', distance: '5 km', avgPrice: '₹95L' }
+      ],
+      gallery: [
+        'https://images.pexels.com/photos/323705/pexels-photo-323705.jpeg',
+        'https://images.pexels.com/photos/1134166/pexels-photo-1134166.jpeg',
+        'https://images.pexels.com/photos/1007657/pexels-photo-1007657.jpeg',
+        'https://images.pexels.com/photos/1134176/pexels-photo-1134176.jpeg'
+      ],
+      keyFeatures: [
+        {
+          title: 'IT Hub',
+          description: 'Major technology and financial center',
+          icon: Building
+        },
+        {
+          title: 'Modern Infrastructure',
+          description: 'World-class roads, metro, and facilities',
+          icon: Car
+        },
+        {
+          title: 'Shopping Destinations',
+          description: 'Premium malls and retail centers',
+          icon: ShoppingBag
+        },
+        {
+          title: 'Corporate Offices',
+          description: 'Home to multinational companies',
+          icon: Users
+        }
       ]
     }
   };

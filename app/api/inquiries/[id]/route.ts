@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import connectDB from '@/lib/mongodb';
-import Inquiry from '@/lib/models/Inquiry';
+import { prisma } from '@/lib/prisma';
 import { requireAuth, AuthenticatedRequest } from '@/lib/middleware/auth';
 
 // PUT /api/inquiries/[id] - Update inquiry (respond to inquiry)
@@ -9,69 +8,90 @@ async function updateInquiry(
   { params }: { params: { id: string } }
 ) {
   try {
-    await connectDB();
-    
-    const inquiry = await Inquiry.findById(params.id);
-    
+    const inquiry = await prisma.inquiry.findUnique({
+      where: { id: params.id },
+      select: { id: true, agentId: true }
+    });
+
     if (!inquiry) {
       return NextResponse.json(
         { error: 'Inquiry not found' },
         { status: 404 }
       );
     }
-    
+
     // Check permissions - only the agent or admin can respond
-    if (request.user?.role === 'agent' && inquiry.agent.toString() !== request.user.userId) {
+    if (request.user?.role === 'AGENT' && inquiry.agentId !== request.user.userId) {
       return NextResponse.json(
         { error: 'You can only respond to inquiries for your properties' },
         { status: 403 }
       );
     }
-    
-    if (request.user?.role === 'user') {
+
+    if (request.user?.role === 'USER') {
       return NextResponse.json(
         { error: 'Users cannot update inquiries' },
         { status: 403 }
       );
     }
-    
+
     const { response, status } = await request.json();
-    
+
+    const updateData: any = {};
+
     if (response) {
-      inquiry.response = response;
-      inquiry.status = 'responded';
-      inquiry.respondedAt = new Date();
+      updateData.response = response;
+      updateData.status = 'RESPONDED';
+      updateData.respondedAt = new Date();
     }
-    
-    if (status && ['pending', 'responded', 'closed'].includes(status)) {
-      inquiry.status = status;
+
+    if (status && ['PENDING', 'RESPONDED', 'CLOSED'].includes(status.toUpperCase())) {
+      updateData.status = status.toUpperCase();
     }
-    
-    await inquiry.save();
-    
-    // Populate related data
-    await inquiry.populate([
-      { path: 'property', select: 'title price type location' },
-      { path: 'user', select: 'name email avatar' },
-      { path: 'agent', select: 'name email phone avatar' }
-    ]);
-    
+
+    const updatedInquiry = await prisma.inquiry.update({
+      where: { id: params.id },
+      data: updateData,
+      include: {
+        property: {
+          select: {
+            id: true,
+            title: true,
+            price: true,
+            type: true,
+            address: true,
+            city: true,
+            state: true
+          }
+        },
+        user: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            avatar: true
+          }
+        },
+        agent: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            phone: true,
+            avatar: true
+          }
+        }
+      }
+    });
+
     return NextResponse.json({
       message: 'Inquiry updated successfully',
-      inquiry
+      inquiry: updatedInquiry
     }, { status: 200 });
-    
+
   } catch (error: any) {
     console.error('Inquiry update error:', error);
-    
-    if (error.name === 'ValidationError') {
-      const errors = Object.values(error.errors).map((err: any) => err.message);
-      return NextResponse.json(
-        { error: 'Validation failed', details: errors },
-        { status: 400 }
-      );
-    }
-    
+
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

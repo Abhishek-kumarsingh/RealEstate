@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import connectDB from '@/lib/mongodb';
-import Favorite from '@/lib/models/Favorite';
+import { prisma } from '@/lib/prisma';
 import { requireAuth, AuthenticatedRequest } from '@/lib/middleware/auth';
 
 // DELETE /api/favorites/[propertyId] - Remove property from favorites
@@ -9,24 +8,24 @@ async function removeFromFavorites(
   { params }: { params: { propertyId: string } }
 ) {
   try {
-    await connectDB();
-    
-    const favorite = await Favorite.findOneAndDelete({
-      user: request.user?.userId,
-      property: params.propertyId
+    const deletedFavorite = await prisma.favorite.deleteMany({
+      where: {
+        userId: request.user?.userId,
+        propertyId: params.propertyId
+      }
     });
-    
-    if (!favorite) {
+
+    if (deletedFavorite.count === 0) {
       return NextResponse.json(
         { error: 'Favorite not found' },
         { status: 404 }
       );
     }
-    
+
     return NextResponse.json({
       message: 'Property removed from favorites'
     }, { status: 200 });
-    
+
   } catch (error: any) {
     console.error('Remove from favorites error:', error);
     return NextResponse.json(

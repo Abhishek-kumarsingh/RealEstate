@@ -6,6 +6,7 @@ import bcrypt from 'bcryptjs'
 config({ path: resolve(process.cwd(), '.env.local') })
 
 import { prisma } from '../lib/prisma'
+import { PropertyType, PropertyCategory, PropertyStatus, UserRole, VerificationStatus, KYCStatus, RentType, PetPolicy } from '@prisma/client'
 
 async function seedDatabase() {
   try {
@@ -13,7 +14,7 @@ async function seedDatabase() {
 
     // Clear existing data in correct order (respecting foreign key constraints)
     console.log('🗑️  Clearing existing data...')
-    
+
     await prisma.auditLog.deleteMany({})
     await prisma.notification.deleteMany({})
     await prisma.searchHistory.deleteMany({})
@@ -63,19 +64,19 @@ async function seedDatabase() {
 
     // Create users
     console.log('👥 Creating users...')
-    
+
     const hashedPassword = await bcrypt.hash('password123', 12)
-    
+
     const adminUser = await prisma.user.create({
       data: {
         name: 'Admin User',
         email: 'admin@realestatehub.com',
         password: hashedPassword,
-        role: 'ADMIN',
+        role: 'ADMIN' as UserRole,
         avatar: 'https://images.pexels.com/photos/614810/pexels-photo-614810.jpeg',
         isVerified: true,
-        verificationStatus: 'VERIFIED',
-        kycStatus: 'VERIFIED',
+        verificationStatus: 'VERIFIED' as VerificationStatus,
+        kycStatus: 'VERIFIED' as KYCStatus,
         phone: '+1-555-0001',
         bio: 'System administrator with full access to all platform features.',
         city: 'New York',
@@ -89,11 +90,11 @@ async function seedDatabase() {
         name: 'Sarah Johnson',
         email: 'sarah.johnson@realestatehub.com',
         password: hashedPassword,
-        role: 'AGENT',
+        role: 'AGENT' as UserRole,
         avatar: 'https://images.pexels.com/photos/1239291/pexels-photo-1239291.jpeg',
         isVerified: true,
-        verificationStatus: 'VERIFIED',
-        kycStatus: 'VERIFIED',
+        verificationStatus: 'VERIFIED' as VerificationStatus,
+        kycStatus: 'VERIFIED' as KYCStatus,
         phone: '+1-555-0102',
         bio: 'Experienced real estate agent specializing in luxury homes and commercial properties.',
         licenseNumber: 'RE-2024-001',
@@ -111,11 +112,11 @@ async function seedDatabase() {
         name: 'Michael Chen',
         email: 'michael.chen@realestatehub.com',
         password: hashedPassword,
-        role: 'AGENT',
+        role: 'AGENT' as UserRole,
         avatar: 'https://images.pexels.com/photos/2379004/pexels-photo-2379004.jpeg',
         isVerified: true,
-        verificationStatus: 'VERIFIED',
-        kycStatus: 'VERIFIED',
+        verificationStatus: 'VERIFIED' as VerificationStatus,
+        kycStatus: 'VERIFIED' as KYCStatus,
         phone: '+1-555-0103',
         bio: 'Dedicated agent focused on first-time homebuyers and residential properties.',
         licenseNumber: 'RE-2024-002',
@@ -133,7 +134,7 @@ async function seedDatabase() {
         name: 'John Doe',
         email: 'john.doe@example.com',
         password: hashedPassword,
-        role: 'USER',
+        role: 'USER' as UserRole,
         avatar: 'https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg',
         isVerified: true,
         phone: '+1-555-0104',
@@ -148,15 +149,15 @@ async function seedDatabase() {
 
     // Create properties
     console.log('🏠 Creating properties...')
-    
+
     const properties = [
       {
         title: 'Luxury Modern Villa with Ocean View',
         description: 'Stunning contemporary villa featuring panoramic ocean views, infinity pool, and state-of-the-art amenities. Perfect for luxury living.',
         price: 2500000,
-        type: 'SALE',
-        category: 'VILLA',
-        status: 'AVAILABLE',
+        type: 'SALE' as PropertyType,
+        category: 'VILLA' as PropertyCategory,
+        status: 'AVAILABLE' as PropertyStatus,
         featured: true,
         address: '123 Ocean Drive',
         city: 'Malibu',
@@ -185,9 +186,9 @@ async function seedDatabase() {
         title: 'Charming Downtown Apartment',
         description: 'Beautiful 2-bedroom apartment in the heart of downtown with modern amenities and city views.',
         price: 3500,
-        type: 'RENT',
-        category: 'APARTMENT',
-        status: 'AVAILABLE',
+        type: 'RENT' as PropertyType,
+        category: 'APARTMENT' as PropertyCategory,
+        status: 'AVAILABLE' as PropertyStatus,
         featured: true,
         address: '456 Main Street, Unit 12A',
         city: 'New York',
@@ -206,9 +207,9 @@ async function seedDatabase() {
         features: ['Hardwood Floors', 'In-unit Laundry', 'Balcony'],
         appliances: ['Dishwasher', 'Microwave', 'Refrigerator'],
         utilities: ['Central AC', 'Heating'],
-        rentType: 'MONTHLY',
+        rentType: 'MONTHLY' as RentType,
         deposit: 7000,
-        petPolicy: 'CATS_ONLY',
+        petPolicy: 'CATS_ONLY' as PetPolicy,
         leaseTerm: 12,
         agentId: agent2.id,
       },
@@ -216,9 +217,9 @@ async function seedDatabase() {
         title: 'Spacious Family Home with Garden',
         description: 'Perfect family home with large backyard, updated kitchen, and excellent school district.',
         price: 750000,
-        type: 'SALE',
-        category: 'HOUSE',
-        status: 'AVAILABLE',
+        type: 'SALE' as PropertyType,
+        category: 'HOUSE' as PropertyCategory,
+        status: 'AVAILABLE' as PropertyStatus,
         featured: false,
         address: '789 Maple Avenue',
         city: 'Austin',
@@ -256,17 +257,17 @@ async function seedDatabase() {
 
     // Create property images
     console.log('📸 Creating property images...')
-    
+
     const propertyImages = [
       // Villa images
       { propertyId: createdProperties[0].id, url: 'https://images.pexels.com/photos/1396122/pexels-photo-1396122.jpeg', isPrimary: true, order: 1 },
       { propertyId: createdProperties[0].id, url: 'https://images.pexels.com/photos/1396132/pexels-photo-1396132.jpeg', isPrimary: false, order: 2 },
       { propertyId: createdProperties[0].id, url: 'https://images.pexels.com/photos/1396125/pexels-photo-1396125.jpeg', isPrimary: false, order: 3 },
-      
+
       // Apartment images
       { propertyId: createdProperties[1].id, url: 'https://images.pexels.com/photos/2635038/pexels-photo-2635038.jpeg', isPrimary: true, order: 1 },
       { propertyId: createdProperties[1].id, url: 'https://images.pexels.com/photos/2635041/pexels-photo-2635041.jpeg', isPrimary: false, order: 2 },
-      
+
       // House images
       { propertyId: createdProperties[2].id, url: 'https://images.pexels.com/photos/106399/pexels-photo-106399.jpeg', isPrimary: true, order: 1 },
       { propertyId: createdProperties[2].id, url: 'https://images.pexels.com/photos/1396132/pexels-photo-1396132.jpeg', isPrimary: false, order: 2 },

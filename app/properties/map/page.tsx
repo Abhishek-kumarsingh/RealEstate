@@ -121,7 +121,7 @@ export default function PropertiesMapPage() {
     return 'Location not specified';
   };
 
-  const handlePropertySelect = (property: Property) => {
+  const handlePropertySelect = (property: Property | null) => {
     setSelectedProperty(property);
   };
 

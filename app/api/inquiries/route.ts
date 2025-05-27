@@ -1,43 +1,69 @@
 import { NextRequest, NextResponse } from 'next/server';
-import connectDB from '@/lib/mongodb';
-import Inquiry from '@/lib/models/Inquiry';
-import Property from '@/lib/models/Property';
+import { prisma } from '@/lib/prisma';
 import { requireAuth, AuthenticatedRequest } from '@/lib/middleware/auth';
 
 // GET /api/inquiries - Get user's inquiries
 async function getInquiries(request: AuthenticatedRequest) {
   try {
-    await connectDB();
-    
     const { searchParams } = new URL(request.url);
     const role = request.user?.role;
-    
-    let filter: any = {};
-    
-    if (role === 'user') {
+
+    let where: any = {};
+
+    if (role === 'USER') {
       // Users see only their own inquiries
-      filter.user = request.user?.userId;
-    } else if (role === 'agent') {
+      where.userId = request.user?.userId;
+    } else if (role === 'AGENT') {
       // Agents see inquiries for their properties
-      filter.agent = request.user?.userId;
+      where.agentId = request.user?.userId;
     }
     // Admins see all inquiries (no filter)
-    
+
     const status = searchParams.get('status');
-    if (status && ['pending', 'responded', 'closed'].includes(status)) {
-      filter.status = status;
+    if (status && ['PENDING', 'RESPONDED', 'CLOSED'].includes(status.toUpperCase())) {
+      where.status = status.toUpperCase();
     }
-    
-    const inquiries = await Inquiry.find(filter)
-      .populate('property', 'title price type location images')
-      .populate('user', 'name email avatar')
-      .populate('agent', 'name email phone avatar')
-      .sort({ createdAt: -1 });
-    
+
+    const inquiries = await prisma.inquiry.findMany({
+      where,
+      include: {
+        property: {
+          select: {
+            id: true,
+            title: true,
+            price: true,
+            type: true,
+            address: true,
+            city: true,
+            state: true,
+            images: true
+          }
+        },
+        user: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            avatar: true
+          }
+        },
+        agent: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            phone: true,
+            avatar: true
+          }
+        }
+      },
+      orderBy: { createdAt: 'desc' }
+    });
+
     return NextResponse.json({
       inquiries
     }, { status: 200 });
-    
+
   } catch (error: any) {
     console.error('Inquiries fetch error:', error);
     return NextResponse.json(
@@ -50,60 +76,82 @@ async function getInquiries(request: AuthenticatedRequest) {
 // POST /api/inquiries - Create new inquiry
 async function createInquiry(request: AuthenticatedRequest) {
   try {
-    await connectDB();
-    
     const { propertyId, message, contactInfo } = await request.json();
-    
+
     if (!propertyId || !message || !contactInfo) {
       return NextResponse.json(
         { error: 'Property ID, message, and contact info are required' },
         { status: 400 }
       );
     }
-    
-    // Check if property exists
-    const property = await Property.findById(propertyId);
+
+    // Check if property exists and get agent info
+    const property = await prisma.property.findUnique({
+      where: { id: propertyId },
+      select: { id: true, agentId: true }
+    });
+
     if (!property) {
       return NextResponse.json(
         { error: 'Property not found' },
         { status: 404 }
       );
     }
-    
+
     // Create inquiry
-    const inquiry = new Inquiry({
-      property: propertyId,
-      user: request.user?.userId,
-      agent: property.agent,
-      message,
-      contactInfo
+    const inquiry = await prisma.inquiry.create({
+      data: {
+        propertyId,
+        userId: request.user?.userId!,
+        agentId: property.agentId,
+        message,
+        contactInfo: {
+          name: contactInfo.name,
+          email: contactInfo.email,
+          phone: contactInfo.phone || null
+        },
+        status: 'PENDING'
+      },
+      include: {
+        property: {
+          select: {
+            id: true,
+            title: true,
+            price: true,
+            type: true,
+            address: true,
+            city: true,
+            state: true
+          }
+        },
+        user: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            avatar: true
+          }
+        },
+        agent: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            phone: true,
+            avatar: true
+          }
+        }
+      }
     });
-    
-    await inquiry.save();
-    
-    // Populate related data
-    await inquiry.populate([
-      { path: 'property', select: 'title price type location' },
-      { path: 'user', select: 'name email avatar' },
-      { path: 'agent', select: 'name email phone avatar' }
-    ]);
-    
+
     return NextResponse.json({
       message: 'Inquiry sent successfully',
       inquiry
     }, { status: 201 });
-    
+
   } catch (error: any) {
     console.error('Inquiry creation error:', error);
-    
-    if (error.name === 'ValidationError') {
-      const errors = Object.values(error.errors).map((err: any) => err.message);
-      return NextResponse.json(
-        { error: 'Validation failed', details: errors },
-        { status: 400 }
-      );
-    }
-    
+
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

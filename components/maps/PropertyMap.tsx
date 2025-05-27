@@ -34,6 +34,7 @@ import { cn } from '@/lib/utils';
 interface Property {
   id: string;
   title: string;
+  description: string;
   price: number;
   type: 'sale' | 'rent' | 'commercial';
   category: string;
@@ -53,15 +54,25 @@ interface Property {
     area: number;
     yearBuilt: number;
   };
+  amenities: string[];
   images: string[];
   status: string;
   featured: boolean;
+  agent: {
+    id: string;
+    name: string;
+    phone: string;
+    email: string;
+    avatar: string;
+  };
+  createdAt: string;
+  updatedAt: string;
 }
 
 interface PropertyMapProps {
   properties: Property[];
   selectedProperty?: Property | null;
-  onPropertySelect?: (property: Property) => void;
+  onPropertySelect?: (property: Property | null) => void;
   onPropertyHover?: (property: Property | null) => void;
   onSearchAreaChange?: (properties: Property[]) => void;
   className?: string;
@@ -424,7 +435,7 @@ const PropertyMap: React.FC<PropertyMapProps> = ({
     } else {
       setExpandedCluster(expandedCluster?.id === cluster.id ? null : cluster);
       setCenter(cluster.center);
-      setSelectedProperty(null);
+      onPropertySelect?.(null);
     }
   };
 

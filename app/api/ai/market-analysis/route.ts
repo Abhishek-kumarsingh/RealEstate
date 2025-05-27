@@ -113,15 +113,15 @@ Make it detailed and actionable for real estate decisions.`;
 
   } catch (error) {
     console.error('Market Analysis Error:', error);
-    
+
     // Fallback analysis
     const fallbackAnalysis = generateFallbackAnalysis(
-      await request.json().then(data => ({ 
-        location: data.location, 
-        propertyType: data.propertyType 
+      await request.json().then(data => ({
+        location: data.location,
+        propertyType: data.propertyType
       }))
     );
-    
+
     return NextResponse.json({
       ...fallbackAnalysis,
       timestamp: new Date().toISOString(),
@@ -163,23 +163,23 @@ function generatePriceEstimate(location: string, propertyType: string) {
 function determineMarketCondition() {
   const conditions = ['Seller\'s Market', 'Buyer\'s Market', 'Balanced Market'];
   const weights = [0.4, 0.3, 0.3]; // Slightly favor seller's market
-  
+
   const random = Math.random();
   let cumulative = 0;
-  
+
   for (let i = 0; i < conditions.length; i++) {
     cumulative += weights[i];
     if (random <= cumulative) {
       return conditions[i];
     }
   }
-  
+
   return conditions[0];
 }
 
 function generateFallbackAnalysis(params: { location: string; propertyType: string }) {
   const { location, propertyType } = params;
-  
+
   return {
     location,
     propertyType,
@@ -251,7 +251,7 @@ Provide specific value estimates and reasoning.`;
     const valuation = response.text();
 
     // Generate estimated value range
-    const estimatedValue = generateValueEstimate(address, propertyType, sqft);
+    const estimatedValue = generateValueEstimate(address, propertyType || 'Unknown', sqft || '1500');
 
     return NextResponse.json({
       address,
@@ -267,7 +267,7 @@ Provide specific value estimates and reasoning.`;
 
   } catch (error) {
     console.error('Property Valuation Error:', error);
-    
+
     return NextResponse.json({
       valuation: 'Property valuation temporarily unavailable. Please try again later.',
       timestamp: new Date().toISOString(),
@@ -284,10 +284,10 @@ function generateValueEstimate(address: string, propertyType: string, sqft: stri
 
   const sqftNum = parseInt(sqft || '1500');
   const baseValue = basePricePerSqft * sqftNum;
-  
+
   const lowEstimate = Math.floor(baseValue * 0.9);
   const highEstimate = Math.floor(baseValue * 1.1);
-  
+
   return {
     low: lowEstimate,
     high: highEstimate,

@@ -74,10 +74,10 @@ Please provide a helpful, professional response as a real estate AI assistant:`;
 
   } catch (error) {
     console.error('AI Chat Error:', error);
-    
+
     // Fallback response if AI fails
     const fallbackResponse = generateFallbackResponse(await request.json().then(data => data.message));
-    
+
     return NextResponse.json({
       response: fallbackResponse.response,
       suggestions: fallbackResponse.suggestions,
@@ -183,53 +183,4 @@ function generateFallbackResponse(message: string): { response: string; suggesti
   };
 }
 
-// Property recommendation ML logic
-export async function generatePropertyRecommendations(userPreferences: any) {
-  try {
-    const model = genAI.getGenerativeModel({ model: 'gemini-pro' });
-    
-    const prompt = `Based on the following user preferences, provide property recommendations:
-    
-    Budget: ${userPreferences.budget}
-    Location: ${userPreferences.location}
-    Property Type: ${userPreferences.propertyType}
-    Bedrooms: ${userPreferences.bedrooms}
-    Features: ${userPreferences.features?.join(', ')}
-    
-    Provide 3-5 specific property recommendations with reasoning for each match.`;
-    
-    const result = await model.generateContent(prompt);
-    const response = await result.response;
-    
-    return response.text();
-  } catch (error) {
-    console.error('Property recommendation error:', error);
-    return null;
-  }
-}
 
-// Market analysis ML logic
-export async function generateMarketAnalysis(location: string, propertyType: string) {
-  try {
-    const model = genAI.getGenerativeModel({ model: 'gemini-pro' });
-    
-    const prompt = `Provide a comprehensive market analysis for ${propertyType} properties in ${location}:
-    
-    Include:
-    - Current market trends
-    - Price predictions for next 6-12 months
-    - Investment potential
-    - Key factors affecting the market
-    - Recommendations for buyers/sellers
-    
-    Be specific and data-driven in your analysis.`;
-    
-    const result = await model.generateContent(prompt);
-    const response = await result.response;
-    
-    return response.text();
-  } catch (error) {
-    console.error('Market analysis error:', error);
-    return null;
-  }
-}

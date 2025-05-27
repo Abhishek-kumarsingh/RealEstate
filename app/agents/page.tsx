@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Search, Filter, Star, Phone, Mail, MapPin, Award, Users, MessageCircle, TrendingUp } from 'lucide-react';
@@ -137,9 +137,9 @@ export default function AgentsPage() {
       const matchesSearch = agent.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                            agent.specialties.some(s => s.toLowerCase().includes(searchTerm.toLowerCase()));
       const matchesLocation = locationFilter === 'all' || agent.location.includes(locationFilter);
-      const matchesSpecialty = specialtyFilter === 'all' || 
+      const matchesSpecialty = specialtyFilter === 'all' ||
                               agent.specialties.some(s => s.toLowerCase().includes(specialtyFilter.toLowerCase()));
-      
+
       return matchesSearch && matchesLocation && matchesSpecialty;
     });
 
@@ -163,7 +163,7 @@ export default function AgentsPage() {
   };
 
   // Apply filters whenever dependencies change
-  useState(() => {
+  useEffect(() => {
     handleFilters();
   }, [searchTerm, locationFilter, specialtyFilter, sortBy]);
 
@@ -182,7 +182,7 @@ export default function AgentsPage() {
               <span className="text-primary block">Real Estate Agents</span>
             </h1>
             <p className="text-lg md:text-xl text-muted-foreground mb-8 max-w-3xl mx-auto">
-              Connect with our verified, experienced agents who are ready to help you 
+              Connect with our verified, experienced agents who are ready to help you
               find your perfect property or get the best value for your sale.
             </p>
           </div>
