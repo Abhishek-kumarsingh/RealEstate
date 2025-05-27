@@ -1,68 +1,70 @@
 // API utility functions for frontend
 
-const API_BASE_URL = process.env.NODE_ENV === 'production' 
-  ? 'https://your-domain.com' 
-  : 'http://localhost:3000';
+const API_BASE_URL =
+  process.env.NODE_ENV === "production"
+    ? "https://real-estate-chi-neon.vercel.app/"
+    : "http://localhost:3000";
 
 interface ApiOptions {
-  method?: 'GET' | 'POST' | 'PUT' | 'DELETE';
+  method?: "GET" | "POST" | "PUT" | "DELETE";
   headers?: Record<string, string>;
   body?: any;
   token?: string;
 }
 
 async function apiRequest(endpoint: string, options: ApiOptions = {}) {
-  const { method = 'GET', headers = {}, body, token } = options;
-  
+  const { method = "GET", headers = {}, body, token } = options;
+
   const config: RequestInit = {
     method,
     headers: {
-      'Content-Type': 'application/json',
+      "Content-Type": "application/json",
       ...headers,
     },
   };
-  
+
   if (token) {
     config.headers = {
       ...config.headers,
-      'Authorization': `Bearer ${token}`,
+      Authorization: `Bearer ${token}`,
     };
   }
-  
-  if (body && method !== 'GET') {
+
+  if (body && method !== "GET") {
     config.body = JSON.stringify(body);
   }
-  
+
   const response = await fetch(`${API_BASE_URL}/api${endpoint}`, config);
-  
+
   if (!response.ok) {
-    const error = await response.json().catch(() => ({ error: 'Network error' }));
+    const error = await response
+      .json()
+      .catch(() => ({ error: "Network error" }));
     throw new Error(error.error || `HTTP ${response.status}`);
   }
-  
+
   return response.json();
 }
 
 // Auth API
 export const authApi = {
   login: (email: string, password: string) =>
-    apiRequest('/auth/login', {
-      method: 'POST',
+    apiRequest("/auth/login", {
+      method: "POST",
       body: { email, password },
     }),
-    
-  register: (name: string, email: string, password: string, role = 'user') =>
-    apiRequest('/auth/register', {
-      method: 'POST',
+
+  register: (name: string, email: string, password: string, role = "user") =>
+    apiRequest("/auth/register", {
+      method: "POST",
       body: { name, email, password, role },
     }),
-    
-  getProfile: (token: string) =>
-    apiRequest('/auth/profile', { token }),
-    
+
+  getProfile: (token: string) => apiRequest("/auth/profile", { token }),
+
   updateProfile: (data: any, token: string) =>
-    apiRequest('/auth/profile', {
-      method: 'PUT',
+    apiRequest("/auth/profile", {
+      method: "PUT",
       body: data,
       token,
     }),
@@ -71,49 +73,49 @@ export const authApi = {
 // Properties API
 export const propertiesApi = {
   getAll: (params?: Record<string, string>) => {
-    const queryString = params ? `?${new URLSearchParams(params).toString()}` : '';
+    const queryString = params
+      ? `?${new URLSearchParams(params).toString()}`
+      : "";
     return apiRequest(`/properties${queryString}`);
   },
-  
-  getById: (id: string) =>
-    apiRequest(`/properties/${id}`),
-    
+
+  getById: (id: string) => apiRequest(`/properties/${id}`),
+
   create: (data: any, token: string) =>
-    apiRequest('/properties', {
-      method: 'POST',
+    apiRequest("/properties", {
+      method: "POST",
       body: data,
       token,
     }),
-    
+
   update: (id: string, data: any, token: string) =>
     apiRequest(`/properties/${id}`, {
-      method: 'PUT',
+      method: "PUT",
       body: data,
       token,
     }),
-    
+
   delete: (id: string, token: string) =>
     apiRequest(`/properties/${id}`, {
-      method: 'DELETE',
+      method: "DELETE",
       token,
     }),
 };
 
 // Favorites API
 export const favoritesApi = {
-  getAll: (token: string) =>
-    apiRequest('/favorites', { token }),
-    
+  getAll: (token: string) => apiRequest("/favorites", { token }),
+
   add: (propertyId: string, token: string) =>
-    apiRequest('/favorites', {
-      method: 'POST',
+    apiRequest("/favorites", {
+      method: "POST",
       body: { propertyId },
       token,
     }),
-    
+
   remove: (propertyId: string, token: string) =>
     apiRequest(`/favorites/${propertyId}`, {
-      method: 'DELETE',
+      method: "DELETE",
       token,
     }),
 };
@@ -121,20 +123,22 @@ export const favoritesApi = {
 // Inquiries API
 export const inquiriesApi = {
   getAll: (token: string, params?: Record<string, string>) => {
-    const queryString = params ? `?${new URLSearchParams(params).toString()}` : '';
+    const queryString = params
+      ? `?${new URLSearchParams(params).toString()}`
+      : "";
     return apiRequest(`/inquiries${queryString}`, { token });
   },
-  
+
   create: (data: any, token: string) =>
-    apiRequest('/inquiries', {
-      method: 'POST',
+    apiRequest("/inquiries", {
+      method: "POST",
       body: data,
       token,
     }),
-    
+
   update: (id: string, data: any, token: string) =>
     apiRequest(`/inquiries/${id}`, {
-      method: 'PUT',
+      method: "PUT",
       body: data,
       token,
     }),
