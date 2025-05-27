@@ -196,15 +196,7 @@ const AreaDetailPage = () => {
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-black/20" />
 
-        {/* Back Button */}
-        <div className="absolute top-6 left-6 z-10">
-          <Link href="/">
-            <Button variant="secondary" size="sm" className="backdrop-blur-sm bg-white/90 hover:bg-white">
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Back to Home
-            </Button>
-          </Link>
-        </div>
+
 
         {/* Hero Content - Redesigned */}
         <div className="absolute inset-0 flex items-center justify-center">
