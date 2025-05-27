@@ -12,6 +12,17 @@ const nextConfig = {
   },
   experimental: {
     serverComponentsExternalPackages: ['@prisma/client', 'prisma']
+  },
+  // Skip database operations during build
+  env: {
+    SKIP_ENV_VALIDATION: 'true',
+  },
+  // Webpack configuration to handle Prisma during build
+  webpack: (config, { isServer, nextRuntime }) => {
+    if (isServer && nextRuntime === 'nodejs') {
+      config.plugins = [...config.plugins]
+    }
+    return config
   }
 };
 

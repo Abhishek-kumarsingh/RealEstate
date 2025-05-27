@@ -6,9 +6,15 @@ const globalForPrisma = globalThis as unknown as {
 
 // Create Prisma client with proper error handling
 function createPrismaClient(): PrismaClient | null {
-  // Skip Prisma client creation during build if DATABASE_URL is not available
-  if (!process.env.DATABASE_URL && process.env.NODE_ENV !== 'development') {
-    console.warn('DATABASE_URL not found, skipping Prisma client creation during build')
+  // Skip Prisma client creation during build time
+  if (process.env.NEXT_PHASE === 'phase-production-build') {
+    console.warn('Skipping Prisma client creation during build phase')
+    return null
+  }
+
+  // Skip if no DATABASE_URL is provided
+  if (!process.env.DATABASE_URL) {
+    console.warn('DATABASE_URL not found, skipping Prisma client creation')
     return null
   }
 

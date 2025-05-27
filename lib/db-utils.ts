@@ -5,7 +5,8 @@ import { Prisma } from '@prisma/client'
 export async function connectDB() {
   try {
     if (!prisma) {
-      throw new Error('Prisma client not available')
+      console.warn('Prisma client not available during build')
+      return false
     }
     await prisma.$connect()
     console.log('✅ Connected to PostgreSQL database')
@@ -19,6 +20,10 @@ export async function connectDB() {
 // Database disconnection utility
 export async function disconnectDB() {
   try {
+    if (!prisma) {
+      console.warn('Prisma client not available during build')
+      return
+    }
     await prisma.$disconnect()
     console.log('✅ Disconnected from database')
   } catch (error) {
@@ -29,6 +34,13 @@ export async function disconnectDB() {
 // Health check utility
 export async function checkDatabaseHealth() {
   try {
+    if (!prisma) {
+      return {
+        status: 'unavailable',
+        error: 'Prisma client not available',
+        timestamp: new Date()
+      }
+    }
     await prisma.$queryRaw`SELECT 1`
     return { status: 'healthy', timestamp: new Date() }
   } catch (error) {
@@ -44,6 +56,9 @@ export async function checkDatabaseHealth() {
 export async function withTransaction<T>(
   callback: (tx: Prisma.TransactionClient) => Promise<T>
 ): Promise<T> {
+  if (!prisma) {
+    throw new Error('Prisma client not available for transactions')
+  }
   return await prisma.$transaction(callback)
 }
 
