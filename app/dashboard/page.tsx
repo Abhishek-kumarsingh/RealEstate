@@ -1,15 +1,31 @@
 'use client';
 
+import { useState, useEffect } from 'react';
+import { useAuth } from '@/lib/contexts/AuthContext';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
-import { 
-  LineChart, Line, BarChart, Bar, PieChart, Pie, ResponsiveContainer, 
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import {
+  LineChart, Line, BarChart, Bar, PieChart, Pie, ResponsiveContainer,
   XAxis, YAxis, CartesianGrid, Tooltip, Legend, Cell
 } from 'recharts';
-import { 
+import {
   Building, Users, DollarSign, TrendingUp, Home, BadgeCheck,
-  ClipboardList, Calendar, ArrowUpRight
+  ClipboardList, Calendar, ArrowUpRight, Bot, MessageCircle,
+  Calculator, Shield, BarChart3, Brain, Eye, EyeOff, Loader2
 } from 'lucide-react';
+
+// Import new components we'll create
+import AIRecommendations from '@/components/dashboard/AIRecommendations';
+import MarketAnalytics from '@/components/dashboard/MarketAnalytics';
+import ChatSystem from '@/components/dashboard/ChatSystem';
+import MortgageCalculator from '@/components/dashboard/MortgageCalculator';
+import InvestmentAnalysis from '@/components/dashboard/InvestmentAnalysis';
+import SecurityVerification from '@/components/dashboard/SecurityVerification';
+import AIChatbot from '@/components/dashboard/AIChatbot';
 
 // Mock data for charts
 const propertyData = [
@@ -100,14 +116,179 @@ const recentActivity = [
 ];
 
 export default function DashboardPage() {
+  const { user, login, loading } = useAuth();
+  const [activeTab, setActiveTab] = useState('overview');
+  const [showLogin, setShowLogin] = useState(false);
+
+  // Login form state
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [loginError, setLoginError] = useState('');
+  const [loginLoading, setLoginLoading] = useState(false);
+
+  useEffect(() => {
+    if (!user && !loading) {
+      setShowLogin(true);
+    }
+  }, [user, loading]);
+
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoginError('');
+    setLoginLoading(true);
+
+    const result = await login(email, password);
+
+    if (result.success) {
+      setShowLogin(false);
+      setEmail('');
+      setPassword('');
+    } else {
+      setLoginError(result.error || 'Login failed');
+    }
+
+    setLoginLoading(false);
+  };
+
+  // Show login overlay if not authenticated
+  if (showLogin && !user) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-muted/20 px-6 lg:px-8">
+        <Card className="w-full max-w-md">
+          <CardHeader className="space-y-1">
+            <CardTitle className="text-2xl font-bold text-center">Welcome to RealEstate Pro</CardTitle>
+            <CardDescription className="text-center">
+              Sign in to access your comprehensive real estate dashboard
+            </CardDescription>
+          </CardHeader>
+
+          <form onSubmit={handleLogin}>
+            <CardContent className="space-y-4">
+              {loginError && (
+                <Alert variant="destructive">
+                  <AlertDescription>{loginError}</AlertDescription>
+                </Alert>
+              )}
+
+              <div className="space-y-2">
+                <Label htmlFor="email">Email</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  placeholder="Enter your email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                  disabled={loginLoading}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="password">Password</Label>
+                <div className="relative">
+                  <Input
+                    id="password"
+                    type={showPassword ? 'text' : 'password'}
+                    placeholder="Enter your password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                    disabled={loginLoading}
+                  />
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                    onClick={() => setShowPassword(!showPassword)}
+                    disabled={loginLoading}
+                  >
+                    {showPassword ? (
+                      <EyeOff className="h-4 w-4" />
+                    ) : (
+                      <Eye className="h-4 w-4" />
+                    )}
+                  </Button>
+                </div>
+              </div>
+
+              <Button type="submit" className="w-full" disabled={loginLoading}>
+                {loginLoading ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Signing in...
+                  </>
+                ) : (
+                  'Access Dashboard'
+                )}
+              </Button>
+            </CardContent>
+          </form>
+        </Card>
+      </div>
+    );
+  }
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-8">
       <div className="flex flex-col">
-        <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
-        <p className="text-muted-foreground">Welcome back to your dashboard</p>
+        <h1 className="text-3xl font-bold tracking-tight">
+          Welcome back, {user?.name}!
+        </h1>
+        <p className="text-muted-foreground">
+          Your comprehensive real estate management dashboard
+        </p>
       </div>
 
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
+      {/* Enhanced Navigation Tabs */}
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+        <TabsList className="grid w-full grid-cols-8 lg:w-auto lg:grid-cols-none lg:flex">
+          <TabsTrigger value="overview" className="flex items-center gap-2">
+            <BarChart3 className="h-4 w-4" />
+            Overview
+          </TabsTrigger>
+          <TabsTrigger value="ai-recommendations" className="flex items-center gap-2">
+            <Brain className="h-4 w-4" />
+            AI Insights
+          </TabsTrigger>
+          <TabsTrigger value="market-analytics" className="flex items-center gap-2">
+            <TrendingUp className="h-4 w-4" />
+            Analytics
+          </TabsTrigger>
+          <TabsTrigger value="chat-system" className="flex items-center gap-2">
+            <MessageCircle className="h-4 w-4" />
+            Messages
+          </TabsTrigger>
+          <TabsTrigger value="mortgage-calc" className="flex items-center gap-2">
+            <Calculator className="h-4 w-4" />
+            Mortgage
+          </TabsTrigger>
+          <TabsTrigger value="investment" className="flex items-center gap-2">
+            <DollarSign className="h-4 w-4" />
+            Investment
+          </TabsTrigger>
+          <TabsTrigger value="security" className="flex items-center gap-2">
+            <Shield className="h-4 w-4" />
+            Security
+          </TabsTrigger>
+          <TabsTrigger value="ai-chat" className="flex items-center gap-2">
+            <Bot className="h-4 w-4" />
+            AI Assistant
+          </TabsTrigger>
+        </TabsList>
+
+        {/* Overview Tab - Original Dashboard Content */}
+        <TabsContent value="overview" className="space-y-6">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Card className="shadow-sm" data-aos="fade-up" data-aos-delay="0">
           <CardContent className="p-6">
             <div className="flex items-center gap-4">
@@ -274,8 +455,8 @@ export default function DashboardPage() {
           <CardContent>
             <div className="space-y-4">
               {recentProperties.map((property, index) => (
-                <div 
-                  key={property.id} 
+                <div
+                  key={property.id}
                   className="flex items-center gap-4 rounded-lg border p-3"
                   data-aos="fade-right"
                   data-aos-delay={index * 100}
@@ -297,7 +478,7 @@ export default function DashboardPage() {
                           : `$${property.price}/mo`}
                       </span>
                       <span className={`text-xs px-2 py-1 rounded-full ${
-                        property.status === 'Available' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' : 
+                        property.status === 'Available' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' :
                         'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
                       }`}>
                         {property.status}
@@ -318,8 +499,8 @@ export default function DashboardPage() {
           <CardContent>
             <div className="space-y-4">
               {recentActivity.map((activity, index) => (
-                <div 
-                  key={activity.id} 
+                <div
+                  key={activity.id}
                   className="flex items-start gap-4"
                   data-aos="fade-left"
                   data-aos-delay={index * 100}
@@ -338,6 +519,43 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
       </div>
+        </TabsContent>
+
+        {/* AI Recommendations Tab */}
+        <TabsContent value="ai-recommendations" className="space-y-6">
+          <AIRecommendations />
+        </TabsContent>
+
+        {/* Market Analytics Tab */}
+        <TabsContent value="market-analytics" className="space-y-6">
+          <MarketAnalytics />
+        </TabsContent>
+
+        {/* Chat System Tab */}
+        <TabsContent value="chat-system" className="space-y-6">
+          <ChatSystem />
+        </TabsContent>
+
+        {/* Mortgage Calculator Tab */}
+        <TabsContent value="mortgage-calc" className="space-y-6">
+          <MortgageCalculator />
+        </TabsContent>
+
+        {/* Investment Analysis Tab */}
+        <TabsContent value="investment" className="space-y-6">
+          <InvestmentAnalysis />
+        </TabsContent>
+
+        {/* Security Verification Tab */}
+        <TabsContent value="security" className="space-y-6">
+          <SecurityVerification />
+        </TabsContent>
+
+        {/* AI Chatbot Tab */}
+        <TabsContent value="ai-chat" className="space-y-6">
+          <AIChatbot />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }
