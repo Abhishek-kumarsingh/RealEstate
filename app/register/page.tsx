@@ -70,7 +70,7 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-muted/20 px-6 lg:px-8 py-12">
+    <div className="min-h-screen flex items-center justify-center bg-muted/20 px-6 lg:px-8 py-12 pt-32">
       <div className="w-full max-w-4xl space-y-8">
         {/* Register Card */}
         <Card className="w-full max-w-md mx-auto">
