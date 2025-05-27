@@ -4,8 +4,13 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 const genAI = new GoogleGenerativeAI(process.env.GOOGLE_AI_API_KEY!);
 
 export async function POST(request: NextRequest) {
+  let message = '';
+  let context = '';
+
   try {
-    const { message, context } = await request.json();
+    const requestData = await request.json();
+    message = requestData.message;
+    context = requestData.context;
 
     if (!message) {
       return NextResponse.json(
@@ -76,7 +81,7 @@ Please provide a helpful, professional response as a real estate AI assistant:`;
     console.error('AI Chat Error:', error);
 
     // Fallback response if AI fails
-    const fallbackResponse = generateFallbackResponse(await request.json().then(data => data.message));
+    const fallbackResponse = generateFallbackResponse(message);
 
     return NextResponse.json({
       response: fallbackResponse.response,

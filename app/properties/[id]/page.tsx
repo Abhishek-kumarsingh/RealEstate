@@ -155,6 +155,13 @@ export default function PropertyDetailPage() {
         return;
       }
 
+      // Skip API call during build or if window is not available (SSR)
+      if (typeof window === 'undefined') {
+        setError('Property not found');
+        setLoading(false);
+        return;
+      }
+
       // If not a mock property, try to fetch from API
       const response = await propertiesApi.getById(params.id as string);
       setProperty(response.property);

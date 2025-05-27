@@ -1,5 +1,5 @@
 import HeroSection from '@/components/home/HeroSection';
-import FeaturedProperties from '@/components/home/FeaturedProperties';
+// import FeaturedProperties from '@/components/home/FeaturedProperties';
 import CategorySection from '@/components/home/CategorySection';
 import ExploreByAreaSection from '@/components/home/ExploreByAreaSection';
 import PremiumListingsSection from '@/components/home/PremiumListingsSection';
@@ -12,10 +12,10 @@ export default function Home() {
     <div className="flex flex-col">
       <HeroSection />
 
-      {/* Latest Properties */}
-      <div className="section-spacing px-6 lg:px-8">
+      {/* Latest Properties - Temporarily disabled for build testing */}
+      {/* <div className="section-spacing px-6 lg:px-8">
         <FeaturedProperties />
-      </div>
+      </div> */}
 
       {/* Explore by Area/City */}
       <div className="section-spacing px-6 lg:px-8 bg-muted/30">

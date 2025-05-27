@@ -25,6 +25,12 @@ export default function InquiriesPage() {
   }, [user, token]);
 
   const fetchInquiries = async () => {
+    // Skip API call during build or if window is not available (SSR)
+    if (typeof window === 'undefined') {
+      setLoading(false);
+      return;
+    }
+
     try {
       setLoading(true);
       setError('');
@@ -88,7 +94,7 @@ export default function InquiriesPage() {
           {user.role === 'agent' ? 'Property Inquiries' : 'My Inquiries'}
         </h1>
         <p className="text-muted-foreground">
-          {user.role === 'agent' 
+          {user.role === 'agent'
             ? 'Manage inquiries for your properties'
             : 'Track your property inquiries and responses'
           }
@@ -113,7 +119,7 @@ export default function InquiriesPage() {
             <MessageCircle className="h-12 w-12 text-muted-foreground mb-4" />
             <h3 className="text-lg font-semibold mb-2">No inquiries yet</h3>
             <p className="text-muted-foreground text-center">
-              {user.role === 'agent' 
+              {user.role === 'agent'
                 ? 'When users inquire about your properties, they will appear here.'
                 : 'Your property inquiries will appear here when you contact agents.'
               }
@@ -132,7 +138,7 @@ export default function InquiriesPage() {
                     </CardTitle>
                     <CardDescription className="flex items-center gap-2 mt-1">
                       <span>
-                        {user.role === 'agent' 
+                        {user.role === 'agent'
                           ? `From: ${inquiry.contactInfo?.name || inquiry.user?.name}`
                           : `To: ${inquiry.agent?.name}`
                         }
@@ -218,15 +224,15 @@ export default function InquiriesPage() {
                           rows={3}
                         />
                         <div className="flex gap-2">
-                          <Button 
+                          <Button
                             onClick={() => handleRespond(inquiry._id)}
                             disabled={!response.trim()}
                           >
                             <Send className="mr-2 h-4 w-4" />
                             Send Response
                           </Button>
-                          <Button 
-                            variant="outline" 
+                          <Button
+                            variant="outline"
                             onClick={() => {
                               setRespondingTo(null);
                               setResponse('');
@@ -237,8 +243,8 @@ export default function InquiriesPage() {
                         </div>
                       </div>
                     ) : (
-                      <Button 
-                        variant="outline" 
+                      <Button
+                        variant="outline"
                         onClick={() => setRespondingTo(inquiry._id)}
                       >
                         <MessageCircle className="mr-2 h-4 w-4" />

@@ -22,6 +22,12 @@ export default function FavoritesPage() {
   }, [user, token]);
 
   const fetchFavorites = async () => {
+    // Skip API call during build or if window is not available (SSR)
+    if (typeof window === 'undefined') {
+      setLoading(false);
+      return;
+    }
+
     try {
       setLoading(true);
       setError('');
@@ -102,8 +108,8 @@ export default function FavoritesPage() {
           {/* Properties Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {favorites.map((property: any) => (
-              <PropertyCard 
-                key={property._id} 
+              <PropertyCard
+                key={property._id}
                 property={property}
               />
             ))}

@@ -31,6 +31,15 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
     }
   }, [user, loading, router]);
 
+  // Show loading state while checking authentication
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
+    );
+  }
+
   // Close mobile menu on larger screens
   useEffect(() => {
     const handleResize = () => {
@@ -43,16 +52,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  // Show loading spinner while checking authentication
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin" />
-      </div>
-    );
-  }
-
-  // Don't render dashboard if not authenticated
+  // Don't render if no user
   if (!user) {
     return null;
   }

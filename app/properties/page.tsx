@@ -65,6 +65,12 @@ export default function PropertiesPage() {
   const searchParams = useSearchParams();
 
   const fetchProperties = async (currentFilters = filters) => {
+    // Skip API call during build or if window is not available (SSR)
+    if (typeof window === 'undefined') {
+      setLoading(false);
+      return;
+    }
+
     try {
       setLoading(true);
       setError('');
@@ -324,18 +330,18 @@ export default function PropertiesPage() {
             </div>
 
             <div className="flex gap-2">
-              <Button 
-                onClick={handleSearch} 
-                size="sm" 
+              <Button
+                onClick={handleSearch}
+                size="sm"
                 className="flex items-center gap-1.5 h-8 px-3 text-xs font-semibold rounded-md shadow-sm hover:shadow-md transition-all"
               >
                 <Search className="h-3.5 w-3.5" />
                 Search Properties
               </Button>
-              <Button 
-                variant="outline" 
-                onClick={clearFilters} 
-                size="sm" 
+              <Button
+                variant="outline"
+                onClick={clearFilters}
+                size="sm"
                 className="h-8 px-3 text-xs font-medium"
               >
                 Clear Filters

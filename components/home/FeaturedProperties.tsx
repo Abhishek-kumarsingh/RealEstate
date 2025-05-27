@@ -112,6 +112,12 @@ const FeaturedProperties = () => {
 
   useEffect(() => {
     const fetchFeaturedProperties = async () => {
+      // Skip API call during build or if window is not available (SSR)
+      if (typeof window === 'undefined') {
+        setLoading(false);
+        return;
+      }
+
       try {
         const response = await propertiesApi.getAll({ featured: 'true', limit: '3' });
         // If we get real properties from the database, use them; otherwise use mock data
