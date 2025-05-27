@@ -5,7 +5,7 @@ import { requireAuth, AuthenticatedRequest } from '@/lib/middleware/auth';
 // DELETE /api/favorites/[propertyId] - Remove property from favorites
 async function removeFromFavorites(
   request: AuthenticatedRequest,
-  { params }: { params: { propertyId: string } }
+  { params }: { params: Promise<{ propertyId: string }> }
 ) {
   try {
     if (!prisma) {
@@ -15,10 +15,11 @@ async function removeFromFavorites(
       );
     }
 
+    const { propertyId } = await params;
     const deletedFavorite = await prisma.favorite.deleteMany({
       where: {
         userId: request.user?.userId,
-        propertyId: params.propertyId
+        propertyId
       }
     });
 

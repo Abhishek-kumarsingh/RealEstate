@@ -53,7 +53,7 @@ const agentData = {
 // Mock properties data
 const agentProperties = [
   {
-    _id: '1',
+    id: '1',
     title: 'Luxury Penthouse with Sea View',
     description: 'Stunning penthouse with panoramic sea views',
     price: 12500000,
@@ -72,7 +72,7 @@ const agentProperties = [
       yearBuilt: 2020
     },
     amenities: ['Swimming Pool', 'Gym', 'Parking'],
-    images: ['https://images.pexels.com/photos/1396132/pexels-photo-1396132.jpeg?auto=compress&cs=tinysrgb&w=800'],
+    images: [{ url: 'https://images.pexels.com/photos/1396132/pexels-photo-1396132.jpeg?auto=compress&cs=tinysrgb&w=800', alt: 'Luxury Penthouse' }],
     status: 'available',
     featured: true,
     agent: agentData
@@ -123,7 +123,7 @@ export default function AgentProfilePage() {
           className="object-cover"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
-        
+
         <div className="absolute bottom-8 left-0 right-0">
           <div className="container mx-auto px-6 lg:px-8">
             <div className="flex flex-col md:flex-row items-start md:items-end gap-6">
@@ -162,7 +162,7 @@ export default function AgentProfilePage() {
                   <MapPin className="w-4 h-4 mr-1" />
                   {agentData.location}
                 </div>
-                
+
                 {/* Quick Stats */}
                 <div className="flex items-center gap-6">
                   <div className="flex items-center">
@@ -264,10 +264,10 @@ export default function AgentProfilePage() {
                       <h3 className="text-xl font-semibold">Listed Properties</h3>
                       <Badge variant="secondary">{agentProperties.length} properties</Badge>
                     </div>
-                    
+
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       {agentProperties.map((property) => (
-                        <PropertyCard key={property._id} property={property} />
+                        <PropertyCard key={property.id} property={property} />
                       ))}
                     </div>
                   </div>

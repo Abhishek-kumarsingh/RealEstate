@@ -353,7 +353,7 @@ export default function PropertiesMapPage() {
                 <PropertyCard
                   key={property.id}
                   property={{
-                    _id: property.id,
+                    id: property.id,
                     title: property.title,
                     description: property.description,
                     price: property.price,
@@ -367,7 +367,7 @@ export default function PropertiesMapPage() {
                     },
                     features: property.features,
                     amenities: property.amenities,
-                    images: property.images,
+                    images: property.images.map((url: string, index: number) => ({ url, alt: `Property image ${index + 1}` })),
                     status: property.status,
                     featured: property.featured,
                     agent: {

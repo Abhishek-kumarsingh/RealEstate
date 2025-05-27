@@ -22,6 +22,13 @@ import {
   User,
   Bell,
   Loader2,
+  TrendingUp,
+  Brain,
+  Calculator,
+  DollarSign,
+  BarChart3,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
@@ -75,10 +82,20 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
     admin: [
       { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
       { name: "Properties", href: "/dashboard/properties", icon: Building },
+      { name: "Add Property", href: "/dashboard/properties/new", icon: Plus },
       { name: "Users", href: "/dashboard/users", icon: Users },
-      { name: "Messages", href: "/dashboard/messages", icon: MessageCircle },
       { name: "Agents", href: "/dashboard/agents", icon: User },
-      { name: "Reports", href: "/dashboard/reports", icon: FileText },
+      { name: "Messages", href: "/dashboard/messages", icon: MessageCircle },
+      { name: "Inquiries", href: "/dashboard/inquiries", icon: MessageCircle },
+      { name: "Favorites", href: "/dashboard/favorites", icon: Heart },
+      { name: "Analytics", href: "/dashboard/analytics", icon: TrendingUp },
+      { name: "AI Insights", href: "/dashboard/ai-insights", icon: Brain },
+      { name: "Mortgage Calc", href: "/dashboard/mortgage", icon: Calculator },
+      { name: "Investment", href: "/dashboard/investment", icon: DollarSign },
+      { name: "Documents", href: "/dashboard/documents", icon: FileText },
+      { name: "Notifications", href: "/dashboard/notifications", icon: Bell },
+      { name: "Reports", href: "/dashboard/reports", icon: BarChart3 },
+      { name: "Profile", href: "/dashboard/profile", icon: User },
       { name: "Settings", href: "/dashboard/settings", icon: Settings },
     ],
     agent: [
@@ -87,6 +104,13 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
       { name: "Add Property", href: "/dashboard/properties/new", icon: Plus },
       { name: "Messages", href: "/dashboard/messages", icon: MessageCircle },
       { name: "Inquiries", href: "/dashboard/inquiries", icon: MessageCircle },
+      { name: "Favorites", href: "/dashboard/favorites", icon: Heart },
+      { name: "Analytics", href: "/dashboard/analytics", icon: TrendingUp },
+      { name: "AI Insights", href: "/dashboard/ai-insights", icon: Brain },
+      { name: "Mortgage Calc", href: "/dashboard/mortgage", icon: Calculator },
+      { name: "Investment", href: "/dashboard/investment", icon: DollarSign },
+      { name: "Documents", href: "/dashboard/documents", icon: FileText },
+      { name: "Notifications", href: "/dashboard/notifications", icon: Bell },
       { name: "Profile", href: "/dashboard/profile", icon: User },
       { name: "Settings", href: "/dashboard/settings", icon: Settings },
     ],
@@ -95,6 +119,10 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
       { name: "Favorites", href: "/dashboard/favorites", icon: Heart },
       { name: "Messages", href: "/dashboard/messages", icon: MessageCircle },
       { name: "Inquiries", href: "/dashboard/inquiries", icon: MessageCircle },
+      { name: "AI Insights", href: "/dashboard/ai-insights", icon: Brain },
+      { name: "Mortgage Calc", href: "/dashboard/mortgage", icon: Calculator },
+      { name: "Investment", href: "/dashboard/investment", icon: DollarSign },
+      { name: "Notifications", href: "/dashboard/notifications", icon: Bell },
       { name: "Profile", href: "/dashboard/profile", icon: User },
       { name: "Settings", href: "/dashboard/settings", icon: Settings },
     ],
@@ -119,6 +147,21 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
         </Button>
 
         <div className="flex items-center gap-2">
+          {/* Sidebar toggle button for desktop */}
+          <Button
+            variant="ghost"
+            size="icon"
+            className="hidden lg:flex"
+            onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+          >
+            {isSidebarOpen ? (
+              <ChevronLeft className="h-5 w-5" />
+            ) : (
+              <ChevronRight className="h-5 w-5" />
+            )}
+            <span className="sr-only">Toggle sidebar</span>
+          </Button>
+
           <Link href="/" className="flex items-center gap-2">
             <Home className="h-6 w-6" />
             <span className="font-bold hidden md:inline-block">

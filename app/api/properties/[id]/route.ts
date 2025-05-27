@@ -5,11 +5,12 @@ import { requireAuth, requireRole, AuthenticatedRequest } from '@/lib/middleware
 // GET /api/properties/[id] - Get single property
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const property = await prisma.property.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: {
         agent: {
           select: {
@@ -46,11 +47,12 @@ export async function GET(
 // PUT /api/properties/[id] - Update property
 async function updateProperty(
   request: AuthenticatedRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const property = await prisma.property.findUnique({
-      where: { id: params.id },
+      where: { id },
       select: { id: true, agentId: true }
     });
 
@@ -82,7 +84,7 @@ async function updateProperty(
     if (updateData.status) updateData.status = updateData.status.toUpperCase();
 
     const updatedProperty = await prisma.property.update({
-      where: { id: params.id },
+      where: { id },
       data: updateData,
       include: {
         agent: {
@@ -117,11 +119,12 @@ async function updateProperty(
 // DELETE /api/properties/[id] - Delete property
 async function deleteProperty(
   request: AuthenticatedRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const property = await prisma.property.findUnique({
-      where: { id: params.id },
+      where: { id },
       select: { id: true, agentId: true }
     });
 
@@ -141,7 +144,7 @@ async function deleteProperty(
     }
 
     await prisma.property.delete({
-      where: { id: params.id }
+      where: { id }
     });
 
     return NextResponse.json({
