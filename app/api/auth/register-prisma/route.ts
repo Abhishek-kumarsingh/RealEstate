@@ -81,10 +81,10 @@ export async function POST(request: NextRequest) {
 
     // Generate JWT token
     const token = jwt.sign(
-      { 
-        userId: user.id, 
-        email: user.email, 
-        role: user.role 
+      {
+        userId: user.id,
+        email: user.email,
+        role: user.role
       },
       process.env.JWT_SECRET!,
       { expiresIn: '7d' }
@@ -118,7 +118,7 @@ export async function POST(request: NextRequest) {
 
   } catch (error: any) {
     console.error('Registration error:', error)
-    
+
     // Handle Prisma-specific errors
     if (error.code === 'P2002') {
       return NextResponse.json(

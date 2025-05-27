@@ -6,7 +6,7 @@ import { paginate, buildPropertySearchFilter } from '@/lib/db-utils'
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
-    
+
     // Extract search parameters
     const searchOptions = {
       query: searchParams.get('query') || undefined,
@@ -107,9 +107,9 @@ export async function POST(request: NextRequest) {
   try {
     // For now, we'll skip authentication middleware and assume it's handled elsewhere
     // In a real implementation, you'd extract user info from JWT token
-    
+
     const data = await request.json()
-    
+
     // Validate required fields
     const requiredFields = ['title', 'description', 'price', 'type', 'category', 'address', 'city', 'state', 'zipCode', 'agentId']
     for (const field of requiredFields) {
@@ -123,10 +123,10 @@ export async function POST(request: NextRequest) {
 
     // Validate agent exists
     const agent = await prisma.user.findUnique({
-      where: { 
+      where: {
         id: data.agentId,
         role: { in: ['AGENT', 'ADMIN'] },
-        isActive: true 
+        isActive: true
       }
     })
 
@@ -147,7 +147,7 @@ export async function POST(request: NextRequest) {
         category: data.category.toUpperCase(),
         status: data.status?.toUpperCase() || 'AVAILABLE',
         featured: data.featured || false,
-        
+
         // Location
         address: data.address,
         city: data.city,
@@ -157,7 +157,7 @@ export async function POST(request: NextRequest) {
         latitude: data.latitude ? parseFloat(data.latitude) : null,
         longitude: data.longitude ? parseFloat(data.longitude) : null,
         neighborhood: data.neighborhood,
-        
+
         // Features
         bedrooms: data.bedrooms ? parseInt(data.bedrooms) : null,
         bathrooms: data.bathrooms ? parseFloat(data.bathrooms) : null,
@@ -166,30 +166,30 @@ export async function POST(request: NextRequest) {
         yearBuilt: data.yearBuilt ? parseInt(data.yearBuilt) : null,
         floors: data.floors ? parseInt(data.floors) : null,
         parkingSpaces: data.parkingSpaces ? parseInt(data.parkingSpaces) : null,
-        
+
         // Details
         amenities: data.amenities || [],
         features: data.features || [],
         appliances: data.appliances || [],
         utilities: data.utilities || [],
-        
+
         // Financial
         propertyTax: data.propertyTax ? parseFloat(data.propertyTax) : null,
         hoaFees: data.hoaFees ? parseFloat(data.hoaFees) : null,
         insurance: data.insurance ? parseFloat(data.insurance) : null,
-        
+
         // Rental specific
         rentType: data.rentType?.toUpperCase(),
         deposit: data.deposit ? parseFloat(data.deposit) : null,
         petPolicy: data.petPolicy?.toUpperCase(),
         leaseTerm: data.leaseTerm ? parseInt(data.leaseTerm) : null,
-        
+
         // SEO
         slug: data.slug,
         metaTitle: data.metaTitle,
         metaDescription: data.metaDescription,
         keywords: data.keywords || [],
-        
+
         agentId: data.agentId,
       },
       include: {
@@ -212,7 +212,7 @@ export async function POST(request: NextRequest) {
 
   } catch (error: any) {
     console.error('Property creation error:', error)
-    
+
     if (error.code === 'P2002') {
       return NextResponse.json(
         { error: 'Property with this slug already exists' },

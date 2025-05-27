@@ -18,9 +18,9 @@ export async function POST(request: NextRequest) {
 
     // Find user by email
     const user = await prisma.user.findUnique({
-      where: { 
+      where: {
         email: email.toLowerCase(),
-        isActive: true 
+        isActive: true
       }
     })
 
@@ -58,10 +58,10 @@ export async function POST(request: NextRequest) {
 
     // Generate JWT token
     const token = jwt.sign(
-      { 
-        userId: user.id, 
-        email: user.email, 
-        role: user.role 
+      {
+        userId: user.id,
+        email: user.email,
+        role: user.role
       },
       process.env.JWT_SECRET!,
       { expiresIn: '7d' }
