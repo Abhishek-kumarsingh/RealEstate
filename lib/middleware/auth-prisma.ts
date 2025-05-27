@@ -18,7 +18,7 @@ export async function requireAuth(
   try {
     // Get token from Authorization header or cookie
     let token = request.headers.get('authorization')?.replace('Bearer ', '')
-    
+
     if (!token) {
       token = request.cookies.get('auth-token')?.value
     }
@@ -31,11 +31,19 @@ export async function requireAuth(
     }
 
     // Verify JWT token
-    const decoded = jwt.verify(token, process.env.JWT_SECRET!) as any
+    const JWT_SECRET = process.env.JWT_SECRET;
+    if (!JWT_SECRET) {
+      return NextResponse.json(
+        { error: 'Server configuration error' },
+        { status: 500 }
+      );
+    }
+
+    const decoded = jwt.verify(token, JWT_SECRET) as any
 
     // Check if session exists and is valid
     const session = await prisma.userSession.findUnique({
-      where: { 
+      where: {
         token,
         expiresAt: { gt: new Date() }
       },
@@ -72,7 +80,7 @@ export async function requireAuth(
 
   } catch (error: any) {
     console.error('Authentication error:', error)
-    
+
     if (error.name === 'JsonWebTokenError') {
       return NextResponse.json(
         { error: 'Invalid token' },
@@ -128,7 +136,7 @@ export async function requireAdmin(
 export async function getCurrentUser(request: NextRequest) {
   try {
     let token = request.headers.get('authorization')?.replace('Bearer ', '')
-    
+
     if (!token) {
       token = request.cookies.get('auth-token')?.value
     }
@@ -137,10 +145,15 @@ export async function getCurrentUser(request: NextRequest) {
       return null
     }
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET!) as any
+    const JWT_SECRET = process.env.JWT_SECRET;
+    if (!JWT_SECRET) {
+      return null;
+    }
+
+    const decoded = jwt.verify(token, JWT_SECRET) as any
 
     const session = await prisma.userSession.findUnique({
-      where: { 
+      where: {
         token,
         expiresAt: { gt: new Date() }
       },
