@@ -11,6 +11,8 @@ const nextConfig = {
     unoptimized: false
   },
   experimental: {
+    // Ensure we're using the App Router properly
+    appDir: true,
   },
   serverExternalPackages: ['@prisma/client', 'prisma'],
   // Skip database operations during build
@@ -23,7 +25,9 @@ const nextConfig = {
       config.plugins = [...config.plugins]
     }
     return config
-  }
+  },
+  // Disable static 500 error page generation
+  output: 'standalone'
 };
 
 module.exports = nextConfig;
