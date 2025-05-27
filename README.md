@@ -115,14 +115,18 @@ npm install
 
 ### 3. Environment Setup
 Create a `.env.local` file in the root directory:
+
+**⚠️ IMPORTANT: Make sure your `.env.local` file is in your `.gitignore` to prevent committing secrets to GitHub.**
+
 ```env
 # Database - PostgreSQL with Prisma
 DATABASE_URL="postgresql://username:password@localhost:5432/realestate?schema=public"
 # For local development, you can use:
 # DATABASE_URL="postgresql://postgres:password@localhost:5432/realestate?schema=public"
 
-# JWT Secret
-JWT_SECRET=your-super-secret-jwt-key-change-this-in-production
+# JWT Secret - REQUIRED for authentication
+# Generate a secure secret with: openssl rand -base64 32
+JWT_SECRET=GYu+w0OyKXAvTgt/PLOfsKAG4ayaUmLBy/uEo0WQMtA=
 
 # NextAuth
 NEXTAUTH_URL=http://localhost:3000
@@ -134,6 +138,14 @@ GOOGLE_AI_API_KEY=your-google-ai-api-key
 # App Settings
 NODE_ENV=development
 ```
+
+**For Production Deployment (Vercel):**
+Add these environment variables in your Vercel dashboard:
+- `DATABASE_URL` - Your production PostgreSQL database URL
+- `JWT_SECRET` - A secure JWT secret (use the one provided above or generate a new one)
+- `GOOGLE_AI_API_KEY` - Your Google AI API key
+- `NEXTAUTH_URL` - Your production domain URL
+- `NEXTAUTH_SECRET` - A secure NextAuth secret
 
 ### 4. Set Up PostgreSQL Database
 ```bash
