@@ -53,15 +53,16 @@ const BlogSection = () => {
         </Link>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        {blogPosts.map((post, index) => (
+      {/* Show max 3 cards for laptop size as requested */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 equal-height-grid">
+        {blogPosts.slice(0, 3).map((post, index) => (
           <Link
             key={post.id}
             href={`/blog/${post.slug}`}
             className="group"
           >
             <article
-              className="h-full flex flex-col rounded-xl overflow-hidden bg-card border border-border shadow-sm transition-all duration-300 hover:shadow-md"
+              className="h-full flex flex-col rounded-xl overflow-hidden bg-card border border-border shadow-lg transition-all duration-300 hover:shadow-xl transform hover:-translate-y-2 card-height-tall"
               data-aos="fade-up"
               data-aos-delay={index * 100}
             >

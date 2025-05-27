@@ -37,13 +37,15 @@ const Header = () => {
   // Navigation items
   const navItems = [
     { name: 'Home', href: '/' },
+    { name: 'Properties', href: '/properties' },
     { name: 'Buy', href: '/properties?type=buy' },
     { name: 'Rent', href: '/properties?type=rent' },
-    { name: 'Map', href: '/properties/map' },
     { name: 'Agents', href: '/agents' },
     { name: 'About', href: '/about' },
     { name: 'Contact', href: '/contact' },
   ];
+
+
 
   return (
     <header className={cn(
@@ -177,6 +179,7 @@ const Header = () => {
                 {item.name}
               </Link>
             ))}
+
             <div className="flex flex-col space-y-2 pt-4 pb-2">
               {!loading && (
                 <>

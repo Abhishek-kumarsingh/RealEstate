@@ -42,42 +42,94 @@ const HeroSection = () => {
   ];
 
   return (
-    <div className="relative min-h-[90vh] flex items-center bg-card">
-      {/* Background Image */}
-      <div
-        className="absolute inset-0 bg-cover bg-center"
-        style={{
-          backgroundImage: 'url("https://images.pexels.com/photos/1396122/pexels-photo-1396122.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2")',
-          backgroundPosition: 'center 30%'
-        }}
-      >
-        <div className="absolute inset-0 bg-black/40" />
-      </div>
-
-      <div className="container mx-auto px-6 lg:px-8 relative z-10">
-        <div className="max-w-4xl mx-auto text-center text-white mb-8">
-          <h1
-            className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4"
-            data-aos="fade-up"
-            data-aos-delay="100"
-          >
-            Find Your Dream Property
-          </h1>
-          <p
-            className="text-lg md:text-xl opacity-90 mb-8"
-            data-aos="fade-up"
-            data-aos-delay="200"
-          >
-            Discover the perfect home across our extensive property listings
-          </p>
+    <div className="relative">
+      {/* Hero Section - Upper Half */}
+      <div className="relative h-[60vh] flex items-center bg-gradient-to-br from-primary/10 via-primary/5 to-background">
+        {/* Background Image */}
+        <div
+          className="absolute inset-0 bg-cover bg-center"
+          style={{
+            backgroundImage: 'url("https://images.pexels.com/photos/1396122/pexels-photo-1396122.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2")',
+            backgroundPosition: 'center 30%'
+          }}
+        >
+          <div className="absolute inset-0 bg-gradient-to-br from-black/60 via-black/40 to-black/30" />
         </div>
 
-        {/* Search Widget */}
-        <div
-          className="bg-background/95 backdrop-blur-sm rounded-xl shadow-xl overflow-hidden max-w-4xl mx-auto"
-          data-aos="fade-up"
-          data-aos-delay="300"
-        >
+        <div className="container mx-auto px-6 lg:px-8 relative z-10">
+          <div className="max-w-5xl mx-auto text-center text-white">
+            <h1
+              className="text-4xl md:text-5xl lg:text-7xl font-bold mb-6 leading-tight"
+              data-aos="fade-up"
+              data-aos-delay="100"
+            >
+              Find Your Perfect
+              <span className="block text-transparent bg-gradient-to-r from-yellow-400 to-orange-500 bg-clip-text">
+                Dream Home
+              </span>
+            </h1>
+            <p
+              className="text-lg md:text-xl lg:text-2xl opacity-90 mb-8 max-w-3xl mx-auto"
+              data-aos="fade-up"
+              data-aos-delay="200"
+            >
+              Discover premium properties across India's major cities with our AI-powered recommendations
+            </p>
+
+            {/* Quick Stats */}
+            <div
+              className="flex flex-wrap justify-center gap-8 mb-8"
+              data-aos="fade-up"
+              data-aos-delay="300"
+            >
+              <div className="text-center">
+                <div className="text-2xl md:text-3xl font-bold text-yellow-400">10,000+</div>
+                <div className="text-sm opacity-80">Properties</div>
+              </div>
+              <div className="text-center">
+                <div className="text-2xl md:text-3xl font-bold text-yellow-400">5,000+</div>
+                <div className="text-sm opacity-80">Happy Clients</div>
+              </div>
+              <div className="text-center">
+                <div className="text-2xl md:text-3xl font-bold text-yellow-400">50+</div>
+                <div className="text-sm opacity-80">Cities</div>
+              </div>
+            </div>
+
+            {/* Call to Action Buttons */}
+            <div
+              className="flex flex-wrap justify-center gap-4"
+              data-aos="fade-up"
+              data-aos-delay="400"
+            >
+              <Button
+                size="lg"
+                className="bg-gradient-to-r from-yellow-400 to-orange-500 text-black hover:from-yellow-500 hover:to-orange-600 font-semibold"
+                onClick={() => router.push('/login?redirect=/submit-property')}
+              >
+                List Your Property
+              </Button>
+              <Button
+                size="lg"
+                variant="outline"
+                className="border-white text-white hover:bg-white hover:text-black font-semibold"
+                onClick={() => router.push('/register?redirect=/become-agent')}
+              >
+                Become an Agent
+              </Button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Search Widget - Lower Half Overlapping */}
+      <div className="relative -mt-20 z-20">
+        <div className="container mx-auto px-6 lg:px-8">
+          <div
+            className="bg-background/98 backdrop-blur-lg rounded-2xl shadow-2xl border border-border/50 overflow-hidden max-w-5xl mx-auto"
+            data-aos="fade-up"
+            data-aos-delay="400"
+          >
           <Tabs defaultValue="buy" value={searchType} onValueChange={setSearchType} className="w-full">
             <div className="px-4 pt-4">
               <TabsList className="w-full grid grid-cols-3 mb-6">
@@ -248,6 +300,7 @@ const HeroSection = () => {
               </div>
             </TabsContent>
           </Tabs>
+          </div>
         </div>
       </div>
     </div>

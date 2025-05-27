@@ -40,15 +40,28 @@ const FeaturedProperties = () => {
           <Loader2 className="h-8 w-8 animate-spin" />
         </div>
       ) : (
-        <div className="mt-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {featuredProperties.map((property: any, index: number) => (
-            <PropertyCard
-              key={property._id}
-              property={property}
-              className="data-aos='fade-up'"
-              data-aos-delay={index * 100}
-            />
-          ))}
+        <div className="mt-12">
+          {/* Show max 3 cards for laptop size as requested */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {featuredProperties.slice(0, 3).map((property: any, index: number) => (
+              <PropertyCard
+                key={property._id}
+                property={property}
+                className="transform transition-all duration-300 hover:scale-105"
+                data-aos="fade-up"
+                data-aos-delay={index * 100}
+              />
+            ))}
+          </div>
+
+          {/* Show additional properties in a carousel or different layout if needed */}
+          {featuredProperties.length > 3 && (
+            <div className="mt-8 text-center">
+              <p className="text-muted-foreground mb-4">
+                +{featuredProperties.length - 3} more featured properties available
+              </p>
+            </div>
+          )}
         </div>
       )}
 

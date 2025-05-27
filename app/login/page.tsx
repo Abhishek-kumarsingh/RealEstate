@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/lib/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Loader2, Eye, EyeOff } from 'lucide-react';
+import { Loader2, Eye, EyeOff, Home, UserPlus, Shield } from 'lucide-react';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -20,6 +20,8 @@ export default function LoginPage() {
 
   const { login, user } = useAuth();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const redirectTo = searchParams.get('redirect');
 
   useEffect(() => {
     // Redirect if already logged in
@@ -36,7 +38,9 @@ export default function LoginPage() {
     const result = await login(email, password);
 
     if (result.success) {
-      router.push('/dashboard');
+      // Redirect to the intended page or dashboard
+      const destination = redirectTo || '/dashboard';
+      router.push(destination);
     } else {
       setError(result.error || 'Login failed');
     }
@@ -49,8 +53,10 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-muted/20 px-6 lg:px-8">
-      <Card className="w-full max-w-md">
+    <div className="min-h-screen flex items-center justify-center bg-muted/20 px-6 lg:px-8 py-12">
+      <div className="w-full max-w-4xl space-y-8">
+        {/* Login Card */}
+        <Card className="w-full max-w-md mx-auto">
         <CardHeader className="space-y-1">
           <CardTitle className="text-2xl font-bold text-center">Welcome back</CardTitle>
           <CardDescription className="text-center">
@@ -135,7 +141,72 @@ export default function LoginPage() {
             </div>
           </CardFooter>
         </form>
-      </Card>
+        </Card>
+
+        {/* Quick Actions */}
+        <div className="max-w-4xl mx-auto">
+          <div className="text-center mb-6">
+            <h2 className="text-2xl font-bold mb-2">What would you like to do?</h2>
+            <p className="text-muted-foreground">Choose your action after logging in</p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {/* List Property */}
+            <Card className="hover:shadow-lg transition-shadow duration-300 cursor-pointer group">
+              <CardContent className="p-6 text-center">
+                <div className="inline-flex items-center justify-center w-16 h-16 bg-primary/10 rounded-full mb-4 group-hover:bg-primary/20 transition-colors">
+                  <Home className="w-8 h-8 text-primary" />
+                </div>
+                <h3 className="text-lg font-semibold mb-2">List Your Property</h3>
+                <p className="text-sm text-muted-foreground mb-4">
+                  Sell or rent your property with our platform. Get maximum exposure to potential buyers.
+                </p>
+                <Link href="/login?redirect=/submit-property">
+                  <Button variant="outline" className="w-full">
+                    Login to List Property
+                  </Button>
+                </Link>
+              </CardContent>
+            </Card>
+
+            {/* Become Agent */}
+            <Card className="hover:shadow-lg transition-shadow duration-300 cursor-pointer group">
+              <CardContent className="p-6 text-center">
+                <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-500/10 rounded-full mb-4 group-hover:bg-blue-500/20 transition-colors">
+                  <UserPlus className="w-8 h-8 text-blue-500" />
+                </div>
+                <h3 className="text-lg font-semibold mb-2">Become an Agent</h3>
+                <p className="text-sm text-muted-foreground mb-4">
+                  Join our network of professional agents. Access premium tools and quality leads.
+                </p>
+                <Link href="/login?redirect=/become-agent">
+                  <Button variant="outline" className="w-full">
+                    Login to Apply
+                  </Button>
+                </Link>
+              </CardContent>
+            </Card>
+
+            {/* Admin Access */}
+            <Card className="hover:shadow-lg transition-shadow duration-300 cursor-pointer group">
+              <CardContent className="p-6 text-center">
+                <div className="inline-flex items-center justify-center w-16 h-16 bg-orange-500/10 rounded-full mb-4 group-hover:bg-orange-500/20 transition-colors">
+                  <Shield className="w-8 h-8 text-orange-500" />
+                </div>
+                <h3 className="text-lg font-semibold mb-2">Admin Dashboard</h3>
+                <p className="text-sm text-muted-foreground mb-4">
+                  Manage property listings, agent applications, and platform operations.
+                </p>
+                <Link href="/login?redirect=/admin">
+                  <Button variant="outline" className="w-full">
+                    Admin Login
+                  </Button>
+                </Link>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

@@ -45,11 +45,12 @@ const TestimonialsSection = () => {
         alignment="center"
       />
 
-      <div className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-8">
-        {testimonials.map((testimonial, index) => (
+      {/* Show max 3 cards for laptop size as requested */}
+      <div className="mt-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 equal-height-grid">
+        {testimonials.slice(0, 3).map((testimonial, index) => (
           <div
             key={testimonial.id}
-            className="bg-card rounded-xl p-6 shadow-sm border border-border"
+            className="bg-card rounded-xl p-6 shadow-lg border border-border hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 card-height-compact flex flex-col"
             data-aos="fade-up"
             data-aos-delay={index * 100}
           >
@@ -66,7 +67,7 @@ const TestimonialsSection = () => {
             </div>
 
             {/* Content */}
-            <p className="text-card-foreground mb-6">{testimonial.content}</p>
+            <p className="text-card-foreground mb-6 flex-1">{testimonial.content}</p>
 
             {/* Author */}
             <div className="flex items-center mt-auto">

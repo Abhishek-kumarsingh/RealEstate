@@ -17,6 +17,67 @@
   .section-spacing {
     @apply py-16 lg:py-24;
   }
+
+  /* Enhanced card hover effects */
+  .card-hover {
+    @apply transition-all duration-300 hover:shadow-xl transform hover:-translate-y-2;
+  }
+
+  /* Gradient text effect */
+  .gradient-text {
+    @apply bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent;
+  }
+
+  /* Smooth scroll behavior */
+  html {
+    scroll-behavior: smooth;
+  }
+
+  /* Line clamp utilities */
+  .line-clamp-1 {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 1;
+  }
+
+  .line-clamp-2 {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+  }
+
+  .line-clamp-3 {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+  }
+
+  /* Consistent card heights */
+  .card-height-standard {
+    min-height: 420px;
+  }
+
+  .card-height-tall {
+    min-height: 480px;
+  }
+
+  .card-height-compact {
+    min-height: 360px;
+  }
+
+  /* Ensure equal height in grid layouts */
+  .equal-height-grid {
+    display: grid;
+    grid-template-rows: 1fr;
+  }
+
+  .equal-height-grid > * {
+    display: flex;
+    flex-direction: column;
+  }
 }
 
 :root {
