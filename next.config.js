@@ -11,8 +11,8 @@ const nextConfig = {
     unoptimized: false
   },
   experimental: {
-    serverComponentsExternalPackages: ['@prisma/client', 'prisma']
   },
+  serverExternalPackages: ['@prisma/client', 'prisma'],
   // Skip database operations during build
   env: {
     SKIP_ENV_VALIDATION: 'true',
