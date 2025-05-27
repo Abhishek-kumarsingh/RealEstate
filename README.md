@@ -73,11 +73,13 @@ A cutting-edge, comprehensive real estate platform built with Next.js, TypeScrip
 
 ### Backend & Database
 - **API**: Next.js API Routes with RESTful architecture
-- **Database**: MongoDB with Mongoose ODM
-- **Authentication**: JWT tokens with bcryptjs encryption
+- **Database**: PostgreSQL with Prisma ORM for type-safe database access
+- **Legacy Support**: MongoDB with Mongoose ODM (for migration reference)
+- **Authentication**: JWT tokens with bcryptjs encryption and session management
 - **File Upload**: Multer for document and image handling
 - **Data Validation**: Comprehensive input validation and sanitization
-- **Security**: CORS configuration and rate limiting
+- **Security**: CORS configuration, rate limiting, and audit logging
+- **Type Safety**: Full TypeScript support with Prisma-generated types
 
 ### AI & Analytics
 - **Machine Learning**: Custom recommendation algorithms
@@ -94,8 +96,9 @@ A cutting-edge, comprehensive real estate platform built with Next.js, TypeScrip
 ## 📋 Prerequisites
 
 - Node.js 18+
-- MongoDB (local or cloud instance)
+- PostgreSQL 12+ (local or cloud instance)
 - npm or yarn
+- Optional: MongoDB (for data migration)
 
 ## 🚀 Quick Start
 
@@ -113,8 +116,10 @@ npm install
 ### 3. Environment Setup
 Create a `.env.local` file in the root directory:
 ```env
-# Database
-MONGODB_URI=mongodb://localhost:27017/realestate
+# Database - PostgreSQL with Prisma
+DATABASE_URL="postgresql://username:password@localhost:5432/realestate?schema=public"
+# For local development, you can use:
+# DATABASE_URL="postgresql://postgres:password@localhost:5432/realestate?schema=public"
 
 # JWT Secret
 JWT_SECRET=your-super-secret-jwt-key-change-this-in-production
@@ -123,37 +128,82 @@ JWT_SECRET=your-super-secret-jwt-key-change-this-in-production
 NEXTAUTH_URL=http://localhost:3000
 NEXTAUTH_SECRET=your-nextauth-secret-key
 
+# Google AI API (for chatbot features)
+GOOGLE_AI_API_KEY=your-google-ai-api-key
+
 # App Settings
 NODE_ENV=development
 ```
 
-### 4. Start MongoDB
-Make sure MongoDB is running on your system:
+### 4. Set Up PostgreSQL Database
 ```bash
-# If using local MongoDB
-mongod
+# Install PostgreSQL (if not already installed)
+# Windows: Download from https://www.postgresql.org/download/windows/
+# macOS: brew install postgresql
+# Ubuntu: sudo apt-get install postgresql
 
-# Or use MongoDB Atlas cloud database
-# Update MONGODB_URI in .env.local with your Atlas connection string
+# Create database
+createdb realestate
+
+# Or using psql
+psql -U postgres
+CREATE DATABASE realestate;
+\q
 ```
 
-### 5. Seed the Database
+### 5. Generate Prisma Client and Push Schema
 ```bash
-npm run seed
+# Generate Prisma client
+npm run db:generate
+
+# Push schema to database
+npm run db:push
 ```
 
-This will create sample users and properties. Test accounts:
-- **Admin**: admin@realestatehub.com / admin123
-- **Agent 1**: sarah.johnson@realestatehub.com / agent123
-- **Agent 2**: michael.chen@realestatehub.com / agent123
-- **User**: john.doe@example.com / user123
+### 6. Seed the Database
+```bash
+npm run seed-prisma
+```
 
-### 6. Start the Development Server
+This will create comprehensive sample data including users, properties, and relationships. Test accounts:
+- **Admin**: admin@realestatehub.com / password123
+- **Agent 1**: sarah.johnson@realestatehub.com / password123
+- **Agent 2**: michael.chen@realestatehub.com / password123
+- **User**: john.doe@example.com / password123
+
+### 7. Start the Development Server
 ```bash
 npm run dev
 ```
 
 Visit [http://localhost:3000](http://localhost:3000) to see the application.
+
+## 🛠️ Database Management
+
+### Available Scripts
+```bash
+# Prisma commands
+npm run db:generate    # Generate Prisma client
+npm run db:push       # Push schema changes to database
+npm run db:migrate    # Create and run migrations
+npm run db:studio     # Open Prisma Studio (database GUI)
+npm run db:reset      # Reset database and run migrations
+
+# Seeding
+npm run seed-prisma   # Seed with comprehensive real estate data
+npm run seed          # Legacy MongoDB seed (for reference)
+```
+
+### Prisma Studio
+Explore your database with a visual interface:
+```bash
+npm run db:studio
+```
+This opens a web interface at `http://localhost:5555` where you can view and edit your data.
+
+## 🔄 Migration from MongoDB
+
+If you're migrating from the previous MongoDB setup, see the [Migration Guide](./MIGRATION_GUIDE.md) for detailed instructions.
 
 ## 🎯 Dashboard Features Access
 

@@ -1,0 +1,528 @@
+// Real Estate Platform - Prisma Schema
+// Comprehensive database schema for real estate management
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ================================
+// ENUMS
+// ================================
+
+enum UserRole {
+  USER
+  AGENT
+  ADMIN
+  SUPER_ADMIN
+}
+
+enum VerificationStatus {
+  PENDING
+  VERIFIED
+  REJECTED
+  SUSPENDED
+}
+
+enum KYCStatus {
+  PENDING
+  SUBMITTED
+  VERIFIED
+  REJECTED
+}
+
+enum PropertyType {
+  SALE
+  RENT
+  COMMERCIAL
+}
+
+enum PropertyCategory {
+  HOUSE
+  APARTMENT
+  CONDO
+  TOWNHOUSE
+  VILLA
+  LAND
+  OFFICE
+  RETAIL
+  WAREHOUSE
+  INDUSTRIAL
+}
+
+enum PropertyStatus {
+  AVAILABLE
+  PENDING
+  SOLD
+  RENTED
+  OFF_MARKET
+  DRAFT
+}
+
+enum RentType {
+  MONTHLY
+  YEARLY
+  SHORT_TERM
+}
+
+enum PetPolicy {
+  ALLOWED
+  NOT_ALLOWED
+  CATS_ONLY
+  DOGS_ONLY
+  SMALL_PETS_ONLY
+}
+
+enum InquiryStatus {
+  PENDING
+  RESPONDED
+  CLOSED
+  SPAM
+}
+
+enum TransactionStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+  FAILED
+}
+
+enum TransactionType {
+  SALE
+  RENTAL
+  LEASE
+}
+
+enum DocumentType {
+  PROPERTY_DEED
+  INSPECTION_REPORT
+  APPRAISAL
+  CONTRACT
+  INSURANCE
+  TAX_DOCUMENT
+  PERMIT
+  CERTIFICATE
+  ID_DOCUMENT
+  INCOME_PROOF
+  BANK_STATEMENT
+}
+
+enum NotificationType {
+  INQUIRY
+  PROPERTY_UPDATE
+  TRANSACTION
+  SYSTEM
+  MARKETING
+}
+
+// ================================
+// USER MANAGEMENT
+// ================================
+
+model User {
+  id          String   @id @default(cuid())
+  email       String   @unique
+  name        String
+  password    String
+  role        UserRole @default(USER)
+  avatar      String?
+  phone       String?
+  bio         String?
+  isVerified  Boolean  @default(false)
+  isActive    Boolean  @default(true)
+
+  // Agent-specific fields
+  licenseNumber     String?
+  agencyName        String?
+  experienceYears   Int?
+  specializations   String[]
+  verificationStatus VerificationStatus @default(PENDING)
+
+  // KYC Information
+  kycDocuments      Json?
+  kycStatus         KYCStatus @default(PENDING)
+  kycVerifiedAt     DateTime?
+
+  // Location
+  address           String?
+  city              String?
+  state             String?
+  zipCode           String?
+  country           String?
+
+  // Timestamps
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  lastLoginAt       DateTime?
+
+  // Relations
+  properties        Property[]
+  inquiries         Inquiry[] @relation("InquiryUser")
+  agentInquiries    Inquiry[] @relation("InquiryAgent")
+  favorites         Favorite[]
+  reviews           Review[] @relation("UserReviews")
+  givenReviews      Review[] @relation("ReviewGiver")
+  buyerTransactions Transaction[] @relation("BuyerTransactions")
+  sellerTransactions Transaction[] @relation("SellerTransactions")
+  agentTransactions Transaction[] @relation("AgentTransactions")
+  propertyViews     PropertyView[]
+  searchHistory     SearchHistory[]
+  notifications     Notification[]
+  documents         Document[]
+  sessions          UserSession[]
+
+  @@map("users")
+}
+
+model UserSession {
+  id        String   @id @default(cuid())
+  userId    String
+  token     String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("user_sessions")
+}
+
+// ================================
+// PROPERTY MANAGEMENT
+// ================================
+
+model Property {
+  id            String        @id @default(cuid())
+  title         String
+  description   String
+  price         Decimal       @db.Decimal(12, 2)
+  type          PropertyType
+  category      PropertyCategory
+  status        PropertyStatus @default(AVAILABLE)
+  featured      Boolean       @default(false)
+
+  // Location
+  address       String
+  city          String
+  state         String
+  zipCode       String
+  country       String       @default("USA")
+  latitude      Float?
+  longitude     Float?
+  neighborhood  String?
+
+  // Property Features
+  bedrooms      Int?
+  bathrooms     Float?
+  area          Float?        // Square feet
+  lotSize       Float?        // Lot size in square feet
+  yearBuilt     Int?
+  floors        Int?
+  parkingSpaces Int?
+
+  // Property Details
+  amenities     String[]
+  features      String[]
+  appliances    String[]
+  utilities     String[]
+
+  // Media
+  images        PropertyImage[]
+  videos        PropertyVideo[]
+  virtualTour   String?
+  floorPlan     String?
+
+  // Financial
+  propertyTax   Decimal?      @db.Decimal(10, 2)
+  hoaFees       Decimal?      @db.Decimal(10, 2)
+  insurance     Decimal?      @db.Decimal(10, 2)
+
+  // Rental specific
+  rentType      RentType?
+  deposit       Decimal?      @db.Decimal(10, 2)
+  petPolicy     PetPolicy?
+  leaseTerm     Int?          // Months
+
+  // Commercial specific
+  zoning        String?
+  buildingClass String?
+
+  // SEO & Marketing
+  slug          String?       @unique
+  metaTitle     String?
+  metaDescription String?
+  keywords      String[]
+
+  // Analytics
+  viewCount     Int           @default(0)
+  inquiryCount  Int           @default(0)
+  favoriteCount Int           @default(0)
+
+  // Timestamps
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  publishedAt   DateTime?
+  soldAt        DateTime?
+
+  // Relations
+  agentId       String
+  agent         User          @relation(fields: [agentId], references: [id])
+  inquiries     Inquiry[]
+  favorites     Favorite[]
+  reviews       Review[]
+  transactions  Transaction[]
+  propertyViews PropertyView[]
+  documents     Document[]
+
+  @@map("properties")
+}
+
+model PropertyImage {
+  id          String   @id @default(cuid())
+  propertyId  String
+  url         String
+  caption     String?
+  isPrimary   Boolean  @default(false)
+  order       Int      @default(0)
+  createdAt   DateTime @default(now())
+
+  property    Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+
+  @@map("property_images")
+}
+
+model PropertyVideo {
+  id          String   @id @default(cuid())
+  propertyId  String
+  url         String
+  title       String?
+  duration    Int?     // Duration in seconds
+  thumbnail   String?
+  order       Int      @default(0)
+  createdAt   DateTime @default(now())
+
+  property    Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+
+  @@map("property_videos")
+}
+
+// ================================
+// INTERACTIONS & ENGAGEMENT
+// ================================
+
+model Inquiry {
+  id          String        @id @default(cuid())
+  propertyId  String
+  userId      String
+  agentId     String
+  message     String
+  contactInfo Json
+  status      InquiryStatus @default(PENDING)
+  response    String?
+  respondedAt DateTime?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  property    Property      @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  user        User          @relation("InquiryUser", fields: [userId], references: [id])
+  agent       User          @relation("InquiryAgent", fields: [agentId], references: [id])
+
+  @@map("inquiries")
+}
+
+model Favorite {
+  id         String   @id @default(cuid())
+  userId     String
+  propertyId String
+  createdAt  DateTime @default(now())
+
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  property   Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, propertyId])
+  @@map("favorites")
+}
+
+model Review {
+  id         String   @id @default(cuid())
+  propertyId String?
+  reviewerId String
+  revieweeId String
+  rating     Int      // 1-5 stars
+  comment    String?
+  isPublic   Boolean  @default(true)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  property   Property? @relation(fields: [propertyId], references: [id])
+  reviewer   User      @relation("UserReviews", fields: [reviewerId], references: [id])
+  reviewee   User      @relation("ReviewGiver", fields: [revieweeId], references: [id])
+
+  @@map("reviews")
+}
+
+model PropertyView {
+  id         String   @id @default(cuid())
+  propertyId String
+  userId     String?
+  ipAddress  String?
+  userAgent  String?
+  createdAt  DateTime @default(now())
+
+  property   Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  user       User?    @relation(fields: [userId], references: [id])
+
+  @@map("property_views")
+}
+
+// ================================
+// TRANSACTIONS & CONTRACTS
+// ================================
+
+model Transaction {
+  id              String            @id @default(cuid())
+  propertyId      String
+  buyerId         String?
+  sellerId        String
+  agentId         String?
+  type            TransactionType
+  status          TransactionStatus @default(PENDING)
+  amount          Decimal           @db.Decimal(12, 2)
+  commission      Decimal?          @db.Decimal(10, 2)
+  closingDate     DateTime?
+  contractDate    DateTime?
+  inspectionDate  DateTime?
+  appraisalValue  Decimal?          @db.Decimal(12, 2)
+  loanAmount      Decimal?          @db.Decimal(12, 2)
+  downPayment     Decimal?          @db.Decimal(12, 2)
+  notes           String?
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+
+  property        Property          @relation(fields: [propertyId], references: [id])
+  buyer           User?             @relation("BuyerTransactions", fields: [buyerId], references: [id])
+  seller          User              @relation("SellerTransactions", fields: [sellerId], references: [id])
+  agent           User?             @relation("AgentTransactions", fields: [agentId], references: [id])
+  documents       Document[]
+
+  @@map("transactions")
+}
+
+// ================================
+// DOCUMENTS & FILES
+// ================================
+
+model Document {
+  id            String       @id @default(cuid())
+  name          String
+  type          DocumentType
+  url           String
+  size          Int?         // File size in bytes
+  mimeType      String?
+  description   String?
+  isPublic      Boolean      @default(false)
+  uploadedById  String
+  propertyId    String?
+  transactionId String?
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+
+  uploadedBy    User         @relation(fields: [uploadedById], references: [id])
+  property      Property?    @relation(fields: [propertyId], references: [id])
+  transaction   Transaction? @relation(fields: [transactionId], references: [id])
+
+  @@map("documents")
+}
+
+// ================================
+// ANALYTICS & TRACKING
+// ================================
+
+model SearchHistory {
+  id          String   @id @default(cuid())
+  userId      String?
+  query       String
+  filters     Json?
+  results     Int      @default(0)
+  ipAddress   String?
+  userAgent   String?
+  createdAt   DateTime @default(now())
+
+  user        User?    @relation(fields: [userId], references: [id])
+
+  @@map("search_history")
+}
+
+model Notification {
+  id        String           @id @default(cuid())
+  userId    String
+  type      NotificationType
+  title     String
+  message   String
+  data      Json?
+  isRead    Boolean          @default(false)
+  createdAt DateTime         @default(now())
+  readAt    DateTime?
+
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("notifications")
+}
+
+// ================================
+// SYSTEM & CONFIGURATION
+// ================================
+
+model SystemSetting {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  value     String
+  type      String   @default("string") // string, number, boolean, json
+  category  String?
+  description String?
+  isPublic  Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("system_settings")
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  userId    String?
+  action    String
+  resource  String
+  resourceId String?
+  oldData   Json?
+  newData   Json?
+  ipAddress String?
+  userAgent String?
+  createdAt DateTime @default(now())
+
+  @@map("audit_logs")
+}
+
+// ================================
+// INDEXES FOR PERFORMANCE
+// ================================
+
+// User indexes
+// @@index([email])
+// @@index([role, isActive])
+// @@index([verificationStatus])
+
+// Property indexes
+// @@index([type, status])
+// @@index([city, state])
+// @@index([price])
+// @@index([featured, status])
+// @@index([agentId])
+// @@index([createdAt])
+
+// Search and analytics indexes
+// @@index([createdAt])
+// @@index([userId, createdAt])
