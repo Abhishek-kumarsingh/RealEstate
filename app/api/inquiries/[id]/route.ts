@@ -5,11 +5,12 @@ import { requireAuth, AuthenticatedRequest } from '@/lib/middleware/auth';
 // PUT /api/inquiries/[id] - Update inquiry (respond to inquiry)
 async function updateInquiry(
   request: AuthenticatedRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const inquiry = await prisma.inquiry.findUnique({
-      where: { id: params.id },
+      where: { id },
       select: { id: true, agentId: true }
     });
 
@@ -50,7 +51,7 @@ async function updateInquiry(
     }
 
     const updatedInquiry = await prisma.inquiry.update({
-      where: { id: params.id },
+      where: { id },
       data: updateData,
       include: {
         property: {
