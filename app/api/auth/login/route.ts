@@ -15,6 +15,8 @@ export async function POST(request: NextRequest) {
 
     const { email, password } = await request.json();
 
+    console.log('Login attempt:', { email, passwordLength: password?.length });
+
     // Validate required fields
     if (!email || !password) {
       return NextResponse.json(
@@ -24,9 +26,11 @@ export async function POST(request: NextRequest) {
     }
 
     // Find user by email
-    const user = await prisma!.user.findUnique({
+    const user = await prisma.user.findUnique({
       where: { email: email.toLowerCase() }
     });
+
+    console.log('User found:', user ? 'Yes' : 'No');
 
     if (!user) {
       return NextResponse.json(
@@ -37,6 +41,8 @@ export async function POST(request: NextRequest) {
 
     // Check password
     const isPasswordValid = await bcrypt.compare(password, user.password);
+    console.log('Password valid:', isPasswordValid);
+
     if (!isPasswordValid) {
       return NextResponse.json(
         { error: 'Invalid email or password' },

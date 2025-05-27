@@ -36,8 +36,8 @@ if (process.env.NODE_ENV !== 'production') {
   globalForPrisma.prisma = prismaInstance
 }
 
-// Export a non-null version for TypeScript
-export const prisma = prismaInstance as PrismaClient
+// Export the prisma instance (can be null during build)
+export const prisma = prismaInstance
 
 export default prisma
 
