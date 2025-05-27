@@ -62,7 +62,7 @@ const BlogSection = () => {
             className="group"
           >
             <article
-              className="h-full flex flex-col rounded-xl overflow-hidden bg-card border border-border shadow-lg transition-all duration-300 hover:shadow-xl transform hover:-translate-y-2 card-height-tall"
+              className="flex flex-col rounded-xl overflow-hidden bg-card border border-border shadow-lg transition-all duration-300 hover:shadow-xl transform hover:-translate-y-2 card-height-tall"
               data-aos="fade-up"
               data-aos-delay={index * 100}
             >

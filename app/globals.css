@@ -55,17 +55,30 @@
     -webkit-line-clamp: 3;
   }
 
-  /* Consistent card heights */
+  /* Fixed card heights for consistency */
   .card-height-standard {
+    height: 420px;
     min-height: 420px;
   }
 
   .card-height-tall {
+    height: 480px;
     min-height: 480px;
   }
 
   .card-height-compact {
+    height: 360px;
     min-height: 360px;
+  }
+
+  .card-height-area {
+    height: 450px;
+    min-height: 450px;
+  }
+
+  .card-height-category {
+    height: 300px;
+    min-height: 300px;
   }
 
   /* Ensure equal height in grid layouts */
@@ -77,6 +90,29 @@
   .equal-height-grid > * {
     display: flex;
     flex-direction: column;
+    height: 100%;
+  }
+
+  /* Centered headings with drop shadows */
+  .section-heading-centered {
+    text-align: center;
+    margin: 0 auto;
+  }
+
+  .section-heading-shadow {
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+
+  .dark .section-heading-shadow {
+    text-shadow: 0 2px 4px rgba(255, 255, 255, 0.1);
+  }
+
+  .section-heading-shadow-strong {
+    text-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  }
+
+  .dark .section-heading-shadow-strong {
+    text-shadow: 0 4px 8px rgba(255, 255, 255, 0.15);
   }
 }
 

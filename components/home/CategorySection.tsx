@@ -43,11 +43,11 @@ const CategorySection = () => {
         {categories.map((category, index) => (
           <Link
             key={category.name}
-            href={category.href}
+            href={`/categories/${category.name.toLowerCase()}`}
             className="group"
           >
             <div
-              className="rounded-xl overflow-hidden relative aspect-square transition-all duration-300 hover:shadow-lg"
+              className="rounded-xl overflow-hidden relative card-height-category transition-all duration-300 hover:shadow-lg flex flex-col"
               data-aos="fade-up"
               data-aos-delay={index * 100}
             >

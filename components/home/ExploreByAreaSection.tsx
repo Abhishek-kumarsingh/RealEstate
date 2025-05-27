@@ -99,7 +99,7 @@ const ExploreByAreaSection = () => {
         {popularAreas.map((area, index) => (
           <Link
             key={area.id}
-            href={`/properties?location=${encodeURIComponent(area.name + ', ' + area.state)}`}
+            href={`/areas/${area.name.toLowerCase().replace(/\s+/g, '-')}-${area.state.toLowerCase().replace(/\s+/g, '-')}`}
             className="group"
             onMouseEnter={() => setHoveredArea(area.id)}
             onMouseLeave={() => setHoveredArea(null)}
@@ -107,7 +107,7 @@ const ExploreByAreaSection = () => {
             <Card
               className={cn(
                 'overflow-hidden transition-all duration-300 hover:shadow-xl',
-                'transform hover:-translate-y-2'
+                'transform hover:-translate-y-2 card-height-area flex flex-col'
               )}
               data-aos="fade-up"
               data-aos-delay={index * 100}
@@ -120,7 +120,7 @@ const ExploreByAreaSection = () => {
                   className="object-cover transition-transform duration-500 group-hover:scale-110"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-                
+
                 {/* Trending badge */}
                 {area.trending && (
                   <Badge className="absolute top-4 left-4 bg-green-500 hover:bg-green-600">
@@ -131,8 +131,8 @@ const ExploreByAreaSection = () => {
 
                 {/* Price change indicator */}
                 <div className="absolute top-4 right-4">
-                  <Badge 
-                    variant="secondary" 
+                  <Badge
+                    variant="secondary"
                     className={cn(
                       'text-white border-white/20',
                       area.priceChange.startsWith('+') ? 'bg-green-500/80' : 'bg-red-500/80'
@@ -147,7 +147,7 @@ const ExploreByAreaSection = () => {
                   <h3 className="text-xl font-bold mb-1">{area.name}</h3>
                   <p className="text-white/80 text-sm mb-2">{area.state}</p>
                   <p className="text-white/90 text-sm mb-3">{area.description}</p>
-                  
+
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-4 text-sm">
                       <div className="flex items-center">
@@ -163,7 +163,7 @@ const ExploreByAreaSection = () => {
                 </div>
               </div>
 
-              <CardContent className="p-6">
+              <CardContent className="p-6 flex-1 flex flex-col justify-between">
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-muted-foreground">Available Properties</span>
@@ -173,7 +173,7 @@ const ExploreByAreaSection = () => {
                     <span className="text-sm text-muted-foreground">Average Price</span>
                     <span className="font-semibold">{area.avgPrice}</span>
                   </div>
-                  
+
                   {/* Highlights */}
                   <div className="pt-2">
                     <div className="flex flex-wrap gap-1">
