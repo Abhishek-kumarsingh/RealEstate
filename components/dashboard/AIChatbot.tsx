@@ -8,9 +8,11 @@ import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import {
-  Bot, Send, Mic, Volume2, Calculator, Home, TrendingUp, Calendar,
-  Sparkles, Brain, Zap, Star, Loader2, AlertCircle, MessageSquare
+  Send, Mic, Volume2, Calculator, Home, TrendingUp, Calendar,
+  Sparkles, Zap, Star, Loader2, AlertCircle, MessageSquare
 } from 'lucide-react';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faRobot, faCog, faCircle, faMicrochip } from '@fortawesome/free-solid-svg-icons';
 
 interface ChatMessage {
   id: string;
@@ -80,7 +82,7 @@ export default function AIChatbot() {
     } catch (error) {
       console.error('AI Chat Error:', error);
       setError('Sorry, I encountered an error. Please try again.');
-      
+
       const fallbackResponse: ChatMessage = {
         id: (Date.now() + 1).toString(),
         content: "I'm here to help with real estate questions! I can assist with property searches, market analysis, mortgage calculations, and scheduling tours. What would you like to know?",
@@ -105,12 +107,13 @@ export default function AIChatbot() {
     <div className="space-y-6">
       <div className="flex items-center gap-3">
         <div className="relative rounded-full bg-gradient-to-br from-blue-500 to-purple-600 p-3 text-white shadow-lg">
-          <Brain className="h-6 w-6" />
+          <FontAwesomeIcon icon={faRobot} className="h-6 w-6" />
           <div className="absolute -top-1 -right-1 w-3 h-3 bg-green-500 rounded-full border-2 border-white animate-pulse"></div>
         </div>
         <div>
           <div className="flex items-center gap-2">
             <h2 className="text-2xl font-bold">AI Assistant</h2>
+            <FontAwesomeIcon icon={faMicrochip} className="h-5 w-5 text-blue-500" />
             <Sparkles className="h-5 w-5 text-yellow-500" />
             <Badge variant="secondary" className="bg-green-100 text-green-800 text-xs">
               Powered by Google AI
@@ -135,11 +138,11 @@ export default function AIChatbot() {
                 <div className="relative">
                   <Avatar className="h-10 w-10">
                     <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-600 text-white">
-                      <Brain className="h-5 w-5" />
+                      <FontAwesomeIcon icon={faRobot} className="h-5 w-5" />
                     </AvatarFallback>
                   </Avatar>
                   <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-white flex items-center justify-center">
-                    <Zap className="h-2 w-2 text-white" />
+                    <FontAwesomeIcon icon={faCog} className="h-2 w-2 text-white animate-spin" />
                   </div>
                 </div>
                 <div>
@@ -267,7 +270,7 @@ export default function AIChatbot() {
           <Card>
             <CardHeader>
               <CardTitle className="text-lg flex items-center gap-2">
-                <Brain className="h-5 w-5 text-blue-600" />
+                <FontAwesomeIcon icon={faMicrochip} className="h-5 w-5 text-blue-600" />
                 AI Performance
               </CardTitle>
               <CardDescription>Real-time AI metrics powered by Google Gemini</CardDescription>

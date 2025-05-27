@@ -1,4 +1,5 @@
 import './globals.css';
+import '@/lib/fontawesome';
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import { ThemeProvider } from '@/components/theme-provider';
@@ -7,7 +8,7 @@ import { ChatProvider } from '@/lib/contexts/ChatContext';
 import { Toaster } from '@/components/ui/toaster';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
-import FloatingChatButton from '@/components/chat/FloatingChatButton';
+import WelcomeChatbox from '@/components/chat/WelcomeChatbox';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -32,7 +33,7 @@ export default function RootLayout({
                 <main className="flex-1">{children}</main>
                 <Footer />
               </div>
-              <FloatingChatButton />
+              <WelcomeChatbox />
               <Toaster />
             </ChatProvider>
           </AuthProvider>

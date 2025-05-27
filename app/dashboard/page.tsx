@@ -14,9 +14,11 @@ import {
 } from 'recharts';
 import {
   Building, Users, DollarSign, TrendingUp, Home, BadgeCheck,
-  ClipboardList, Calendar, ArrowUpRight, Bot, MessageCircle,
+  ClipboardList, Calendar, ArrowUpRight, MessageCircle,
   Calculator, Shield, BarChart3, Brain, Eye, EyeOff, Loader2
 } from 'lucide-react';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faRobot } from '@fortawesome/free-solid-svg-icons';
 
 // Import new components we'll create
 import AIRecommendations from '@/components/dashboard/AIRecommendations';
@@ -281,7 +283,7 @@ export default function DashboardPage() {
             Security
           </TabsTrigger>
           <TabsTrigger value="ai-chat" className="flex items-center gap-2">
-            <Bot className="h-4 w-4" />
+            <FontAwesomeIcon icon={faRobot} className="h-4 w-4" />
             AI Assistant
           </TabsTrigger>
         </TabsList>
