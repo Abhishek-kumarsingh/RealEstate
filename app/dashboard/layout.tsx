@@ -1,17 +1,30 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from 'react';
-import Link from 'next/link';
-import { usePathname, useRouter } from 'next/navigation';
-import { useAuth } from '@/lib/contexts/AuthContext';
-import { Button } from '@/components/ui/button';
-import { ModeToggle } from '@/components/layout/ModeToggle';
+import { useState, useEffect } from "react";
+import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
+import { useAuth } from "@/lib/contexts/AuthContext";
+import { Button } from "@/components/ui/button";
+import { ModeToggle } from "@/components/layout/ModeToggle";
 import {
-  Home, Users, Building, FileText, Settings, LogOut, Menu, X,
-  LayoutDashboard, Plus, Heart, MessageCircle, User, Bell, Loader2
-} from 'lucide-react';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { cn } from '@/lib/utils';
+  Home,
+  Users,
+  Building,
+  FileText,
+  Settings,
+  LogOut,
+  Menu,
+  X,
+  LayoutDashboard,
+  Plus,
+  Heart,
+  MessageCircle,
+  User,
+  Bell,
+  Loader2,
+} from "lucide-react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { cn } from "@/lib/utils";
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -27,9 +40,21 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
   // Redirect to login if not authenticated
   useEffect(() => {
     if (!loading && !user) {
-      router.push('/login');
+      router.push("/login");
     }
   }, [user, loading, router]);
+
+  // Close mobile menu on larger screens
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth >= 1024) {
+        setIsMobileMenuOpen(false);
+      }
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   // Show loading state while checking authentication
   if (loading) {
@@ -40,18 +65,6 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
     );
   }
 
-  // Close mobile menu on larger screens
-  useEffect(() => {
-    const handleResize = () => {
-      if (window.innerWidth >= 1024) {
-        setIsMobileMenuOpen(false);
-      }
-    };
-
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
-
   // Don't render if no user
   if (!user) {
     return null;
@@ -60,34 +73,36 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
   // Navigation based on user role
   const navigation = {
     admin: [
-      { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
-      { name: 'Properties', href: '/dashboard/properties', icon: Building },
-      { name: 'Users', href: '/dashboard/users', icon: Users },
-      { name: 'Messages', href: '/dashboard/messages', icon: MessageCircle },
-      { name: 'Agents', href: '/dashboard/agents', icon: User },
-      { name: 'Reports', href: '/dashboard/reports', icon: FileText },
-      { name: 'Settings', href: '/dashboard/settings', icon: Settings },
+      { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
+      { name: "Properties", href: "/dashboard/properties", icon: Building },
+      { name: "Users", href: "/dashboard/users", icon: Users },
+      { name: "Messages", href: "/dashboard/messages", icon: MessageCircle },
+      { name: "Agents", href: "/dashboard/agents", icon: User },
+      { name: "Reports", href: "/dashboard/reports", icon: FileText },
+      { name: "Settings", href: "/dashboard/settings", icon: Settings },
     ],
     agent: [
-      { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
-      { name: 'My Properties', href: '/dashboard/properties', icon: Building },
-      { name: 'Add Property', href: '/dashboard/properties/new', icon: Plus },
-      { name: 'Messages', href: '/dashboard/messages', icon: MessageCircle },
-      { name: 'Inquiries', href: '/dashboard/inquiries', icon: MessageCircle },
-      { name: 'Profile', href: '/dashboard/profile', icon: User },
-      { name: 'Settings', href: '/dashboard/settings', icon: Settings },
+      { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
+      { name: "My Properties", href: "/dashboard/properties", icon: Building },
+      { name: "Add Property", href: "/dashboard/properties/new", icon: Plus },
+      { name: "Messages", href: "/dashboard/messages", icon: MessageCircle },
+      { name: "Inquiries", href: "/dashboard/inquiries", icon: MessageCircle },
+      { name: "Profile", href: "/dashboard/profile", icon: User },
+      { name: "Settings", href: "/dashboard/settings", icon: Settings },
     ],
     user: [
-      { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
-      { name: 'Favorites', href: '/dashboard/favorites', icon: Heart },
-      { name: 'Messages', href: '/dashboard/messages', icon: MessageCircle },
-      { name: 'Inquiries', href: '/dashboard/inquiries', icon: MessageCircle },
-      { name: 'Profile', href: '/dashboard/profile', icon: User },
-      { name: 'Settings', href: '/dashboard/settings', icon: Settings },
+      { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
+      { name: "Favorites", href: "/dashboard/favorites", icon: Heart },
+      { name: "Messages", href: "/dashboard/messages", icon: MessageCircle },
+      { name: "Inquiries", href: "/dashboard/inquiries", icon: MessageCircle },
+      { name: "Profile", href: "/dashboard/profile", icon: User },
+      { name: "Settings", href: "/dashboard/settings", icon: Settings },
     ],
   };
 
-  const userNavigation = navigation[user.role as keyof typeof navigation];
+  // Use the user role navigation if it exists, otherwise default to user navigation
+  const userNavigation =
+    navigation[user.role as keyof typeof navigation] || navigation.user;
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -106,7 +121,9 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
         <div className="flex items-center gap-2">
           <Link href="/" className="flex items-center gap-2">
             <Home className="h-6 w-6" />
-            <span className="font-bold hidden md:inline-block">RealEstateHub</span>
+            <span className="font-bold hidden md:inline-block">
+              RealEstateHub
+            </span>
           </Link>
         </div>
 
@@ -176,9 +193,12 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
 
               <Button
                 variant="ghost"
-                className={cn("w-full justify-start text-muted-foreground hover:text-destructive", {
-                  "justify-center": !isSidebarOpen,
-                })}
+                className={cn(
+                  "w-full justify-start text-muted-foreground hover:text-destructive",
+                  {
+                    "justify-center": !isSidebarOpen,
+                  }
+                )}
                 onClick={logout}
               >
                 <LogOut className="mr-2 h-5 w-5" />
@@ -191,14 +211,21 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
         {/* Mobile menu */}
         {isMobileMenuOpen && (
           <div className="fixed inset-0 z-40 lg:hidden">
-            <div className="fixed inset-0 bg-black/80 backdrop-blur-sm" onClick={() => setIsMobileMenuOpen(false)} />
+            <div
+              className="fixed inset-0 bg-black/80 backdrop-blur-sm"
+              onClick={() => setIsMobileMenuOpen(false)}
+            />
             <nav className="fixed inset-y-0 left-0 w-3/4 max-w-xs bg-background p-6 shadow-lg">
               <div className="flex items-center justify-between mb-8">
                 <Link href="/" className="flex items-center gap-2">
                   <Home className="h-6 w-6" />
                   <span className="font-bold">RealEstateHub</span>
                 </Link>
-                <Button variant="ghost" size="icon" onClick={() => setIsMobileMenuOpen(false)}>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
                   <X className="h-6 w-6" />
                 </Button>
               </div>
@@ -207,11 +234,15 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
                 <div className="flex items-center gap-4 mb-4">
                   <Avatar>
                     <AvatarImage src={user.avatar} alt={user.name} />
-                    <AvatarFallback>{user.name.charAt(0).toUpperCase()}</AvatarFallback>
+                    <AvatarFallback>
+                      {user.name.charAt(0).toUpperCase()}
+                    </AvatarFallback>
                   </Avatar>
                   <div>
                     <div className="font-medium">{user.name}</div>
-                    <div className="text-sm text-muted-foreground">{user.email}</div>
+                    <div className="text-sm text-muted-foreground">
+                      {user.email}
+                    </div>
                   </div>
                 </div>
               </div>
