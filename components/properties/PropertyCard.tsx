@@ -118,6 +118,24 @@ const PropertyCard = ({ property, featured = false, className }: PropertyCardPro
     }
   };
 
+  const formatLocation = (location: any) => {
+    if (typeof location === 'string') {
+      return location;
+    }
+
+    if (location && typeof location === 'object') {
+      // Try to build a readable address from the location object
+      const parts = [];
+      if (location.address) parts.push(location.address);
+      if (location.city) parts.push(location.city);
+      if (location.state) parts.push(location.state);
+
+      return parts.length > 0 ? parts.join(', ') : 'Location not specified';
+    }
+
+    return 'Location not specified';
+  };
+
   return (
     <Link href={`/properties/${property._id}`}>
       <div
@@ -186,7 +204,7 @@ const PropertyCard = ({ property, featured = false, className }: PropertyCardPro
           <div className="flex items-center text-muted-foreground mb-3">
             <MapPin className="h-4 w-4 mr-1 flex-shrink-0" />
             <span className="text-sm truncate">
-              {property.location.address}, {property.location.city}, {property.location.state}
+              {formatLocation(property.location)}
             </span>
           </div>
 

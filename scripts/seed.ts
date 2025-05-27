@@ -163,8 +163,39 @@ async function seedDatabase() {
           'https://images.pexels.com/photos/1029599/pexels-photo-1029599.jpeg'
         ],
         status: 'available',
-        featured: false,
+        featured: true,
         agent: agentUser1._id
+      },
+      {
+        title: 'Luxury Penthouse with City Views',
+        description: 'Spectacular penthouse apartment with 360-degree city views, private elevator access, and premium finishes throughout.',
+        price: 2850000,
+        type: 'sale',
+        category: 'apartment',
+        location: {
+          address: '789 Skyline Tower',
+          city: 'Beverly Hills',
+          state: 'CA',
+          zipCode: '90210',
+          coordinates: {
+            type: 'Point',
+            coordinates: [-118.400356, 34.073620] // [longitude, latitude]
+          }
+        },
+        features: {
+          bedrooms: 3,
+          bathrooms: 3.5,
+          area: 3200,
+          yearBuilt: 2021
+        },
+        amenities: ['Private Elevator', 'City Views', 'Rooftop Terrace', 'Smart Home', 'Concierge', 'Valet Parking'],
+        images: [
+          'https://images.pexels.com/photos/1396132/pexels-photo-1396132.jpeg',
+          'https://images.pexels.com/photos/1974596/pexels-photo-1974596.jpeg'
+        ],
+        status: 'available',
+        featured: true,
+        agent: agentUser2._id
       }
     ];
 

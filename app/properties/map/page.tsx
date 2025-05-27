@@ -103,6 +103,24 @@ export default function PropertiesMapPage() {
     return `$${(price / 1000).toFixed(0)}K`;
   };
 
+  const formatLocation = (location: any) => {
+    if (typeof location === 'string') {
+      return location;
+    }
+
+    if (location && typeof location === 'object') {
+      // Try to build a readable address from the location object
+      const parts = [];
+      if (location.address) parts.push(location.address);
+      if (location.city) parts.push(location.city);
+      if (location.state) parts.push(location.state);
+
+      return parts.length > 0 ? parts.join(', ') : 'Location not specified';
+    }
+
+    return 'Location not specified';
+  };
+
   const handlePropertySelect = (property: Property) => {
     setSelectedProperty(property);
   };
@@ -221,7 +239,7 @@ export default function PropertiesMapPage() {
                           <h3 className="font-semibold text-lg">{selectedProperty.title}</h3>
                           <div className="flex items-center text-muted-foreground text-sm mt-1">
                             <MapPin className="h-4 w-4 mr-1" />
-                            {selectedProperty.location.address}, {selectedProperty.location.city}
+                            {formatLocation(selectedProperty.location)}
                           </div>
                         </div>
 
@@ -384,7 +402,7 @@ export default function PropertiesMapPage() {
                           <h3 className="font-semibold text-xl mb-2">{property.title}</h3>
                           <div className="flex items-center text-muted-foreground mb-2">
                             <MapPin className="h-4 w-4 mr-1" />
-                            {property.location.address}, {property.location.city}, {property.location.state}
+                            {formatLocation(property.location)}
                           </div>
                         </div>
                         <div className="text-right">

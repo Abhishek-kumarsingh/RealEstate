@@ -102,6 +102,24 @@ export default function PropertyDetailPage() {
     return type === 'rent' ? `${formatted}/mo` : formatted;
   };
 
+  const formatLocation = (location: any) => {
+    if (typeof location === 'string') {
+      return location;
+    }
+
+    if (location && typeof location === 'object') {
+      // Try to build a readable address from the location object
+      const parts = [];
+      if (location.address) parts.push(location.address);
+      if (location.city) parts.push(location.city);
+      if (location.state) parts.push(location.state);
+
+      return parts.length > 0 ? parts.join(', ') : 'Location not specified';
+    }
+
+    return 'Location not specified';
+  };
+
   const handleStartChat = () => {
     if (!user || !property) return;
 
@@ -191,7 +209,7 @@ export default function PropertyDetailPage() {
                   <CardTitle className="text-2xl mb-2">{property.title}</CardTitle>
                   <CardDescription className="flex items-center gap-2 text-base">
                     <MapPin className="h-4 w-4" />
-                    {property.location.address}, {property.location.city}, {property.location.state}
+                    {formatLocation(property.location)}
                   </CardDescription>
                 </div>
                 <div className="text-right">
