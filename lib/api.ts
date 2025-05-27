@@ -2,7 +2,7 @@
 
 const API_BASE_URL =
   process.env.NODE_ENV === "production"
-    ? "https://real-estate-chi-neon.vercel.app/"
+    ? "https://realestate-1o4h.onrender.com"
     : "http://localhost:3000";
 
 interface ApiOptions {
