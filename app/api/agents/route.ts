@@ -1,54 +1,80 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
-import { requireAuth } from '@/lib/middleware/auth';
-import { AuthenticatedRequest } from '@/lib/types/auth';
+import { NextRequest, NextResponse } from "next/server";
+import { prisma, User, VerificationStatus } from "@/lib/prisma";
+import { requireAuth } from "@/lib/middleware/auth";
+import { AuthenticatedRequest } from "@/lib/types/auth";
+
+// Define the type for agent returned from Prisma query
+type AgentWithCount = {
+  id: string;
+  name: string;
+  email: string;
+  avatar: string | null;
+  phone: string | null;
+  bio: string | null;
+  isVerified: boolean;
+  isActive: boolean;
+  verificationStatus: VerificationStatus;
+  licenseNumber: string | null;
+  agencyName: string | null;
+  experienceYears: number | null;
+  specializations: string[];
+  city: string | null;
+  state: string | null;
+  createdAt: Date;
+  lastLoginAt: Date | null;
+  _count: {
+    properties: number;
+    agentInquiries: number;
+    givenReviews: number;
+  };
+};
 
 // GET /api/agents - Get all agents
 async function getAgents(request: AuthenticatedRequest) {
   try {
     const { searchParams } = new URL(request.url);
-    const page = parseInt(searchParams.get('page') || '1');
-    const limit = parseInt(searchParams.get('limit') || '50');
-    const search = searchParams.get('search') || '';
-    const status = searchParams.get('status') || '';
-    const verification = searchParams.get('verification') || '';
-    const city = searchParams.get('city') || '';
+    const page = parseInt(searchParams.get("page") || "1");
+    const limit = parseInt(searchParams.get("limit") || "50");
+    const search = searchParams.get("search") || "";
+    const status = searchParams.get("status") || "";
+    const verification = searchParams.get("verification") || "";
+    const city = searchParams.get("city") || "";
 
     const skip = (page - 1) * limit;
 
-    // Build where clause
+    // Build where clause using Prisma's expected types
     const where: any = {
-      role: 'AGENT', // Only get users with AGENT role
+      role: "AGENT", // Only get users with AGENT role
     };
 
     if (search) {
       where.OR = [
-        { name: { contains: search, mode: 'insensitive' } },
-        { email: { contains: search, mode: 'insensitive' } },
-        { agencyName: { contains: search, mode: 'insensitive' } },
+        { name: { contains: search, mode: "insensitive" } },
+        { email: { contains: search, mode: "insensitive" } },
+        { agencyName: { contains: search, mode: "insensitive" } },
       ];
     }
 
-    if (status && status !== 'all') {
+    if (status && status !== "all") {
       switch (status) {
-        case 'active':
+        case "active":
           where.isActive = true;
           break;
-        case 'inactive':
+        case "inactive":
           where.isActive = false;
           break;
       }
     }
 
-    if (verification && verification !== 'all') {
+    if (verification && verification !== "all") {
       where.verificationStatus = verification.toUpperCase();
     }
 
     if (city) {
-      where.city = { contains: city, mode: 'insensitive' };
+      where.city = { contains: city, mode: "insensitive" };
     }
 
-    const [agents, total] = await Promise.all([
+    const results = await Promise.all([
       prisma.user.findMany({
         where,
         select: {
@@ -78,8 +104,8 @@ async function getAgents(request: AuthenticatedRequest) {
           },
         },
         orderBy: [
-          { verificationStatus: 'asc' }, // Verified first
-          { createdAt: 'desc' },
+          { verificationStatus: "asc" }, // Verified first
+          { createdAt: "desc" },
         ],
         skip,
         take: limit,
@@ -87,8 +113,38 @@ async function getAgents(request: AuthenticatedRequest) {
       prisma.user.count({ where }),
     ]);
 
+    // Type the results properly
+    const agentsData = results[0] as unknown as any[];
+    const total = results[1] as number;
+
+    // Convert the Prisma result to AgentWithCount type
+    const agents: AgentWithCount[] = agentsData.map((agent) => ({
+      id: agent.id,
+      name: agent.name,
+      email: agent.email,
+      avatar: agent.avatar,
+      phone: agent.phone,
+      bio: agent.bio,
+      isVerified: agent.isVerified,
+      isActive: agent.isActive,
+      verificationStatus: agent.verificationStatus,
+      licenseNumber: agent.licenseNumber,
+      agencyName: agent.agencyName,
+      experienceYears: agent.experienceYears,
+      specializations: agent.specializations,
+      city: agent.city,
+      state: agent.state,
+      createdAt: agent.createdAt,
+      lastLoginAt: agent.lastLoginAt,
+      _count: {
+        properties: agent._count.properties,
+        agentInquiries: agent._count.agentInquiries,
+        givenReviews: agent._count.givenReviews,
+      },
+    }));
+
     // Transform the data to match frontend expectations
-    const transformedAgents = agents.map(agent => ({
+    const transformedAgents = agents.map((agent) => ({
       ...agent,
       _count: {
         properties: agent._count.properties,
@@ -107,9 +163,9 @@ async function getAgents(request: AuthenticatedRequest) {
       },
     });
   } catch (error: any) {
-    console.error('Get agents error:', error);
+    console.error("Get agents error:", error);
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: "Internal server error" },
       { status: 500 }
     );
   }
@@ -119,12 +175,24 @@ async function getAgents(request: AuthenticatedRequest) {
 async function createAgent(request: AuthenticatedRequest) {
   try {
     // Check if user is admin
-    if (request.user?.role !== 'ADMIN') {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 403 }
-      );
+    if (request.user?.role !== "ADMIN") {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
     }
+
+    // Define type for agent creation input
+    type AgentCreateInput = {
+      name: string;
+      email: string;
+      password: string;
+      phone?: string;
+      licenseNumber?: string;
+      agencyName?: string;
+      experienceYears?: string | number;
+      specializations?: string[];
+      city?: string;
+      state?: string;
+      bio?: string;
+    };
 
     const {
       name,
@@ -138,7 +206,7 @@ async function createAgent(request: AuthenticatedRequest) {
       city,
       state,
       bio,
-    } = await request.json();
+    } = (await request.json()) as AgentCreateInput;
 
     // Check if user already exists
     const existingUser = await prisma.user.findUnique({
@@ -147,13 +215,13 @@ async function createAgent(request: AuthenticatedRequest) {
 
     if (existingUser) {
       return NextResponse.json(
-        { error: 'User with this email already exists' },
+        { error: "User with this email already exists" },
         { status: 400 }
       );
     }
 
     // Hash password
-    const bcrypt = require('bcryptjs');
+    const bcrypt = require("bcryptjs");
     const hashedPassword = await bcrypt.hash(password, 12);
 
     const agent = await prisma.user.create({
@@ -161,17 +229,21 @@ async function createAgent(request: AuthenticatedRequest) {
         name,
         email,
         password: hashedPassword,
-        role: 'AGENT',
+        role: "AGENT",
         phone,
         licenseNumber,
         agencyName,
-        experienceYears: experienceYears ? parseInt(experienceYears) : null,
+        experienceYears: experienceYears
+          ? typeof experienceYears === "string"
+            ? parseInt(experienceYears)
+            : experienceYears
+          : null,
         specializations,
         city,
         state,
         bio,
         isActive: true,
-        verificationStatus: 'PENDING',
+        verificationStatus: "PENDING",
       },
       select: {
         id: true,
@@ -196,15 +268,15 @@ async function createAgent(request: AuthenticatedRequest) {
 
     return NextResponse.json(
       {
-        message: 'Agent created successfully',
+        message: "Agent created successfully",
         agent,
       },
       { status: 201 }
     );
   } catch (error: any) {
-    console.error('Create agent error:', error);
+    console.error("Create agent error:", error);
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: "Internal server error" },
       { status: 500 }
     );
   }
