@@ -22,9 +22,19 @@ function createPrismaClient() {
           ? ["query", "error", "warn"]
           : ["error"],
       errorFormat: "pretty",
+      datasources: {
+        db: {
+          url: process.env.DATABASE_URL,
+        },
+      },
     });
 
-    return client.$extends(withAccelerate());
+    // Only use Accelerate if available
+    if (process.env.PRISMA_GENERATE_DATAPROXY === "true") {
+      return client.$extends(withAccelerate());
+    }
+
+    return client;
   } catch (error) {
     console.error("Failed to create Prisma client:", error);
     return null;
