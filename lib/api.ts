@@ -1,9 +1,16 @@
 // API utility functions for frontend
 
-const API_BASE_URL =
-  process.env.NODE_ENV === "production"
-    ? "" // Use relative URLs in production (same domain)
+// Get the base URL dynamically
+function getApiBaseUrl(): string {
+  if (typeof window !== 'undefined') {
+    // Client-side: use current origin
+    return window.location.origin;
+  }
+  // Server-side: use environment variable or default
+  return process.env.NODE_ENV === "production"
+    ? "https://real-estate-five-indol.vercel.app"
     : "http://localhost:3000";
+}
 
 interface ApiOptions {
   method?: "GET" | "POST" | "PUT" | "DELETE";
@@ -45,7 +52,7 @@ async function apiRequest(endpoint: string, options: ApiOptions = {}) {
     config.body = JSON.stringify(body);
   }
 
-  const response = await fetch(`${API_BASE_URL}/api${endpoint}`, config);
+  const response = await fetch(`${getApiBaseUrl()}/api${endpoint}`, config);
 
   if (!response.ok) {
     const error = await response
