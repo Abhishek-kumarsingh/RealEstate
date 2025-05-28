@@ -32,6 +32,7 @@ import {
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { SidebarProvider, useSidebar } from "@/lib/contexts/SidebarContext";
 import { cn } from "@/lib/utils";
 
@@ -223,36 +224,38 @@ const DashboardContent = ({ children }: DashboardLayoutProps) => {
             }
           )}
         >
-          <div className="flex h-full flex-col p-2 overflow-hidden">
+          <div className="flex h-full flex-col p-2">
             <TooltipProvider>
-              <nav className="space-y-1.5 py-3">
-                {userNavigation.map((item) => (
-                  <Tooltip key={item.name} delayDuration={0}>
-                    <TooltipTrigger asChild>
-                      <Button
-                        variant={pathname === item.href ? "secondary" : "ghost"}
-                        asChild
-                        className={cn("w-full justify-start transition-all duration-200", {
-                          "justify-center": !isSidebarOpen,
-                        })}
-                      >
-                        <Link href={item.href}>
-                          <item.icon className={cn("h-5 w-5", {
-                            "mr-2": isSidebarOpen,
-                            "mr-0": !isSidebarOpen,
-                          })} />
-                          {isSidebarOpen && <span className="transition-opacity duration-200">{item.name}</span>}
-                        </Link>
-                      </Button>
-                    </TooltipTrigger>
-                    {!isSidebarOpen && (
-                      <TooltipContent side="right" className="font-medium">
-                        {item.name}
-                      </TooltipContent>
-                    )}
-                  </Tooltip>
-                ))}
-            </nav>
+              <ScrollArea className="flex-1 py-3">
+                <nav className="space-y-1.5">
+                  {userNavigation.map((item) => (
+                    <Tooltip key={item.name} delayDuration={0}>
+                      <TooltipTrigger asChild>
+                        <Button
+                          variant={pathname === item.href ? "secondary" : "ghost"}
+                          asChild
+                          className={cn("w-full justify-start transition-all duration-200", {
+                            "justify-center": !isSidebarOpen,
+                          })}
+                        >
+                          <Link href={item.href}>
+                            <item.icon className={cn("h-5 w-5", {
+                              "mr-2": isSidebarOpen,
+                              "mr-0": !isSidebarOpen,
+                            })} />
+                            {isSidebarOpen && <span className="transition-opacity duration-200">{item.name}</span>}
+                          </Link>
+                        </Button>
+                      </TooltipTrigger>
+                      {!isSidebarOpen && (
+                        <TooltipContent side="right" className="font-medium">
+                          {item.name}
+                        </TooltipContent>
+                      )}
+                    </Tooltip>
+                  ))}
+                </nav>
+              </ScrollArea>
 
               <div className="mt-auto space-y-1.5">
                 <Tooltip delayDuration={0}>
@@ -317,8 +320,8 @@ const DashboardContent = ({ children }: DashboardLayoutProps) => {
               className="fixed inset-0 bg-black/80 backdrop-blur-sm"
               onClick={() => setIsMobileMenuOpen(false)}
             />
-            <nav className="fixed inset-y-0 left-0 w-3/4 max-w-xs bg-background p-6 shadow-lg">
-              <div className="flex items-center justify-between mb-8">
+            <nav className="fixed inset-y-0 left-0 w-3/4 max-w-xs bg-background shadow-lg flex flex-col">
+              <div className="flex items-center justify-between p-6 border-b">
                 <Link href="/" className="flex items-center gap-2">
                   <Home className="h-6 w-6" />
                   <span className="font-bold">RealEstateHub</span>
@@ -332,8 +335,8 @@ const DashboardContent = ({ children }: DashboardLayoutProps) => {
                 </Button>
               </div>
 
-              <div className="mb-6">
-                <div className="flex items-center gap-4 mb-4">
+              <div className="p-6 border-b">
+                <div className="flex items-center gap-4">
                   <Avatar>
                     <AvatarImage src={user.avatar} alt={user.name} />
                     <AvatarFallback>
@@ -349,47 +352,51 @@ const DashboardContent = ({ children }: DashboardLayoutProps) => {
                 </div>
               </div>
 
-              <div className="space-y-2">
-                {userNavigation.map((item) => (
+              <ScrollArea className="flex-1 p-6">
+                <div className="space-y-2">
+                  {userNavigation.map((item) => (
+                    <Button
+                      key={item.name}
+                      variant={pathname === item.href ? "secondary" : "ghost"}
+                      asChild
+                      className="w-full justify-start"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      <Link href={item.href}>
+                        <item.icon className="mr-2 h-5 w-5" />
+                        <span>{item.name}</span>
+                      </Link>
+                    </Button>
+                  ))}
+                </div>
+              </ScrollArea>
+
+              <div className="p-6 border-t mt-auto">
+                <div className="space-y-2">
                   <Button
-                    key={item.name}
-                    variant={pathname === item.href ? "secondary" : "ghost"}
-                    asChild
+                    variant="ghost"
                     className="w-full justify-start"
+                    asChild
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
-                    <Link href={item.href}>
-                      <item.icon className="mr-2 h-5 w-5" />
-                      <span>{item.name}</span>
+                    <Link href="/">
+                      <Home className="mr-2 h-5 w-5" />
+                      <span>Back to Website</span>
                     </Link>
                   </Button>
-                ))}
-              </div>
 
-              <div className="mt-8 border-t pt-4">
-                <Button
-                  variant="ghost"
-                  className="w-full justify-start"
-                  asChild
-                  onClick={() => setIsMobileMenuOpen(false)}
-                >
-                  <Link href="/">
-                    <Home className="mr-2 h-5 w-5" />
-                    <span>Back to Website</span>
-                  </Link>
-                </Button>
-
-                <Button
-                  variant="ghost"
-                  className="w-full justify-start text-muted-foreground hover:text-destructive"
-                  onClick={() => {
-                    logout();
-                    setIsMobileMenuOpen(false);
-                  }}
-                >
-                  <LogOut className="mr-2 h-5 w-5" />
-                  <span>Log out</span>
-                </Button>
+                  <Button
+                    variant="ghost"
+                    className="w-full justify-start text-muted-foreground hover:text-destructive"
+                    onClick={() => {
+                      logout();
+                      setIsMobileMenuOpen(false);
+                    }}
+                  >
+                    <LogOut className="mr-2 h-5 w-5" />
+                    <span>Log out</span>
+                  </Button>
+                </div>
               </div>
             </nav>
           </div>
