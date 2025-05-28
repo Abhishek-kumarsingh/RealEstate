@@ -7,11 +7,26 @@ const nextConfig = {
     ignoreBuildErrors: false,
   },
   images: {
-    domains: ['images.pexels.com', 'localhost', 'res.cloudinary.com', 'placeholder.com'],
     remotePatterns: [
       {
         protocol: 'https',
         hostname: '**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'images.pexels.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'res.cloudinary.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'placeholder.com',
+      },
+      {
+        protocol: 'http',
+        hostname: 'localhost',
       },
     ],
     unoptimized: false,
@@ -23,4 +38,4 @@ const nextConfig = {
   output: 'standalone',
 };
 
-module.exports = nextConfig;
+export default nextConfig;
