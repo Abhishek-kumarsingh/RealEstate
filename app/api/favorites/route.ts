@@ -1,7 +1,7 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
-import { requireAuth } from '@/lib/middleware/auth';
-import { AuthenticatedRequest } from '@/lib/types/auth';
+import { NextRequest, NextResponse } from "next/server";
+import { prisma } from "@/lib/prisma";
+import { requireAuth } from "@/lib/middleware/auth";
+import { AuthenticatedRequest } from "@/lib/types/auth";
 
 // GET /api/favorites - Get user's favorite properties
 async function getFavorites(request: AuthenticatedRequest) {
@@ -17,26 +17,31 @@ async function getFavorites(request: AuthenticatedRequest) {
                 name: true,
                 email: true,
                 phone: true,
-                avatar: true
-              }
+                avatar: true,
+              },
             },
-            images: true
-          }
-        }
+            images: true,
+          },
+        },
       },
-      orderBy: { createdAt: 'desc' }
+      orderBy: { createdAt: "desc" },
     });
 
-    const properties = favorites.map(fav => fav.property).filter(Boolean);
+    // Type assertion to let TypeScript know that property is included
+    const properties = favorites
+      .map((fav) => (fav as typeof fav & { property?: any }).property)
+      .filter(Boolean);
 
-    return NextResponse.json({
-      favorites: properties
-    }, { status: 200 });
-
-  } catch (error: any) {
-    console.error('Favorites fetch error:', error);
     return NextResponse.json(
-      { error: 'Internal server error' },
+      {
+        favorites: properties,
+      },
+      { status: 200 }
+    );
+  } catch (error: any) {
+    console.error("Favorites fetch error:", error);
+    return NextResponse.json(
+      { error: "Internal server error" },
       { status: 500 }
     );
   }
@@ -49,19 +54,19 @@ async function addToFavorites(request: AuthenticatedRequest) {
 
     if (!propertyId) {
       return NextResponse.json(
-        { error: 'Property ID is required' },
+        { error: "Property ID is required" },
         { status: 400 }
       );
     }
 
     // Check if property exists
     const property = await prisma.property.findUnique({
-      where: { id: propertyId }
+      where: { id: propertyId },
     });
 
     if (!property) {
       return NextResponse.json(
-        { error: 'Property not found' },
+        { error: "Property not found" },
         { status: 404 }
       );
     }
@@ -71,30 +76,31 @@ async function addToFavorites(request: AuthenticatedRequest) {
       const favorite = await prisma.favorite.create({
         data: {
           userId: request.user?.userId!,
-          propertyId: propertyId
-        }
+          propertyId: propertyId,
+        },
       });
 
-      return NextResponse.json({
-        message: 'Property added to favorites',
-        favorite
-      }, { status: 201 });
-
+      return NextResponse.json(
+        {
+          message: "Property added to favorites",
+          favorite,
+        },
+        { status: 201 }
+      );
     } catch (error: any) {
       // Handle unique constraint violation
-      if (error.code === 'P2002') {
+      if (error.code === "P2002") {
         return NextResponse.json(
-          { error: 'Property already in favorites' },
+          { error: "Property already in favorites" },
           { status: 400 }
         );
       }
       throw error;
     }
-
   } catch (error: any) {
-    console.error('Add to favorites error:', error);
+    console.error("Add to favorites error:", error);
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: "Internal server error" },
       { status: 500 }
     );
   }

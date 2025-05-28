@@ -2,7 +2,7 @@
 
 const API_BASE_URL =
   process.env.NODE_ENV === "production"
-    ? "https://realestate-1o4h.onrender.com"
+    ? process.env.CORS_URL
     : "http://localhost:3000";
 
 interface ApiOptions {
