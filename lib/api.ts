@@ -133,11 +133,25 @@ export const favoritesApi = {
 
 // Inquiries API
 export const inquiriesApi = {
-  getAll: (params?: Record<string, string>, token?: string) => {
-    const queryString = params
-      ? `?${new URLSearchParams(params).toString()}`
+  getAll: (token?: string | Record<string, string>, params?: Record<string, string>) => {
+    // Handle both old and new parameter formats for backward compatibility
+    let actualToken: string | undefined;
+    let actualParams: Record<string, string> | undefined;
+
+    if (typeof token === 'string') {
+      // Old format: getAll(token, params)
+      actualToken = token;
+      actualParams = params;
+    } else {
+      // New format: getAll(params, token)
+      actualParams = token;
+      actualToken = params as string;
+    }
+
+    const queryString = actualParams
+      ? `?${new URLSearchParams(actualParams).toString()}`
       : "";
-    return apiRequest(`/inquiries${queryString}`, { token });
+    return apiRequest(`/inquiries${queryString}`, { token: actualToken });
   },
 
   create: (data: any, token?: string) =>
