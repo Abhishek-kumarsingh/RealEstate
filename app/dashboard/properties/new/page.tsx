@@ -23,9 +23,23 @@ import {
 } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { ArrowLeft, Upload, Plus, Trash2, MapPin, Loader2 } from "lucide-react";
+import { Progress } from "@/components/ui/progress";
+import { Badge } from "@/components/ui/badge";
+import {
+  ArrowLeft,
+  Upload,
+  Plus,
+  Trash2,
+  MapPin,
+  Loader2,
+  ArrowRight,
+  Check,
+  AlertCircle,
+  Home,
+  Camera,
+  Map
+} from "lucide-react";
 import Link from "next/link";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/lib/contexts/AuthContext";
@@ -36,6 +50,31 @@ export default function NewPropertyPage() {
   const { token, user, loading } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
+
+  // Step management
+  const [currentStep, setCurrentStep] = useState(1);
+  const [completedSteps, setCompletedSteps] = useState<number[]>([]);
+
+  const steps = [
+    {
+      id: 1,
+      title: "Property Details",
+      description: "Basic information and features",
+      icon: Home,
+    },
+    {
+      id: 2,
+      title: "Images & Media",
+      description: "Photos and virtual tours",
+      icon: Camera,
+    },
+    {
+      id: 3,
+      title: "Location & Map",
+      description: "Address and map location",
+      icon: Map,
+    },
+  ];
 
   // Redirect to login if not authenticated
   useEffect(() => {
@@ -138,6 +177,104 @@ export default function NewPropertyPage() {
     );
   };
 
+  // Validation functions
+  const validateStep1 = () => {
+    const errors = [];
+    if (!title.trim()) errors.push("Property title is required");
+    if (!price.trim()) errors.push("Price is required");
+    if (!description.trim()) errors.push("Description is required");
+    if (!propertyType) errors.push("Property type is required");
+    if (!category) errors.push("Category is required");
+    return errors;
+  };
+
+  const validateStep2 = () => {
+    const errors = [];
+    if (images.length === 0) errors.push("At least one image is required");
+    return errors;
+  };
+
+  const validateStep3 = () => {
+    const errors = [];
+    if (!address.trim()) errors.push("Address is required");
+    if (!city.trim()) errors.push("City is required");
+    if (!state.trim()) errors.push("State is required");
+    if (!zipCode.trim()) errors.push("Zip code is required");
+    return errors;
+  };
+
+  const validateCurrentStep = () => {
+    switch (currentStep) {
+      case 1:
+        return validateStep1();
+      case 2:
+        return validateStep2();
+      case 3:
+        return validateStep3();
+      default:
+        return [];
+    }
+  };
+
+  const isStepValid = (stepNumber: number) => {
+    switch (stepNumber) {
+      case 1:
+        return validateStep1().length === 0;
+      case 2:
+        return validateStep2().length === 0;
+      case 3:
+        return validateStep3().length === 0;
+      default:
+        return false;
+    }
+  };
+
+  // Step navigation
+  const nextStep = () => {
+    const errors = validateCurrentStep();
+    if (errors.length > 0) {
+      toast({
+        title: "Validation Error",
+        description: errors.join(", "),
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Mark current step as completed
+    if (!completedSteps.includes(currentStep)) {
+      setCompletedSteps(prev => [...prev, currentStep]);
+    }
+
+    if (currentStep < steps.length) {
+      setCurrentStep(currentStep + 1);
+    }
+  };
+
+  const prevStep = () => {
+    if (currentStep > 1) {
+      setCurrentStep(currentStep - 1);
+    }
+  };
+
+  const goToStep = (stepNumber: number) => {
+    // Allow going to previous steps or next step if current is valid
+    if (stepNumber < currentStep || (stepNumber === currentStep + 1 && isStepValid(currentStep))) {
+      if (stepNumber === currentStep + 1) {
+        nextStep();
+      } else {
+        setCurrentStep(stepNumber);
+      }
+    }
+  };
+
+  const getStepStatus = (stepNumber: number) => {
+    if (completedSteps.includes(stepNumber)) return "completed";
+    if (stepNumber === currentStep) return "current";
+    if (stepNumber < currentStep) return "completed";
+    return "upcoming";
+  };
+
   const handleSubmit = async (isDraft: boolean = false) => {
     try {
       setIsSubmitting(true);
@@ -237,6 +374,199 @@ export default function NewPropertyPage() {
     }
   };
 
+  const renderStepContent = () => {
+    switch (currentStep) {
+      case 1:
+        return renderPropertyDetails();
+      case 2:
+        return renderImagesMedia();
+      case 3:
+        return renderLocationMap();
+      default:
+        return null;
+    }
+  };
+
+  const renderPropertyDetails = () => (
+    <Card>
+      <CardHeader>
+        <CardTitle>Basic Information</CardTitle>
+        <CardDescription>
+          Enter the basic details of the property
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-6">
+        <div className="space-y-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div className="space-y-2">
+              <Label htmlFor="title">Property Title *</Label>
+              <Input
+                id="title"
+                placeholder="Enter property title"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                required
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="price">Price *</Label>
+              <div className="relative">
+                <span className="absolute left-3 top-2.5 text-muted-foreground">
+                  $
+                </span>
+                <Input
+                  id="price"
+                  type="number"
+                  className="pl-7"
+                  placeholder="Enter price"
+                  value={price}
+                  onChange={(e) => setPrice(e.target.value)}
+                  required
+                />
+              </div>
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="description">Description *</Label>
+            <Textarea
+              id="description"
+              placeholder="Describe the property in detail"
+              className="min-h-[120px]"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              required
+            />
+          </div>
+
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div className="space-y-2">
+              <Label htmlFor="type">Property Type *</Label>
+              <Select
+                value={propertyType}
+                onValueChange={setPropertyType}
+                required
+              >
+                <SelectTrigger id="type">
+                  <SelectValue placeholder="Select type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="SALE">For Sale</SelectItem>
+                  <SelectItem value="RENT">For Rent</SelectItem>
+                  <SelectItem value="COMMERCIAL">Commercial</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="category">Category *</Label>
+              <Select
+                value={category}
+                onValueChange={setCategory}
+                required
+              >
+                <SelectTrigger id="category">
+                  <SelectValue placeholder="Select category" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="HOUSE">House</SelectItem>
+                  <SelectItem value="APARTMENT">Apartment</SelectItem>
+                  <SelectItem value="CONDO">Condo</SelectItem>
+                  <SelectItem value="LAND">Land</SelectItem>
+                  <SelectItem value="OFFICE">Office</SelectItem>
+                  <SelectItem value="RETAIL">Retail</SelectItem>
+                  <SelectItem value="INDUSTRIAL">Industrial</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          <Separator />
+
+          <div className="space-y-4">
+            <h3 className="text-lg font-medium">Property Features</h3>
+            <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+              {features.map((feature) => (
+                <div key={feature.name} className="space-y-2">
+                  <Label htmlFor={feature.name} className="capitalize">
+                    {feature.name === "area"
+                      ? "Area (sq ft)"
+                      : feature.name}
+                  </Label>
+                  <Input
+                    id={feature.name}
+                    type="number"
+                    value={feature.value}
+                    onChange={(e) =>
+                      updateFeature(
+                        feature.name,
+                        parseInt(e.target.value) || 0
+                      )
+                    }
+                  />
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <Separator />
+
+          <div className="space-y-4">
+            <h3 className="text-lg font-medium">Property Status</h3>
+            <RadioGroup
+              value={status}
+              onValueChange={setStatus}
+              className="flex flex-wrap gap-4"
+            >
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="AVAILABLE" id="available" />
+                <Label htmlFor="available">Available</Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="PENDING" id="pending" />
+                <Label htmlFor="pending">Pending</Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="SOLD" id="sold" />
+                <Label htmlFor="sold">Sold</Label>
+              </div>
+            </RadioGroup>
+          </div>
+
+          <Separator />
+
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h3 className="text-lg font-medium">Amenities</h3>
+              <Button variant="outline" size="sm">
+                <Plus className="mr-2 h-4 w-4" />
+                Add Custom
+              </Button>
+            </div>
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
+              {amenities.map((amenity) => (
+                <div
+                  key={amenity.name}
+                  className="flex items-center space-x-2"
+                >
+                  <Switch
+                    id={`amenity-${amenity.name}`}
+                    checked={amenity.checked}
+                    onCheckedChange={() => toggleAmenity(amenity.name)}
+                  />
+                  <Label htmlFor={`amenity-${amenity.name}`}>
+                    {amenity.name}
+                  </Label>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -252,408 +582,319 @@ export default function NewPropertyPage() {
         </div>
       </div>
 
-      <Tabs defaultValue="details" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="details">Property Details</TabsTrigger>
-          <TabsTrigger value="images">Images & Media</TabsTrigger>
-          <TabsTrigger value="location">Location & Map</TabsTrigger>
-        </TabsList>
+      {/* Progress Indicator */}
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          <h2 className="text-lg font-semibold">Step {currentStep} of {steps.length}</h2>
+          <div className="text-sm text-muted-foreground">
+            {Math.round((currentStep / steps.length) * 100)}% Complete
+          </div>
+        </div>
+        <Progress value={(currentStep / steps.length) * 100} className="h-2" />
+      </div>
 
-        <TabsContent value="details" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Basic Information</CardTitle>
-              <CardDescription>
-                Enter the basic details of the property
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="space-y-4">
-                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                  <div className="space-y-2">
-                    <Label htmlFor="title">Property Title</Label>
-                    <Input
-                      id="title"
-                      placeholder="Enter property title"
-                      value={title}
-                      onChange={(e) => setTitle(e.target.value)}
-                      required
-                    />
-                  </div>
+      {/* Step Navigation */}
+      <div className="flex items-center justify-center space-x-8 py-4">
+        {steps.map((step, index) => {
+          const stepNumber = index + 1;
+          const status = getStepStatus(stepNumber);
+          const StepIcon = step.icon;
 
-                  <div className="space-y-2">
-                    <Label htmlFor="price">Price</Label>
-                    <div className="relative">
-                      <span className="absolute left-3 top-2.5 text-muted-foreground">
-                        $
-                      </span>
-                      <Input
-                        id="price"
-                        type="number"
-                        className="pl-7"
-                        placeholder="Enter price"
-                        value={price}
-                        onChange={(e) => setPrice(e.target.value)}
-                        required
-                      />
-                    </div>
-                  </div>
+          return (
+            <div
+              key={step.id}
+              className={`flex flex-col items-center space-y-2 cursor-pointer transition-all ${
+                status === "current" ? "scale-110" : ""
+              }`}
+              onClick={() => goToStep(stepNumber)}
+            >
+              <div
+                className={`flex items-center justify-center w-12 h-12 rounded-full border-2 transition-all ${
+                  status === "completed"
+                    ? "bg-primary border-primary text-primary-foreground"
+                    : status === "current"
+                    ? "border-primary text-primary bg-primary/10"
+                    : "border-muted-foreground/30 text-muted-foreground"
+                }`}
+              >
+                {status === "completed" ? (
+                  <Check className="h-6 w-6" />
+                ) : (
+                  <StepIcon className="h-6 w-6" />
+                )}
+              </div>
+              <div className="text-center">
+                <div className={`text-sm font-medium ${
+                  status === "current" ? "text-primary" : "text-muted-foreground"
+                }`}>
+                  {step.title}
                 </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="description">Description</Label>
-                  <Textarea
-                    id="description"
-                    placeholder="Describe the property in detail"
-                    className="min-h-[120px]"
-                    value={description}
-                    onChange={(e) => setDescription(e.target.value)}
-                    required
-                  />
-                </div>
-
-                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                  <div className="space-y-2">
-                    <Label htmlFor="type">Property Type</Label>
-                    <Select
-                      value={propertyType}
-                      onValueChange={setPropertyType}
-                      required
-                    >
-                      <SelectTrigger id="type">
-                        <SelectValue placeholder="Select type" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="SALE">For Sale</SelectItem>
-                        <SelectItem value="RENT">For Rent</SelectItem>
-                        <SelectItem value="COMMERCIAL">Commercial</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="category">Category</Label>
-                    <Select
-                      value={category}
-                      onValueChange={setCategory}
-                      required
-                    >
-                      <SelectTrigger id="category">
-                        <SelectValue placeholder="Select category" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="HOUSE">House</SelectItem>
-                        <SelectItem value="APARTMENT">Apartment</SelectItem>
-                        <SelectItem value="CONDO">Condo</SelectItem>
-                        <SelectItem value="LAND">Land</SelectItem>
-                        <SelectItem value="OFFICE">Office</SelectItem>
-                        <SelectItem value="RETAIL">Retail</SelectItem>
-                        <SelectItem value="INDUSTRIAL">Industrial</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-
-                <Separator />
-
-                <div className="space-y-4">
-                  <h3 className="text-lg font-medium">Property Features</h3>
-                  <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-                    {features.map((feature) => (
-                      <div key={feature.name} className="space-y-2">
-                        <Label htmlFor={feature.name} className="capitalize">
-                          {feature.name === "area"
-                            ? "Area (sq ft)"
-                            : feature.name}
-                        </Label>
-                        <Input
-                          id={feature.name}
-                          type="number"
-                          value={feature.value}
-                          onChange={(e) =>
-                            updateFeature(
-                              feature.name,
-                              parseInt(e.target.value) || 0
-                            )
-                          }
-                        />
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                <Separator />
-
-                <div className="space-y-4">
-                  <h3 className="text-lg font-medium">Property Status</h3>
-                  <RadioGroup
-                    value={status}
-                    onValueChange={setStatus}
-                    className="flex flex-wrap gap-4"
-                  >
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="AVAILABLE" id="available" />
-                      <Label htmlFor="available">Available</Label>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="PENDING" id="pending" />
-                      <Label htmlFor="pending">Pending</Label>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="SOLD" id="sold" />
-                      <Label htmlFor="sold">Sold</Label>
-                    </div>
-                  </RadioGroup>
-                </div>
-
-                <Separator />
-
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <h3 className="text-lg font-medium">Amenities</h3>
-                    <Button variant="outline" size="sm">
-                      <Plus className="mr-2 h-4 w-4" />
-                      Add Custom
-                    </Button>
-                  </div>
-                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
-                    {amenities.map((amenity) => (
-                      <div
-                        key={amenity.name}
-                        className="flex items-center space-x-2"
-                      >
-                        <Switch
-                          id={`amenity-${amenity.name}`}
-                          checked={amenity.checked}
-                          onCheckedChange={() => toggleAmenity(amenity.name)}
-                        />
-                        <Label htmlFor={`amenity-${amenity.name}`}>
-                          {amenity.name}
-                        </Label>
-                      </div>
-                    ))}
-                  </div>
+                <div className="text-xs text-muted-foreground">
+                  {step.description}
                 </div>
               </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
+              {status === "completed" && (
+                <Badge variant="secondary" className="text-xs">
+                  Complete
+                </Badge>
+              )}
+            </div>
+          );
+        })}
+      </div>
 
-        <TabsContent value="images" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Images & Media</CardTitle>
-              <CardDescription>
-                Upload images and videos of the property
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="space-y-4">
-                <div className="flex flex-col gap-4">
-                  <Label>Property Images</Label>
-                  <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4">
-                    {/* Image upload placeholder */}
-                    <label className="group flex aspect-square cursor-pointer flex-col items-center justify-center rounded-md border border-dashed border-primary/20 bg-muted hover:border-primary/50 hover:bg-muted/70">
-                      <div className="flex flex-col items-center justify-center space-y-2 p-4 text-center">
-                        <Upload className="h-10 w-10 text-muted-foreground group-hover:text-primary" />
-                        <span className="text-xs font-medium text-muted-foreground group-hover:text-primary">
-                          Upload Images
-                        </span>
-                      </div>
-                      <input
-                        type="file"
-                        className="hidden"
-                        accept="image/*"
-                        multiple
-                        onChange={handleImageUpload}
-                      />
-                    </label>
+      {/* Step Content */}
+      {renderStepContent()}
 
-                    {/* Preview uploaded images */}
-                    {images.map((image, index) => (
-                      <div
-                        key={index}
-                        className="group relative aspect-square rounded-md border border-input overflow-hidden"
-                      >
-                        <img
-                          src={image.preview}
-                          alt={`Preview ${index}`}
-                          className="h-full w-full object-cover"
-                        />
-                        <button
-                          type="button"
-                          onClick={() => removeImage(index)}
-                          className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity"
-                        >
-                          <Trash2 className="h-6 w-6 text-white" />
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                <Separator />
-
-                <div className="space-y-4">
-                  <Label htmlFor="video">Video Tour URL</Label>
-                  <Input
-                    id="video"
-                    placeholder="Enter YouTube or Vimeo URL"
-                    value={videoUrl}
-                    onChange={(e) => setVideoUrl(e.target.value)}
-                  />
-                  <p className="text-sm text-muted-foreground">
-                    Add a video tour link from YouTube or Vimeo to showcase the
-                    property.
-                  </p>
-                </div>
-
-                <Separator />
-
-                <div className="space-y-4">
-                  <Label htmlFor="virtual-tour">Virtual Tour URL</Label>
-                  <Input
-                    id="virtual-tour"
-                    placeholder="Enter virtual tour URL"
-                    value={virtualTourUrl}
-                    onChange={(e) => setVirtualTourUrl(e.target.value)}
-                  />
-                  <p className="text-sm text-muted-foreground">
-                    Add a 3D virtual tour link to allow potential buyers to
-                    explore the property.
-                  </p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="location" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Location Information</CardTitle>
-              <CardDescription>
-                Add the property location and map details
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="space-y-4">
-                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                  <div className="space-y-2">
-                    <Label htmlFor="address">Address</Label>
-                    <Input
-                      id="address"
-                      placeholder="Enter street address"
-                      value={address}
-                      onChange={(e) => setAddress(e.target.value)}
-                      required
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="city">City</Label>
-                    <Input
-                      id="city"
-                      placeholder="Enter city"
-                      value={city}
-                      onChange={(e) => setCity(e.target.value)}
-                      required
-                    />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                  <div className="space-y-2">
-                    <Label htmlFor="state">State/Province</Label>
-                    <Input
-                      id="state"
-                      placeholder="Enter state or province"
-                      value={state}
-                      onChange={(e) => setState(e.target.value)}
-                      required
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="zipCode">Zip/Postal Code</Label>
-                    <Input
-                      id="zipCode"
-                      placeholder="Enter zip or postal code"
-                      value={zipCode}
-                      onChange={(e) => setZipCode(e.target.value)}
-                      required
-                    />
-                  </div>
-                </div>
-
-                <Separator />
-
-                <div className="space-y-4">
-                  <Label>Map Location</Label>
-                  <div className="aspect-video rounded-md bg-muted flex items-center justify-center">
-                    <div className="text-center text-muted-foreground">
-                      <MapPin className="h-10 w-10 mx-auto mb-2" />
-                      <p>Interactive map will be displayed here</p>
-                      <p className="text-sm">
-                        Click to set the exact property location
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                  <div className="space-y-2">
-                    <Label htmlFor="latitude">Latitude</Label>
-                    <Input
-                      id="latitude"
-                      placeholder="e.g. 34.052235"
-                      value={latitude}
-                      onChange={(e) => setLatitude(e.target.value)}
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="longitude">Longitude</Label>
-                    <Input
-                      id="longitude"
-                      placeholder="e.g. -118.243683"
-                      value={longitude}
-                      onChange={(e) => setLongitude(e.target.value)}
-                    />
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
-
-      <div className="flex items-center justify-end space-x-4">
+      {/* Navigation Buttons */}
+      <div className="flex items-center justify-between pt-6">
         <Button
           variant="outline"
-          onClick={() => handleSubmit(true)}
-          disabled={isSubmitting}
+          onClick={prevStep}
+          disabled={currentStep === 1}
+          className="flex items-center gap-2"
         >
-          {isSubmitting ? (
+          <ArrowLeft className="h-4 w-4" />
+          Previous
+        </Button>
+
+        <div className="flex items-center gap-4">
+          {currentStep === steps.length ? (
             <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Saving...
+              <Button
+                variant="outline"
+                onClick={() => handleSubmit(true)}
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Saving...
+                  </>
+                ) : (
+                  "Save as Draft"
+                )}
+              </Button>
+              <Button
+                onClick={() => handleSubmit(false)}
+                disabled={isSubmitting || !isStepValid(currentStep)}
+              >
+                {isSubmitting ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Publishing...
+                  </>
+                ) : (
+                  "Publish Property"
+                )}
+              </Button>
             </>
           ) : (
-            "Save as Draft"
+            <Button
+              onClick={nextStep}
+              disabled={!isStepValid(currentStep)}
+              className="flex items-center gap-2"
+            >
+              Next
+              <ArrowRight className="h-4 w-4" />
+            </Button>
           )}
-        </Button>
-        <Button onClick={() => handleSubmit(false)} disabled={isSubmitting}>
-          {isSubmitting ? (
-            <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Publishing...
-            </>
-          ) : (
-            "Publish Property"
-          )}
-        </Button>
+        </div>
       </div>
     </div>
+  );
+
+  const renderImagesMedia = () => (
+    <Card>
+      <CardHeader>
+        <CardTitle>Images & Media</CardTitle>
+        <CardDescription>
+          Upload images and videos of the property
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-6">
+        <div className="space-y-4">
+          <div className="flex flex-col gap-4">
+            <Label>Property Images *</Label>
+            <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4">
+              {/* Image upload placeholder */}
+              <label className="group flex aspect-square cursor-pointer flex-col items-center justify-center rounded-md border border-dashed border-primary/20 bg-muted hover:border-primary/50 hover:bg-muted/70">
+                <div className="flex flex-col items-center justify-center space-y-2 p-4 text-center">
+                  <Upload className="h-10 w-10 text-muted-foreground group-hover:text-primary" />
+                  <span className="text-xs font-medium text-muted-foreground group-hover:text-primary">
+                    Upload Images
+                  </span>
+                </div>
+                <input
+                  type="file"
+                  className="hidden"
+                  accept="image/*"
+                  multiple
+                  onChange={handleImageUpload}
+                />
+              </label>
+
+              {/* Preview uploaded images */}
+              {images.map((image, index) => (
+                <div
+                  key={index}
+                  className="group relative aspect-square rounded-md border border-input overflow-hidden"
+                >
+                  <img
+                    src={image.preview}
+                    alt={`Preview ${index}`}
+                    className="h-full w-full object-cover"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => removeImage(index)}
+                    className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity"
+                  >
+                    <Trash2 className="h-6 w-6 text-white" />
+                  </button>
+                </div>
+              ))}
+            </div>
+            {images.length === 0 && (
+              <p className="text-sm text-muted-foreground flex items-center gap-2">
+                <AlertCircle className="h-4 w-4" />
+                At least one image is required to proceed
+              </p>
+            )}
+          </div>
+
+          <Separator />
+
+          <div className="space-y-4">
+            <Label htmlFor="video">Video Tour URL</Label>
+            <Input
+              id="video"
+              placeholder="Enter YouTube or Vimeo URL"
+              value={videoUrl}
+              onChange={(e) => setVideoUrl(e.target.value)}
+            />
+            <p className="text-sm text-muted-foreground">
+              Add a video tour link from YouTube or Vimeo to showcase the
+              property.
+            </p>
+          </div>
+
+          <Separator />
+
+          <div className="space-y-4">
+            <Label htmlFor="virtual-tour">Virtual Tour URL</Label>
+            <Input
+              id="virtual-tour"
+              placeholder="Enter virtual tour URL"
+              value={virtualTourUrl}
+              onChange={(e) => setVirtualTourUrl(e.target.value)}
+            />
+            <p className="text-sm text-muted-foreground">
+              Add a 3D virtual tour link to allow potential buyers to
+              explore the property.
+            </p>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
+
+  const renderLocationMap = () => (
+    <Card>
+      <CardHeader>
+        <CardTitle>Location Information</CardTitle>
+        <CardDescription>
+          Add the property location and map details
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-6">
+        <div className="space-y-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div className="space-y-2">
+              <Label htmlFor="address">Address *</Label>
+              <Input
+                id="address"
+                placeholder="Enter street address"
+                value={address}
+                onChange={(e) => setAddress(e.target.value)}
+                required
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="city">City *</Label>
+              <Input
+                id="city"
+                placeholder="Enter city"
+                value={city}
+                onChange={(e) => setCity(e.target.value)}
+                required
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div className="space-y-2">
+              <Label htmlFor="state">State/Province *</Label>
+              <Input
+                id="state"
+                placeholder="Enter state or province"
+                value={state}
+                onChange={(e) => setState(e.target.value)}
+                required
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="zipCode">Zip/Postal Code *</Label>
+              <Input
+                id="zipCode"
+                placeholder="Enter zip or postal code"
+                value={zipCode}
+                onChange={(e) => setZipCode(e.target.value)}
+                required
+              />
+            </div>
+          </div>
+
+          <Separator />
+
+          <div className="space-y-4">
+            <Label>Map Location</Label>
+            <div className="aspect-video rounded-md bg-muted flex items-center justify-center">
+              <div className="text-center text-muted-foreground">
+                <MapPin className="h-10 w-10 mx-auto mb-2" />
+                <p>Interactive map will be displayed here</p>
+                <p className="text-sm">
+                  Click to set the exact property location
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div className="space-y-2">
+              <Label htmlFor="latitude">Latitude</Label>
+              <Input
+                id="latitude"
+                placeholder="e.g. 34.052235"
+                value={latitude}
+                onChange={(e) => setLatitude(e.target.value)}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="longitude">Longitude</Label>
+              <Input
+                id="longitude"
+                placeholder="e.g. -118.243683"
+                value={longitude}
+                onChange={(e) => setLongitude(e.target.value)}
+              />
+            </div>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
   );
 }

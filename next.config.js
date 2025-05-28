@@ -35,7 +35,6 @@ const nextConfig = {
   env: {
     SKIP_ENV_VALIDATION: 'true',
   },
-  output: 'standalone',
 };
 
 module.exports = nextConfig;
