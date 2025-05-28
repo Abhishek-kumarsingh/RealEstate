@@ -133,19 +133,19 @@ export const favoritesApi = {
 
 // Inquiries API
 export const inquiriesApi = {
-  getAll: (token?: string | Record<string, string>, params?: Record<string, string>) => {
+  getAll: (tokenOrParams?: string | Record<string, string>, paramsOrToken?: Record<string, string> | string) => {
     // Handle both old and new parameter formats for backward compatibility
     let actualToken: string | undefined;
     let actualParams: Record<string, string> | undefined;
 
-    if (typeof token === 'string') {
+    if (typeof tokenOrParams === 'string') {
       // Old format: getAll(token, params)
-      actualToken = token;
-      actualParams = params;
+      actualToken = tokenOrParams;
+      actualParams = paramsOrToken as Record<string, string>;
     } else {
       // New format: getAll(params, token)
-      actualParams = token;
-      actualToken = params as string;
+      actualParams = tokenOrParams;
+      actualToken = paramsOrToken as string;
     }
 
     const queryString = actualParams
