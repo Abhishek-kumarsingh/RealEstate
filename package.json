@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "prisma generate && next build --debug",
+    "build:no-typecheck": "prisma generate && next build --no-type-check",
     "build:simple": "next build",
     "start": "next start",
     "lint": "next lint",

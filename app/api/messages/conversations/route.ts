@@ -2,6 +2,42 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { requireAuth } from '@/lib/middleware/auth';
 import { AuthenticatedRequest } from '@/lib/types/auth';
+import { Prisma } from '@prisma/client';
+
+// Define the type for inquiry with includes
+type InquiryWithIncludes = Prisma.InquiryGetPayload<{
+  include: {
+    user: {
+      select: {
+        id: true;
+        name: true;
+        email: true;
+        avatar: true;
+        role: true;
+      };
+    };
+    agent: {
+      select: {
+        id: true;
+        name: true;
+        email: true;
+        avatar: true;
+        role: true;
+      };
+    };
+    property: {
+      select: {
+        id: true;
+        title: true;
+        images: {
+          where: { isPrimary: true };
+          select: { url: true };
+          take: 1;
+        };
+      };
+    };
+  };
+}>;
 
 // GET /api/messages/conversations - Get user's conversations
 async function getConversations(request: AuthenticatedRequest) {
@@ -46,7 +82,7 @@ async function getConversations(request: AuthenticatedRequest) {
       ];
     }
 
-    const [conversations, total] = await Promise.all([
+    const [conversationsResult, total] = await Promise.all([
       prisma.inquiry.findMany({
         where,
         include: {
@@ -86,6 +122,8 @@ async function getConversations(request: AuthenticatedRequest) {
       }),
       prisma.inquiry.count({ where }),
     ]);
+
+    const conversations = conversationsResult as InquiryWithIncludes[];
 
     // Transform conversations to include participant info and last message
     const transformedConversations = conversations.map(inquiry => {

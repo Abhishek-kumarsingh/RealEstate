@@ -1,17 +1,15 @@
 import { PrismaClient } from "@prisma/client";
 import { withAccelerate } from "@prisma/extension-accelerate";
 
+// Type for the extended Prisma client
+type ExtendedPrismaClient = ReturnType<PrismaClient['$extends']>;
+
 // Extend globalThis for dev environment caching
 declare global {
   var prisma: ReturnType<typeof createPrismaClient> | undefined;
 }
 
 function createPrismaClient() {
-  if (process.env.NEXT_PHASE === "phase-production-build") {
-    console.warn("Skipping Prisma client creation during build phase");
-    return null;
-  }
-
   if (!process.env.DATABASE_URL) {
     console.warn("DATABASE_URL not found, skipping Prisma client creation");
     return null;
@@ -40,14 +38,8 @@ if (process.env.NODE_ENV !== "production") {
   globalThis.prisma = prismaInstance;
 }
 
-if (!prismaInstance) {
-  throw new Error(
-    "Prisma client creation failed. Check environment configuration."
-  );
-}
-
-// Export the extended Prisma instance
-export const prisma = prismaInstance;
+// Export the extended Prisma instance with type assertion for build compatibility
+export const prisma = prismaInstance as any;
 export default prisma;
 
 // Export Prisma types

@@ -29,7 +29,7 @@ async function getFavorites(request: AuthenticatedRequest) {
 
     // Type assertion to let TypeScript know that property is included
     const properties = favorites
-      .map((fav) => (fav as typeof fav & { property?: any }).property)
+      .map((fav: any) => (fav as typeof fav & { property?: any }).property)
       .filter(Boolean);
 
     return NextResponse.json(

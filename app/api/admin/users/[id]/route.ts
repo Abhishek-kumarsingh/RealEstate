@@ -3,6 +3,8 @@ import { prisma } from '@/lib/prisma';
 import { requireRole } from '@/lib/middleware/auth';
 import { AuthenticatedRequest } from '@/lib/types/auth';
 
+
+
 // GET /api/admin/users/[id] - Get single user (Admin only)
 async function getUser(
   request: AuthenticatedRequest,
@@ -162,7 +164,7 @@ async function deleteUser(
     }
 
     // Delete user and related data in a transaction
-    await prisma.$transaction(async (tx) => {
+    await prisma.$transaction(async (tx: any) => {
       // Delete related records first
       await tx.favorite.deleteMany({ where: { userId: id } });
       await tx.inquiry.deleteMany({ where: { userId: id } });
