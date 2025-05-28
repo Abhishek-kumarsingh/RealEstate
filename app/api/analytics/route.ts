@@ -122,31 +122,57 @@ async function getAnalytics(request: AuthenticatedRequest) {
       : 0;
 
     // Get property performance data (monthly)
-    const propertyPerformance = await prisma.$queryRaw`
-      SELECT
-        TO_CHAR(DATE_TRUNC('month', p.created_at), 'Mon') as month,
-        COUNT(CASE WHEN p.type = 'SALE' THEN 1 END)::int as sales,
-        COUNT(CASE WHEN p.type = 'RENT' THEN 1 END)::int as rentals,
-        COALESCE(SUM(pv.view_count), 0)::int as views,
-        COALESCE(SUM(i.inquiry_count), 0)::int as inquiries
-      FROM properties p
-      LEFT JOIN (
-        SELECT property_id, COUNT(*) as view_count
-        FROM property_views
-        WHERE created_at >= ${startDate}
-        GROUP BY property_id
-      ) pv ON p.id = pv.property_id
-      LEFT JOIN (
-        SELECT property_id, COUNT(*) as inquiry_count
-        FROM inquiries
-        WHERE created_at >= ${startDate}
-        GROUP BY property_id
-      ) i ON p.id = i.property_id
-      WHERE p.created_at >= ${startDate}
-      ${userRole === 'AGENT' ? `AND p.agent_id = '${userId}'` : ''}
-      GROUP BY DATE_TRUNC('month', p.created_at)
-      ORDER BY DATE_TRUNC('month', p.created_at)
-    `;
+    const propertyPerformanceQuery = userRole === 'AGENT'
+      ? prisma.$queryRaw`
+          SELECT
+            TO_CHAR(DATE_TRUNC('month', p.created_at), 'Mon') as month,
+            COUNT(CASE WHEN p.type = 'SALE' THEN 1 END)::int as sales,
+            COUNT(CASE WHEN p.type = 'RENT' THEN 1 END)::int as rentals,
+            COALESCE(SUM(pv.view_count), 0)::int as views,
+            COALESCE(SUM(i.inquiry_count), 0)::int as inquiries
+          FROM properties p
+          LEFT JOIN (
+            SELECT property_id, COUNT(*) as view_count
+            FROM property_views
+            WHERE created_at >= ${startDate}
+            GROUP BY property_id
+          ) pv ON p.id = pv.property_id
+          LEFT JOIN (
+            SELECT property_id, COUNT(*) as inquiry_count
+            FROM inquiries
+            WHERE created_at >= ${startDate}
+            GROUP BY property_id
+          ) i ON p.id = i.property_id
+          WHERE p.created_at >= ${startDate} AND p.agent_id = ${userId}
+          GROUP BY DATE_TRUNC('month', p.created_at)
+          ORDER BY DATE_TRUNC('month', p.created_at)
+        `
+      : prisma.$queryRaw`
+          SELECT
+            TO_CHAR(DATE_TRUNC('month', p.created_at), 'Mon') as month,
+            COUNT(CASE WHEN p.type = 'SALE' THEN 1 END)::int as sales,
+            COUNT(CASE WHEN p.type = 'RENT' THEN 1 END)::int as rentals,
+            COALESCE(SUM(pv.view_count), 0)::int as views,
+            COALESCE(SUM(i.inquiry_count), 0)::int as inquiries
+          FROM properties p
+          LEFT JOIN (
+            SELECT property_id, COUNT(*) as view_count
+            FROM property_views
+            WHERE created_at >= ${startDate}
+            GROUP BY property_id
+          ) pv ON p.id = pv.property_id
+          LEFT JOIN (
+            SELECT property_id, COUNT(*) as inquiry_count
+            FROM inquiries
+            WHERE created_at >= ${startDate}
+            GROUP BY property_id
+          ) i ON p.id = i.property_id
+          WHERE p.created_at >= ${startDate}
+          GROUP BY DATE_TRUNC('month', p.created_at)
+          ORDER BY DATE_TRUNC('month', p.created_at)
+        `;
+
+    const propertyPerformance = await propertyPerformanceQuery;
 
     // Get top performing properties
     const topProperties = await prisma.property.findMany({
@@ -179,26 +205,47 @@ async function getAnalytics(request: AuthenticatedRequest) {
     });
 
     // Get location analytics
-    const locationAnalytics = await prisma.$queryRaw`
-      SELECT
-        city,
-        state,
-        COUNT(*)::int as properties,
-        AVG(price)::int as average_price,
-        COALESCE(SUM(view_count), 0)::int as total_views
-      FROM properties p
-      LEFT JOIN (
-        SELECT property_id, COUNT(*) as view_count
-        FROM property_views
-        WHERE created_at >= ${startDate}
-        GROUP BY property_id
-      ) pv ON p.id = pv.property_id
-      WHERE p.created_at >= ${startDate}
-      ${userRole === 'AGENT' ? `AND p.agent_id = '${userId}'` : ''}
-      GROUP BY city, state
-      ORDER BY properties DESC
-      LIMIT 10
-    `;
+    const locationAnalyticsQuery = userRole === 'AGENT'
+      ? prisma.$queryRaw`
+          SELECT
+            city,
+            state,
+            COUNT(*)::int as properties,
+            AVG(price)::int as average_price,
+            COALESCE(SUM(view_count), 0)::int as total_views
+          FROM properties p
+          LEFT JOIN (
+            SELECT property_id, COUNT(*) as view_count
+            FROM property_views
+            WHERE created_at >= ${startDate}
+            GROUP BY property_id
+          ) pv ON p.id = pv.property_id
+          WHERE p.created_at >= ${startDate} AND p.agent_id = ${userId}
+          GROUP BY city, state
+          ORDER BY properties DESC
+          LIMIT 10
+        `
+      : prisma.$queryRaw`
+          SELECT
+            city,
+            state,
+            COUNT(*)::int as properties,
+            AVG(price)::int as average_price,
+            COALESCE(SUM(view_count), 0)::int as total_views
+          FROM properties p
+          LEFT JOIN (
+            SELECT property_id, COUNT(*) as view_count
+            FROM property_views
+            WHERE created_at >= ${startDate}
+            GROUP BY property_id
+          ) pv ON p.id = pv.property_id
+          WHERE p.created_at >= ${startDate}
+          GROUP BY city, state
+          ORDER BY properties DESC
+          LIMIT 10
+        `;
+
+    const locationAnalytics = await locationAnalyticsQuery;
 
     // Generate mock user engagement data (replace with real data when available)
     const userEngagement = Array.from({ length: 30 }, (_, i) => {
