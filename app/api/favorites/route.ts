@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { requireAuth, AuthenticatedRequest } from '@/lib/middleware/auth';
+import { requireAuth } from '@/lib/middleware/auth';
+import { AuthenticatedRequest } from '@/lib/types/auth';
 
 // GET /api/favorites - Get user's favorite properties
 async function getFavorites(request: AuthenticatedRequest) {

@@ -12,7 +12,7 @@ const emailConfig = {
 };
 
 // Create transporter
-const transporter = nodemailer.createTransporter(emailConfig);
+const transporter = nodemailer.createTransport(emailConfig);
 
 // Verify email configuration
 export async function verifyEmailConfig() {
@@ -42,25 +42,25 @@ export const emailTemplates = {
         <h2 style="color: #2563eb;">New Property Inquiry</h2>
         <p>Hello ${data.agentName},</p>
         <p>You have received a new inquiry for your property:</p>
-        
+
         <div style="background: #f8fafc; padding: 20px; border-radius: 8px; margin: 20px 0;">
           <h3 style="margin: 0 0 10px 0; color: #1e40af;">${data.propertyTitle}</h3>
           <p><strong>From:</strong> ${data.userName} (${data.userEmail})</p>
           <p><strong>Message:</strong></p>
           <p style="background: white; padding: 15px; border-radius: 4px;">${data.message}</p>
         </div>
-        
+
         <p>
           <a href="${data.propertyUrl}" style="background: #2563eb; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;">
             View Property
           </a>
         </p>
-        
+
         <p>Please respond to this inquiry promptly to maintain good customer service.</p>
-        
+
         <hr style="margin: 30px 0; border: none; border-top: 1px solid #e5e7eb;">
         <p style="color: #6b7280; font-size: 14px;">
-          This email was sent from RealEstate Pro platform. 
+          This email was sent from RealEstate Pro platform.
           <a href="${process.env.NEXTAUTH_URL}/dashboard">Login to your dashboard</a> to manage inquiries.
         </p>
       </div>
@@ -80,21 +80,21 @@ export const emailTemplates = {
         <h2 style="color: #2563eb;">Inquiry Response</h2>
         <p>Hello ${data.userName},</p>
         <p>${data.agentName} has responded to your inquiry about:</p>
-        
+
         <div style="background: #f8fafc; padding: 20px; border-radius: 8px; margin: 20px 0;">
           <h3 style="margin: 0 0 10px 0; color: #1e40af;">${data.propertyTitle}</h3>
           <p><strong>Agent Response:</strong></p>
           <p style="background: white; padding: 15px; border-radius: 4px;">${data.response}</p>
         </div>
-        
+
         <p>
           <a href="${data.propertyUrl}" style="background: #2563eb; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;">
             View Property
           </a>
         </p>
-        
+
         <p>If you have any additional questions, feel free to contact the agent directly.</p>
-        
+
         <hr style="margin: 30px 0; border: none; border-top: 1px solid #e5e7eb;">
         <p style="color: #6b7280; font-size: 14px;">
           This email was sent from RealEstate Pro platform.
@@ -118,24 +118,24 @@ export const emailTemplates = {
         </h2>
         <p>Hello ${data.userName},</p>
         <p>Your property listing has been updated:</p>
-        
+
         <div style="background: #f8fafc; padding: 20px; border-radius: 8px; margin: 20px 0;">
           <h3 style="margin: 0 0 10px 0; color: #1e40af;">${data.propertyTitle}</h3>
           <p><strong>Status:</strong> <span style="color: ${data.status === 'APPROVED' ? '#059669' : '#dc2626'};">${data.status}</span></p>
           ${data.reason ? `<p><strong>Note:</strong> ${data.reason}</p>` : ''}
         </div>
-        
+
         <p>
           <a href="${data.dashboardUrl}" style="background: #2563eb; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;">
             View Dashboard
           </a>
         </p>
-        
-        ${data.status === 'APPROVED' 
+
+        ${data.status === 'APPROVED'
           ? '<p>Congratulations! Your property is now live and visible to potential buyers.</p>'
           : '<p>Please review the feedback and make necessary changes before resubmitting.</p>'
         }
-        
+
         <hr style="margin: 30px 0; border: none; border-top: 1px solid #e5e7eb;">
         <p style="color: #6b7280; font-size: 14px;">
           This email was sent from RealEstate Pro platform.
@@ -157,13 +157,13 @@ export const emailTemplates = {
           Agent Verification ${data.status}
         </h2>
         <p>Hello ${data.agentName},</p>
-        
+
         <div style="background: #f8fafc; padding: 20px; border-radius: 8px; margin: 20px 0;">
           <p><strong>Status:</strong> <span style="color: ${data.status === 'APPROVED' ? '#059669' : '#dc2626'};">${data.status}</span></p>
           ${data.reason ? `<p><strong>Note:</strong> ${data.reason}</p>` : ''}
         </div>
-        
-        ${data.status === 'APPROVED' 
+
+        ${data.status === 'APPROVED'
           ? `
             <p>Congratulations! Your agent verification has been approved. You can now:</p>
             <ul>
@@ -176,13 +176,13 @@ export const emailTemplates = {
             <p>Unfortunately, your agent verification was not approved at this time. Please review the feedback and resubmit your application with the required documentation.</p>
           `
         }
-        
+
         <p>
           <a href="${data.dashboardUrl}" style="background: #2563eb; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;">
             Access Dashboard
           </a>
         </p>
-        
+
         <hr style="margin: 30px 0; border: none; border-top: 1px solid #e5e7eb;">
         <p style="color: #6b7280; font-size: 14px;">
           This email was sent from RealEstate Pro platform.
@@ -212,7 +212,7 @@ export async function sendEmail(to: string, template: any) {
     return { success: true, messageId: result.messageId };
   } catch (error) {
     console.error('Error sending email:', error);
-    return { success: false, error: error.message };
+    return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
   }
 }
 

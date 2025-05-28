@@ -117,7 +117,7 @@ async function updateUser(
     });
   } catch (error: any) {
     console.error('Update user error:', error);
-    
+
     if (error.code === 'P2002') {
       return NextResponse.json(
         { error: 'Email already exists' },
@@ -169,13 +169,12 @@ async function deleteUser(
       await tx.propertyView.deleteMany({ where: { userId: id } });
       await tx.searchHistory.deleteMany({ where: { userId: id } });
       await tx.notification.deleteMany({ where: { userId: id } });
-      await tx.document.deleteMany({ where: { userId: id } });
+      await tx.document.deleteMany({ where: { uploadedById: id } });
       await tx.userSession.deleteMany({ where: { userId: id } });
-      
-      // Update properties to remove agent reference
-      await tx.property.updateMany({
+
+      // Delete properties owned by this agent
+      await tx.property.deleteMany({
         where: { agentId: id },
-        data: { agentId: null },
       });
 
       // Delete the user

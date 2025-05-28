@@ -14,7 +14,7 @@ async function getAnalytics(request: AuthenticatedRequest) {
     // Calculate date range
     const now = new Date();
     let startDate = new Date();
-    
+
     switch (timeRange) {
       case '7d':
         startDate.setDate(now.getDate() - 7);
@@ -111,19 +111,19 @@ async function getAnalytics(request: AuthenticatedRequest) {
     ]);
 
     // Calculate trends
-    const propertyTrend = previousPeriodProperties > 0 
-      ? ((totalProperties - previousPeriodProperties) / previousPeriodProperties) * 100 
+    const propertyTrend = previousPeriodProperties > 0
+      ? ((totalProperties - previousPeriodProperties) / previousPeriodProperties) * 100
       : 0;
-    const viewsTrend = previousPeriodViews > 0 
-      ? ((totalViews - previousPeriodViews) / previousPeriodViews) * 100 
+    const viewsTrend = previousPeriodViews > 0
+      ? ((totalViews - previousPeriodViews) / previousPeriodViews) * 100
       : 0;
-    const inquiriesTrend = previousPeriodInquiries > 0 
-      ? ((totalInquiries - previousPeriodInquiries) / previousPeriodInquiries) * 100 
+    const inquiriesTrend = previousPeriodInquiries > 0
+      ? ((totalInquiries - previousPeriodInquiries) / previousPeriodInquiries) * 100
       : 0;
 
     // Get property performance data (monthly)
     const propertyPerformance = await prisma.$queryRaw`
-      SELECT 
+      SELECT
         TO_CHAR(DATE_TRUNC('month', p.created_at), 'Mon') as month,
         COUNT(CASE WHEN p.type = 'SALE' THEN 1 END)::int as sales,
         COUNT(CASE WHEN p.type = 'RENT' THEN 1 END)::int as rentals,
@@ -165,13 +165,13 @@ async function getAnalytics(request: AuthenticatedRequest) {
         },
         _count: {
           select: {
-            views: true,
+            propertyViews: true,
             inquiries: true,
           },
         },
       },
       orderBy: {
-        views: {
+        propertyViews: {
           _count: 'desc',
         },
       },
@@ -180,7 +180,7 @@ async function getAnalytics(request: AuthenticatedRequest) {
 
     // Get location analytics
     const locationAnalytics = await prisma.$queryRaw`
-      SELECT 
+      SELECT
         city,
         state,
         COUNT(*)::int as properties,
@@ -244,7 +244,7 @@ async function getAnalytics(request: AuthenticatedRequest) {
       topProperties: topProperties.map(property => ({
         id: property.id,
         title: property.title,
-        views: property._count.views,
+        views: property._count.propertyViews,
         inquiries: property._count.inquiries,
         price: property.price,
         type: property.type,

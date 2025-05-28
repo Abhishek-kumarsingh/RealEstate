@@ -13,7 +13,6 @@ export async function getRedisClient() {
         url: redisUrl,
         socket: {
           connectTimeout: 5000,
-          lazyConnect: true,
         },
       });
 
@@ -51,8 +50,8 @@ function generateCacheKey(key: string, prefix: string = DEFAULT_PREFIX): string 
 
 // Set cache value
 export async function setCache(
-  key: string, 
-  value: any, 
+  key: string,
+  value: any,
   options: CacheOptions = {}
 ): Promise<boolean> {
   try {
@@ -73,7 +72,7 @@ export async function setCache(
 
 // Get cache value
 export async function getCache<T = any>(
-  key: string, 
+  key: string,
   options: CacheOptions = {}
 ): Promise<T | null> {
   try {
@@ -95,7 +94,7 @@ export async function getCache<T = any>(
 
 // Delete cache value
 export async function deleteCache(
-  key: string, 
+  key: string,
   options: CacheOptions = {}
 ): Promise<boolean> {
   try {
@@ -113,7 +112,7 @@ export async function deleteCache(
 
 // Delete multiple cache keys by pattern
 export async function deleteCachePattern(
-  pattern: string, 
+  pattern: string,
   options: CacheOptions = {}
 ): Promise<boolean> {
   try {
@@ -122,7 +121,7 @@ export async function deleteCachePattern(
 
     const cachePattern = generateCacheKey(pattern, options.prefix);
     const keys = await client.keys(cachePattern);
-    
+
     if (keys.length > 0) {
       await client.del(keys);
     }
@@ -148,10 +147,10 @@ export async function cacheWithFallback<T>(
 
     // If not in cache, execute fallback function
     const freshValue = await fallbackFn();
-    
+
     // Store in cache for next time
     await setCache(key, freshValue, options);
-    
+
     return freshValue;
   } catch (error) {
     console.error('Cache with fallback error:', error);
@@ -163,66 +162,66 @@ export async function cacheWithFallback<T>(
 // Specific cache utilities for common use cases
 export const propertyCache = {
   // Cache property details
-  getProperty: (propertyId: string) => 
+  getProperty: (propertyId: string) =>
     getCache(`property:${propertyId}`, { ttl: 1800 }), // 30 minutes
 
-  setProperty: (propertyId: string, property: any) => 
+  setProperty: (propertyId: string, property: any) =>
     setCache(`property:${propertyId}`, property, { ttl: 1800 }),
 
-  deleteProperty: (propertyId: string) => 
+  deleteProperty: (propertyId: string) =>
     deleteCache(`property:${propertyId}`),
 
   // Cache property search results
-  getSearchResults: (searchKey: string) => 
+  getSearchResults: (searchKey: string) =>
     getCache(`search:${searchKey}`, { ttl: 600 }), // 10 minutes
 
-  setSearchResults: (searchKey: string, results: any) => 
+  setSearchResults: (searchKey: string, results: any) =>
     setCache(`search:${searchKey}`, results, { ttl: 600 }),
 
   // Cache featured properties
-  getFeaturedProperties: () => 
+  getFeaturedProperties: () =>
     getCache('featured:properties', { ttl: 3600 }), // 1 hour
 
-  setFeaturedProperties: (properties: any) => 
+  setFeaturedProperties: (properties: any) =>
     setCache('featured:properties', properties, { ttl: 3600 }),
 
   // Clear all property-related cache
-  clearPropertyCache: () => 
+  clearPropertyCache: () =>
     deleteCachePattern('property:*'),
 };
 
 export const userCache = {
   // Cache user profile
-  getUser: (userId: string) => 
+  getUser: (userId: string) =>
     getCache(`user:${userId}`, { ttl: 1800 }),
 
-  setUser: (userId: string, user: any) => 
+  setUser: (userId: string, user: any) =>
     setCache(`user:${userId}`, user, { ttl: 1800 }),
 
-  deleteUser: (userId: string) => 
+  deleteUser: (userId: string) =>
     deleteCache(`user:${userId}`),
 
   // Cache user notifications count
-  getNotificationCount: (userId: string) => 
+  getNotificationCount: (userId: string) =>
     getCache(`notifications:count:${userId}`, { ttl: 300 }), // 5 minutes
 
-  setNotificationCount: (userId: string, count: number) => 
+  setNotificationCount: (userId: string, count: number) =>
     setCache(`notifications:count:${userId}`, count, { ttl: 300 }),
 };
 
 export const analyticsCache = {
   // Cache analytics data
-  getAnalytics: (key: string) => 
+  getAnalytics: (key: string) =>
     getCache(`analytics:${key}`, { ttl: 7200 }), // 2 hours
 
-  setAnalytics: (key: string, data: any) => 
+  setAnalytics: (key: string, data: any) =>
     setCache(`analytics:${key}`, data, { ttl: 7200 }),
 
   // Cache market data
-  getMarketData: (location: string) => 
+  getMarketData: (location: string) =>
     getCache(`market:${location}`, { ttl: 86400 }), // 24 hours
 
-  setMarketData: (location: string, data: any) => 
+  setMarketData: (location: string, data: any) =>
     setCache(`market:${location}`, data, { ttl: 86400 }),
 };
 
@@ -230,10 +229,10 @@ export const analyticsCache = {
 export async function warmCache() {
   try {
     console.log('Starting cache warming...');
-    
+
     // Warm featured properties cache
     // This would typically fetch from database and cache the results
-    
+
     console.log('Cache warming completed');
   } catch (error) {
     console.error('Cache warming error:', error);

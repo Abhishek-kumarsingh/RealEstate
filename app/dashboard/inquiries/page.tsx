@@ -91,10 +91,10 @@ export default function InquiriesPage() {
       {/* Header */}
       <div>
         <h1 className="text-3xl font-bold tracking-tight">
-          {user.role === 'agent' ? 'Property Inquiries' : 'My Inquiries'}
+          {user.role === 'AGENT' ? 'Property Inquiries' : 'My Inquiries'}
         </h1>
         <p className="text-muted-foreground">
-          {user.role === 'agent'
+          {user.role === 'AGENT'
             ? 'Manage inquiries for your properties'
             : 'Track your property inquiries and responses'
           }
@@ -119,7 +119,7 @@ export default function InquiriesPage() {
             <MessageCircle className="h-12 w-12 text-muted-foreground mb-4" />
             <h3 className="text-lg font-semibold mb-2">No inquiries yet</h3>
             <p className="text-muted-foreground text-center">
-              {user.role === 'agent'
+              {user.role === 'AGENT'
                 ? 'When users inquire about your properties, they will appear here.'
                 : 'Your property inquiries will appear here when you contact agents.'
               }
@@ -138,7 +138,7 @@ export default function InquiriesPage() {
                     </CardTitle>
                     <CardDescription className="flex items-center gap-2 mt-1">
                       <span>
-                        {user.role === 'agent'
+                        {user.role === 'AGENT'
                           ? `From: ${inquiry.contactInfo?.name || inquiry.user?.name}`
                           : `To: ${inquiry.agent?.name}`
                         }
@@ -213,7 +213,7 @@ export default function InquiriesPage() {
                 )}
 
                 {/* Response Form for Agents */}
-                {user.role === 'agent' && inquiry.status === 'pending' && (
+                {user.role === 'AGENT' && inquiry.status === 'pending' && (
                   <div className="border-t pt-4">
                     {respondingTo === inquiry._id ? (
                       <div className="space-y-3">

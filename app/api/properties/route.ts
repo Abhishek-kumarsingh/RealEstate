@@ -3,8 +3,8 @@ import { prisma } from "@/lib/prisma";
 import {
   requireAuth,
   requireRole,
-  AuthenticatedRequest,
 } from "@/lib/middleware/auth";
+import { AuthenticatedRequest } from "@/lib/types/auth";
 
 // GET /api/properties - Get all properties with filtering
 export async function GET(request: NextRequest) {

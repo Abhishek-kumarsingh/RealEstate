@@ -41,12 +41,12 @@ import {
 } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { 
-  Users, Search, Filter, MoreHorizontal, UserPlus, 
+import {
+  Users, Search, Filter, MoreHorizontal, UserPlus,
   Edit, Trash2, Shield, ShieldCheck, Ban, CheckCircle,
   Mail, Phone, MapPin, Calendar, Loader2
 } from 'lucide-react';
-import { toast } from '@/components/ui/use-toast';
+import { toast } from '@/hooks/use-toast';
 
 interface User {
   id: string;
@@ -195,12 +195,12 @@ export default function UsersPage() {
     const matchesSearch = user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          user.email.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesRole = roleFilter === 'all' || user.role === roleFilter;
-    const matchesStatus = statusFilter === 'all' || 
+    const matchesStatus = statusFilter === 'all' ||
                          (statusFilter === 'active' && user.isActive) ||
                          (statusFilter === 'inactive' && !user.isActive) ||
                          (statusFilter === 'verified' && user.isVerified) ||
                          (statusFilter === 'unverified' && !user.isVerified);
-    
+
     return matchesSearch && matchesRole && matchesStatus;
   });
 
@@ -501,7 +501,7 @@ function EditUserForm({ user, onSave, loading }: {
           />
         </div>
       </div>
-      
+
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
           <Label htmlFor="role">Role</Label>
@@ -528,8 +528,8 @@ function EditUserForm({ user, onSave, loading }: {
 
       <div className="space-y-2">
         <Label htmlFor="verificationStatus">Verification Status</Label>
-        <Select 
-          value={formData.verificationStatus} 
+        <Select
+          value={formData.verificationStatus}
           onValueChange={(value) => setFormData({ ...formData, verificationStatus: value as any })}
         >
           <SelectTrigger>

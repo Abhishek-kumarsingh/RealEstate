@@ -147,7 +147,7 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
   const [isTyping, setIsTypingState] = useState<{ [chatId: string]: string[] }>({});
 
   // Filter chats based on current user
-  const userChats = chats.filter(chat => 
+  const userChats = chats.filter(chat =>
     chat.participants.some(p => p.id === user?.email || p.name === user?.name)
   );
 
@@ -165,7 +165,7 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
       read: false
     };
 
-    setChats(prevChats => 
+    setChats(prevChats =>
       prevChats.map(chat => {
         if (chat.id === chatId) {
           const updatedChat = {
@@ -173,9 +173,9 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
             messages: [...chat.messages, newMessage],
             lastMessage: newMessage
           };
-          
+
           // Simulate agent auto-response after 2 seconds
-          if (user.role === 'user') {
+          if (user.role === 'USER') {
             setTimeout(() => {
               const agentResponse: Message = {
                 id: `msg-${Date.now()}-agent`,
@@ -186,17 +186,17 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
                 type: 'text',
                 read: false
               };
-              
-              setChats(prevChats => 
-                prevChats.map(c => 
-                  c.id === chatId 
+
+              setChats(prevChats =>
+                prevChats.map(c =>
+                  c.id === chatId
                     ? { ...c, messages: [...c.messages, agentResponse], lastMessage: agentResponse }
                     : c
                 )
               );
             }, 2000);
           }
-          
+
           return updatedChat;
         }
         return chat;
@@ -214,11 +214,11 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
   };
 
   const markAsRead = (chatId: string) => {
-    setChats(prevChats => 
-      prevChats.map(chat => 
-        chat.id === chatId 
-          ? { 
-              ...chat, 
+    setChats(prevChats =>
+      prevChats.map(chat =>
+        chat.id === chatId
+          ? {
+              ...chat,
               unreadCount: 0,
               messages: chat.messages.map(msg => ({ ...msg, read: true }))
             }
@@ -258,7 +258,7 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
   const setTyping = (chatId: string, userId: string, typing: boolean) => {
     setIsTypingState(prev => ({
       ...prev,
-      [chatId]: typing 
+      [chatId]: typing
         ? [...(prev[chatId] || []), userId].filter((id, index, arr) => arr.indexOf(id) === index)
         : (prev[chatId] || []).filter(id => id !== userId)
     }));
@@ -289,22 +289,22 @@ export function useChat() {
 // Helper function for agent auto-responses
 function getAgentAutoResponse(userMessage: string): string {
   const message = userMessage.toLowerCase();
-  
+
   if (message.includes('viewing') || message.includes('visit') || message.includes('see')) {
     return "I'd be happy to schedule a viewing for you! I have availability this week. What day and time works best for you?";
   }
-  
+
   if (message.includes('price') || message.includes('cost') || message.includes('rent')) {
     return "Let me get you the detailed pricing information. The property offers great value for its location and amenities. Would you like to discuss financing options?";
   }
-  
+
   if (message.includes('amenities') || message.includes('features')) {
     return "This property has excellent amenities! It includes modern appliances, parking, and access to community facilities. Would you like me to send you the complete amenities list?";
   }
-  
+
   if (message.includes('location') || message.includes('neighborhood')) {
     return "The location is fantastic! It's close to schools, shopping centers, and public transportation. The neighborhood is very safe and family-friendly.";
   }
-  
+
   return "Thank you for your message! I'll get back to you with more details shortly. Is there anything specific you'd like to know about this property?";
 }

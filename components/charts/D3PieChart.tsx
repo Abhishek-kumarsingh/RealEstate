@@ -15,11 +15,11 @@ interface D3PieChartProps {
   className?: string;
 }
 
-export default function D3PieChart({ 
-  data, 
-  width = 400, 
-  height = 400, 
-  className = '' 
+export default function D3PieChart({
+  data,
+  width = 400,
+  height = 400,
+  className = ''
 }: D3PieChartProps) {
   const svgRef = useRef<SVGSVGElement>(null);
 
@@ -72,8 +72,8 @@ export default function D3PieChart({
         d3.select(this)
           .transition()
           .duration(200)
-          .attr('d', arcHover);
-        
+          .attr('d', arcHover(d) || '');
+
         // Tooltip
         const tooltip = d3.select('body').append('div')
           .attr('class', 'tooltip')
@@ -88,7 +88,7 @@ export default function D3PieChart({
           .style('opacity', 0);
 
         const percentage = ((d.data.value / d3.sum(data, d => d.value)) * 100).toFixed(1);
-        
+
         tooltip.html(`
           <div style="color: hsl(var(--foreground))">
             <strong>${d.data.name}</strong><br/>
@@ -102,15 +102,15 @@ export default function D3PieChart({
         .duration(200)
         .style('opacity', 1);
       })
-      .on('mouseout', function() {
+      .on('mouseout', function(event, d) {
         d3.select(this)
           .transition()
           .duration(200)
-          .attr('d', arc);
+          .attr('d', arc(d) || '');
         d3.selectAll('.tooltip').remove();
       })
       .each(function(d) {
-        this._current = d;
+        (this as any)._current = d;
       });
 
     // Animate pie slices

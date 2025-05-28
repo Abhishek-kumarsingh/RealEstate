@@ -6,7 +6,7 @@ interface User {
   _id: string;
   name: string;
   email: string;
-  role: 'admin' | 'agent' | 'user';
+  role: 'ADMIN' | 'AGENT' | 'USER';
   avatar?: string;
   phone?: string;
   bio?: string;

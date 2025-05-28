@@ -40,13 +40,13 @@ import {
 } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { 
-  Users, Search, Filter, MoreHorizontal, UserPlus, 
+import {
+  Users, Search, Filter, MoreHorizontal, UserPlus,
   Edit, Trash2, Shield, ShieldCheck, Ban, CheckCircle,
   Mail, Phone, MapPin, Calendar, Loader2, Building,
-  Star, TrendingUp, Eye, Award
+  Star, TrendingUp, Eye, Award, Clock
 } from 'lucide-react';
-import { toast } from '@/components/ui/use-toast';
+import { toast } from '@/hooks/use-toast';
 
 interface Agent {
   id: string;
@@ -121,10 +121,10 @@ export default function AgentsPage() {
   const handleUpdateAgent = async (agentId: string, updates: Partial<Agent>) => {
     setActionLoading(true);
     try {
-      const endpoint = user?.role === 'ADMIN' 
-        ? `/api/admin/users/${agentId}` 
+      const endpoint = user?.role === 'ADMIN'
+        ? `/api/admin/users/${agentId}`
         : `/api/agents/${agentId}`;
-        
+
       const response = await fetch(endpoint, {
         method: 'PUT',
         headers: {
@@ -160,14 +160,14 @@ export default function AgentsPage() {
     const matchesSearch = agent.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          agent.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          agent.agencyName?.toLowerCase().includes(searchTerm.toLowerCase());
-    
-    const matchesStatus = statusFilter === 'all' || 
+
+    const matchesStatus = statusFilter === 'all' ||
                          (statusFilter === 'active' && agent.isActive) ||
                          (statusFilter === 'inactive' && !agent.isActive);
-    
-    const matchesVerification = verificationFilter === 'all' || 
+
+    const matchesVerification = verificationFilter === 'all' ||
                                agent.verificationStatus === verificationFilter;
-    
+
     return matchesSearch && matchesStatus && matchesVerification;
   });
 
@@ -222,7 +222,7 @@ export default function AgentsPage() {
             </div>
           </CardContent>
         </Card>
-        
+
         <Card>
           <CardContent className="p-6">
             <div className="flex items-center gap-4">
@@ -554,7 +554,7 @@ function AgentDetailsView({ agent }: { agent: Agent }) {
       <div className="flex items-center justify-between pt-4 border-t">
         <div>
           <Badge className={
-            agent.verificationStatus === 'VERIFIED' 
+            agent.verificationStatus === 'VERIFIED'
               ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
               : agent.verificationStatus === 'PENDING'
               ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'

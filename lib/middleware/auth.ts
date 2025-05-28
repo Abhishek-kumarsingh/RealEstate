@@ -1,15 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { verifyToken, extractTokenFromHeader, JWTPayload } from '@/lib/jwt';
 import { prisma } from '@/lib/prisma';
-
-export interface AuthenticatedRequest extends NextRequest {
-  user?: {
-    userId: string;
-    email: string;
-    role: string;
-    name: string;
-  };
-}
+import { AuthenticatedRequest } from '@/lib/types/auth';
 
 export async function authenticateToken(request: NextRequest): Promise<{ user: any; error?: string }> {
   try {

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { requireAuth, requireRole, AuthenticatedRequest } from '@/lib/middleware/auth';
+import { requireAuth, requireRole } from '@/lib/middleware/auth';
+import { AuthenticatedRequest } from '@/lib/types/auth';
 
 // GET /api/properties/[id] - Get single property
 export async function GET(

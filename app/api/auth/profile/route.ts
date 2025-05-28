@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { requireAuth, AuthenticatedRequest } from '@/lib/middleware/auth';
+import { requireAuth } from '@/lib/middleware/auth';
+import { AuthenticatedRequest } from '@/lib/types/auth';
 import { prisma } from '@/lib/prisma';
 
 async function getProfile(request: AuthenticatedRequest) {

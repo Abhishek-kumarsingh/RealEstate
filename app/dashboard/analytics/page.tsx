@@ -13,13 +13,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { 
-  TrendingUp, TrendingDown, BarChart3, PieChart, 
+import {
+  TrendingUp, TrendingDown, BarChart3, PieChart,
   Users, Building, DollarSign, Eye, Calendar,
   Download, Filter, RefreshCw, Loader2, ArrowUpRight,
   ArrowDownRight, Activity, Target, MapPin, Clock
 } from 'lucide-react';
-import { toast } from '@/components/ui/use-toast';
+import { toast } from '@/hooks/use-toast';
 import { formatDistanceToNow } from 'date-fns';
 
 // Import chart components
@@ -322,7 +322,11 @@ export default function AnalyticsPage() {
                 <ResponsiveD3Chart aspectRatio={2} minHeight={300} maxHeight={400}>
                   {({ width, height }) => (
                     <D3BarChart
-                      data={analytics.propertyPerformance}
+                      data={analytics.propertyPerformance.map(item => ({
+                        name: item.month,
+                        sales: item.sales,
+                        rentals: item.rentals
+                      }))}
                       width={width}
                       height={height}
                       className="w-full"
@@ -341,7 +345,11 @@ export default function AnalyticsPage() {
                 <ResponsiveD3Chart aspectRatio={2} minHeight={300} maxHeight={400}>
                   {({ width, height }) => (
                     <D3LineChart
-                      data={analytics.userEngagement}
+                      data={analytics.userEngagement.map(item => ({
+                        name: item.date,
+                        sales: item.activeUsers,
+                        rentals: item.newUsers
+                      }))}
                       width={width}
                       height={height}
                       className="w-full"
@@ -442,7 +450,11 @@ export default function AnalyticsPage() {
                 <ResponsiveD3Chart aspectRatio={2} minHeight={300} maxHeight={400}>
                   {({ width, height }) => (
                     <D3LineChart
-                      data={analytics.userEngagement}
+                      data={analytics.userEngagement.map(item => ({
+                        name: item.date,
+                        sales: item.activeUsers,
+                        rentals: item.newUsers
+                      }))}
                       width={width}
                       height={height}
                       className="w-full"

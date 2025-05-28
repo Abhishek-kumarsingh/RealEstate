@@ -91,7 +91,7 @@ async function getConversations(request: AuthenticatedRequest) {
     const transformedConversations = conversations.map(inquiry => {
       const isUserSender = inquiry.userId === userId;
       const participant = isUserSender ? inquiry.agent : inquiry.user;
-      
+
       return {
         id: inquiry.id,
         participant: participant ? {
@@ -181,6 +181,10 @@ async function createConversation(request: AuthenticatedRequest) {
         agentId: property.agentId!,
         propertyId: propertyId,
         message: message,
+        contactInfo: {
+          email: request.user?.email || '',
+          name: request.user?.name || '',
+        },
         status: 'PENDING',
       },
       include: {

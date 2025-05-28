@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { requireAuth, AuthenticatedRequest } from '@/lib/middleware/auth';
+import { requireAuth } from '@/lib/middleware/auth';
+import { AuthenticatedRequest } from '@/lib/types/auth';
 
 // DELETE /api/favorites/[propertyId] - Remove property from favorites
 async function removeFromFavorites(
