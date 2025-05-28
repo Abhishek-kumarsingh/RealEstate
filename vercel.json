@@ -8,12 +8,10 @@
     }
   },
   "env": {
-    "PRISMA_GENERATE_DATAPROXY": "true",
     "SKIP_ENV_VALIDATION": "true"
   },
   "build": {
     "env": {
-      "PRISMA_GENERATE_DATAPROXY": "true",
       "SKIP_ENV_VALIDATION": "true"
     }
   },
