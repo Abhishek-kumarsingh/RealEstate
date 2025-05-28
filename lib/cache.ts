@@ -1,4 +1,11 @@
-import { createClient } from 'redis';
+// Optional Redis import - gracefully handle if Redis is not available
+let createClient: any = null;
+try {
+  const redis = require('redis');
+  createClient = redis.createClient;
+} catch (error) {
+  console.warn('Redis not available, caching will be disabled');
+}
 
 // Redis client configuration
 const redisUrl = process.env.REDIS_URL || 'redis://localhost:6379';
@@ -7,6 +14,11 @@ let redisClient: any = null;
 
 // Initialize Redis client
 export async function getRedisClient() {
+  if (!createClient) {
+    console.warn('Redis not available, returning null client');
+    return null;
+  }
+
   if (!redisClient) {
     try {
       redisClient = createClient({
