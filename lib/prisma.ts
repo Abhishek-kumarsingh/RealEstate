@@ -29,8 +29,8 @@ function createPrismaClient() {
       },
     });
 
-    // Only use Accelerate if available
-    if (process.env.PRISMA_GENERATE_DATAPROXY === "true") {
+    // Only use Accelerate if URL starts with prisma://
+    if (process.env.DATABASE_URL?.startsWith('prisma://')) {
       return client.$extends(withAccelerate());
     }
 
