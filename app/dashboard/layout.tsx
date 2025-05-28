@@ -31,17 +31,19 @@ import {
   ChevronRight,
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { SidebarProvider, useSidebar } from "@/lib/contexts/SidebarContext";
 import { cn } from "@/lib/utils";
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
 }
 
-const DashboardLayout = ({ children }: DashboardLayoutProps) => {
+const DashboardContent = ({ children }: DashboardLayoutProps) => {
   const pathname = usePathname();
   const router = useRouter();
   const { user, logout, loading } = useAuth();
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const { isSidebarOpen, toggleSidebar } = useSidebar();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   // Redirect to login if not authenticated
@@ -51,7 +53,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
     }
   }, [user, loading, router]);
 
-  // Close mobile menu on larger screens
+  // Close mobile menu on larger screens and handle keyboard shortcuts
   useEffect(() => {
     const handleResize = () => {
       if (window.innerWidth >= 1024) {
@@ -59,9 +61,22 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
       }
     };
 
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Toggle sidebar with Ctrl/Cmd + B
+      if ((e.ctrlKey || e.metaKey) && e.key === 'b') {
+        e.preventDefault();
+        toggleSidebar();
+      }
+    };
+
     window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      window.removeEventListener("resize", handleResize);
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [toggleSidebar]);
 
   // Show loading state while checking authentication
   if (loading) {
@@ -134,9 +149,9 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
     navigation.user;
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col bg-background">
       {/* Top navigation */}
-      <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b bg-background px-4 sm:px-6">
+      <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b bg-background px-4 sm:px-6 shadow-sm">
         <Button
           variant="ghost"
           size="icon"
@@ -152,20 +167,26 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
           <Button
             variant="ghost"
             size="icon"
-            className="hidden lg:flex"
-            onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+            className="hidden lg:flex hover:bg-accent transition-colors border border-border/50 relative"
+            onClick={toggleSidebar}
+            title={`${isSidebarOpen ? "Collapse" : "Expand"} sidebar (Ctrl+B)`}
           >
             {isSidebarOpen ? (
-              <ChevronLeft className="h-5 w-5" />
+              <ChevronLeft className="h-5 w-5 transition-transform" />
             ) : (
-              <ChevronRight className="h-5 w-5" />
+              <ChevronRight className="h-5 w-5 transition-transform" />
             )}
             <span className="sr-only">Toggle sidebar</span>
+            {/* Status indicator */}
+            <div className={cn(
+              "absolute -top-1 -right-1 w-2 h-2 rounded-full transition-colors",
+              isSidebarOpen ? "bg-green-500" : "bg-orange-500"
+            )} />
           </Button>
 
-          <Link href="/" className="flex items-center gap-2">
-            <Home className="h-6 w-6" />
-            <span className="font-bold hidden md:inline-block">
+          <Link href="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
+            <Home className="h-6 w-6 text-primary" />
+            <span className="font-bold hidden md:inline-block text-lg">
               RealEstateHub
             </span>
           </Link>
@@ -195,60 +216,97 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
         {/* Sidebar for desktop */}
         <aside
           className={cn(
-            "fixed inset-y-0 left-0 z-20 mt-16 hidden w-64 border-r bg-background lg:block",
+            "fixed top-16 left-0 bottom-0 z-20 hidden border-r bg-background lg:block transition-all duration-300 ease-in-out shadow-lg",
             {
               "lg:w-64": isSidebarOpen,
               "lg:w-20": !isSidebarOpen,
             }
           )}
         >
-          <div className="flex h-full flex-col p-2">
-            <nav className="space-y-1.5 py-3">
-              {userNavigation.map((item) => (
-                <Button
-                  key={item.name}
-                  variant={pathname === item.href ? "secondary" : "ghost"}
-                  asChild
-                  className={cn("w-full justify-start", {
-                    "justify-center": !isSidebarOpen,
-                  })}
-                >
-                  <Link href={item.href}>
-                    <item.icon className="mr-2 h-5 w-5" />
-                    {isSidebarOpen && <span>{item.name}</span>}
-                  </Link>
-                </Button>
-              ))}
+          <div className="flex h-full flex-col p-2 overflow-hidden">
+            <TooltipProvider>
+              <nav className="space-y-1.5 py-3">
+                {userNavigation.map((item) => (
+                  <Tooltip key={item.name} delayDuration={0}>
+                    <TooltipTrigger asChild>
+                      <Button
+                        variant={pathname === item.href ? "secondary" : "ghost"}
+                        asChild
+                        className={cn("w-full justify-start transition-all duration-200", {
+                          "justify-center": !isSidebarOpen,
+                        })}
+                      >
+                        <Link href={item.href}>
+                          <item.icon className={cn("h-5 w-5", {
+                            "mr-2": isSidebarOpen,
+                            "mr-0": !isSidebarOpen,
+                          })} />
+                          {isSidebarOpen && <span className="transition-opacity duration-200">{item.name}</span>}
+                        </Link>
+                      </Button>
+                    </TooltipTrigger>
+                    {!isSidebarOpen && (
+                      <TooltipContent side="right" className="font-medium">
+                        {item.name}
+                      </TooltipContent>
+                    )}
+                  </Tooltip>
+                ))}
             </nav>
 
-            <div className="mt-auto">
-              <Button
-                variant="ghost"
-                className={cn("w-full justify-start", {
-                  "justify-center": !isSidebarOpen,
-                })}
-                asChild
-              >
-                <Link href="/">
-                  <Home className="mr-2 h-5 w-5" />
-                  {isSidebarOpen && <span>Back to Website</span>}
-                </Link>
-              </Button>
+              <div className="mt-auto space-y-1.5">
+                <Tooltip delayDuration={0}>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      className={cn("w-full justify-start transition-all duration-200", {
+                        "justify-center": !isSidebarOpen,
+                      })}
+                      asChild
+                    >
+                      <Link href="/">
+                        <Home className={cn("h-5 w-5", {
+                          "mr-2": isSidebarOpen,
+                          "mr-0": !isSidebarOpen,
+                        })} />
+                        {isSidebarOpen && <span className="transition-opacity duration-200">Back to Website</span>}
+                      </Link>
+                    </Button>
+                  </TooltipTrigger>
+                  {!isSidebarOpen && (
+                    <TooltipContent side="right" className="font-medium">
+                      Back to Website
+                    </TooltipContent>
+                  )}
+                </Tooltip>
 
-              <Button
-                variant="ghost"
-                className={cn(
-                  "w-full justify-start text-muted-foreground hover:text-destructive",
-                  {
-                    "justify-center": !isSidebarOpen,
-                  }
-                )}
-                onClick={logout}
-              >
-                <LogOut className="mr-2 h-5 w-5" />
-                {isSidebarOpen && <span>Log out</span>}
-              </Button>
-            </div>
+                <Tooltip delayDuration={0}>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      className={cn(
+                        "w-full justify-start text-muted-foreground hover:text-destructive transition-all duration-200",
+                        {
+                          "justify-center": !isSidebarOpen,
+                        }
+                      )}
+                      onClick={logout}
+                    >
+                      <LogOut className={cn("h-5 w-5", {
+                        "mr-2": isSidebarOpen,
+                        "mr-0": !isSidebarOpen,
+                      })} />
+                      {isSidebarOpen && <span className="transition-opacity duration-200">Log out</span>}
+                    </Button>
+                  </TooltipTrigger>
+                  {!isSidebarOpen && (
+                    <TooltipContent side="right" className="font-medium">
+                      Log out
+                    </TooltipContent>
+                  )}
+                </Tooltip>
+              </div>
+            </TooltipProvider>
           </div>
         </aside>
 
@@ -340,10 +398,10 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
         {/* Main content */}
         <main
           className={cn(
-            "flex-1 overflow-y-auto bg-muted/20 p-6 lg:p-8 lg:pl-64",
+            "flex-1 overflow-y-auto bg-muted/20 p-4 sm:p-6 transition-all duration-300 ease-in-out min-h-[calc(100vh-4rem)]",
             {
-              "lg:pl-72": isSidebarOpen,
-              "lg:pl-28": !isSidebarOpen,
+              "lg:ml-64 lg:pl-6": isSidebarOpen,
+              "lg:ml-20 lg:pl-6": !isSidebarOpen,
             }
           )}
         >
@@ -351,6 +409,14 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
         </main>
       </div>
     </div>
+  );
+};
+
+const DashboardLayout = ({ children }: DashboardLayoutProps) => {
+  return (
+    <SidebarProvider>
+      <DashboardContent>{children}</DashboardContent>
+    </SidebarProvider>
   );
 };
 

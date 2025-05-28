@@ -6,9 +6,7 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { AuthProvider } from "@/lib/contexts/AuthContext";
 import { ChatProvider } from "@/lib/contexts/ChatContext";
 import { Toaster } from "@/components/ui/toaster";
-import Header from "@/components/layout/Header";
-import Footer from "@/components/layout/Footer";
-import WelcomeChatbox from "@/components/chat/WelcomeChatbox";
+import ConditionalLayout from "@/components/layout/ConditionalLayout";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -28,12 +26,7 @@ export default function RootLayout({
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           <AuthProvider>
             <ChatProvider>
-              <div className="flex min-h-screen flex-col">
-                <Header />
-                <main className="flex-1">{children}</main>
-                <Footer />
-              </div>
-              <WelcomeChatbox />
+              <ConditionalLayout>{children}</ConditionalLayout>
               <Toaster />
             </ChatProvider>
           </AuthProvider>

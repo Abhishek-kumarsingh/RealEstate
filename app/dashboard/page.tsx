@@ -3,31 +3,23 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/lib/contexts/AuthContext';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'; // Only for chart switching
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import {
-  LineChart, Line, BarChart, Bar, PieChart, Pie, ResponsiveContainer,
-  XAxis, YAxis, CartesianGrid, Tooltip, Legend, Cell
-} from 'recharts';
+// D3.js chart imports
+import D3BarChart from '@/components/charts/D3BarChart';
+import D3LineChart from '@/components/charts/D3LineChart';
+import D3PieChart from '@/components/charts/D3PieChart';
+import ResponsiveD3Chart from '@/components/charts/ResponsiveD3Chart';
 import {
   Building, Users, DollarSign, TrendingUp, Home, BadgeCheck,
-  ClipboardList, Calendar, ArrowUpRight, MessageCircle,
-  Calculator, Shield, BarChart3, Brain, Eye, EyeOff, Loader2
+  ClipboardList, Calendar, ArrowUpRight, Eye, EyeOff, Loader2
 } from 'lucide-react';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faRobot } from '@fortawesome/free-solid-svg-icons';
+// Removed unused icons: MessageCircle, Calculator, Shield, BarChart3, Brain, faRobot
 
-// Import new components we'll create
-import AIRecommendations from '@/components/dashboard/AIRecommendationsSimple';
-import MarketAnalytics from '@/components/dashboard/MarketAnalytics';
-// import ChatSystem from '@/components/dashboard/ChatSystem';
-// import MortgageCalculator from '@/components/dashboard/MortgageCalculator';
-// import InvestmentAnalysis from '@/components/dashboard/InvestmentAnalysis';
-// import SecurityVerification from '@/components/dashboard/SecurityVerification';
-// import AIChatbot from '@/components/dashboard/AIChatbot';
+// Removed unused component imports since we're using sidebar navigation
 
 // Mock data for charts
 const propertyData = [
@@ -52,7 +44,7 @@ const categoryData = [
   { name: 'Land', value: 10 },
 ];
 
-const COLORS = ['hsl(var(--chart-1))', 'hsl(var(--chart-2))', 'hsl(var(--chart-3))', 'hsl(var(--chart-4))'];
+// COLORS constant removed - now handled by D3.js charts
 
 // Mock data for recent properties
 const recentProperties = [
@@ -119,7 +111,7 @@ const recentActivity = [
 
 export default function DashboardPage() {
   const { user, login, loading } = useAuth();
-  const [activeTab, setActiveTab] = useState('overview');
+  // Removed activeTab state since we're using sidebar navigation
   const [showLogin, setShowLogin] = useState(false);
 
   // Login form state
@@ -241,56 +233,18 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="space-y-8">
-      <div className="flex flex-col">
-        <h1 className="text-3xl font-bold tracking-tight">
-          Welcome back, {user?.name}!
-        </h1>
-        <p className="text-muted-foreground">
-          Your comprehensive real estate management dashboard
-        </p>
+    <div className="space-y-4 sm:space-y-6 w-full max-w-none">
+      {/* Dashboard Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Dashboard Overview</h1>
+          <p className="text-muted-foreground">Welcome back, {user?.name}! Here's your real estate portfolio summary.</p>
+        </div>
       </div>
 
-      {/* Enhanced Navigation Tabs */}
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-        <TabsList className="grid w-full grid-cols-8 lg:w-auto lg:grid-cols-none lg:flex">
-          <TabsTrigger value="overview" className="flex items-center gap-2">
-            <BarChart3 className="h-4 w-4" />
-            Overview
-          </TabsTrigger>
-          <TabsTrigger value="ai-recommendations" className="flex items-center gap-2">
-            <Brain className="h-4 w-4" />
-            AI Insights
-          </TabsTrigger>
-          <TabsTrigger value="market-analytics" className="flex items-center gap-2">
-            <TrendingUp className="h-4 w-4" />
-            Analytics
-          </TabsTrigger>
-          <TabsTrigger value="chat-system" className="flex items-center gap-2">
-            <MessageCircle className="h-4 w-4" />
-            Messages
-          </TabsTrigger>
-          <TabsTrigger value="mortgage-calc" className="flex items-center gap-2">
-            <Calculator className="h-4 w-4" />
-            Mortgage
-          </TabsTrigger>
-          <TabsTrigger value="investment" className="flex items-center gap-2">
-            <DollarSign className="h-4 w-4" />
-            Investment
-          </TabsTrigger>
-          <TabsTrigger value="security" className="flex items-center gap-2">
-            <Shield className="h-4 w-4" />
-            Security
-          </TabsTrigger>
-          <TabsTrigger value="ai-chat" className="flex items-center gap-2">
-            <FontAwesomeIcon icon={faRobot} className="h-4 w-4" />
-            AI Assistant
-          </TabsTrigger>
-        </TabsList>
-
-        {/* Overview Tab - Original Dashboard Content */}
-        <TabsContent value="overview" className="space-y-6">
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
+      {/* Dashboard Overview Content */}
+      <div className="space-y-4 w-full">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
             <Card className="shadow-sm" data-aos="fade-up" data-aos-delay="0">
               <CardContent className="p-6">
                 <div className="flex items-center gap-4">
@@ -372,86 +326,72 @@ export default function DashboardPage() {
             </Card>
           </div>
 
-          <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
+          <div className="grid grid-cols-1 gap-4 lg:gap-6 2xl:grid-cols-2">
             <Card className="shadow-sm" data-aos="fade-up">
-              <CardHeader>
-                <CardTitle>Property Performance</CardTitle>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-lg">Property Performance</CardTitle>
                 <CardDescription>Monthly sales and rentals for the past year</CardDescription>
               </CardHeader>
               <CardContent className="p-0">
                 <Tabs defaultValue="bar">
-                  <div className="px-6">
-                    <TabsList className="mb-4">
-                      <TabsTrigger value="bar">Bar Chart</TabsTrigger>
-                      <TabsTrigger value="line">Line Chart</TabsTrigger>
+                  <div className="px-4 sm:px-6">
+                    <TabsList className="mb-3">
+                      <TabsTrigger value="bar" className="text-xs sm:text-sm">Bar Chart</TabsTrigger>
+                      <TabsTrigger value="line" className="text-xs sm:text-sm">Line Chart</TabsTrigger>
                     </TabsList>
                   </div>
                   <TabsContent value="bar" className="px-2">
-                    <ResponsiveContainer width="100%" height={350}>
-                      <BarChart data={propertyData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
-                        <CartesianGrid strokeDasharray="3 3" />
-                        <XAxis dataKey="name" />
-                        <YAxis />
-                        <Tooltip />
-                        <Legend />
-                        <Bar dataKey="sales" name="Sales" fill="hsl(var(--chart-1))" />
-                        <Bar dataKey="rentals" name="Rentals" fill="hsl(var(--chart-2))" />
-                      </BarChart>
-                    </ResponsiveContainer>
+                    <ResponsiveD3Chart aspectRatio={2.2} minHeight={300} maxHeight={400}>
+                      {({ width, height }) => (
+                        <D3BarChart
+                          data={propertyData}
+                          width={width}
+                          height={height}
+                          className="w-full"
+                        />
+                      )}
+                    </ResponsiveD3Chart>
                   </TabsContent>
                   <TabsContent value="line" className="px-2">
-                    <ResponsiveContainer width="100%" height={350}>
-                      <LineChart data={propertyData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
-                        <CartesianGrid strokeDasharray="3 3" />
-                        <XAxis dataKey="name" />
-                        <YAxis />
-                        <Tooltip />
-                        <Legend />
-                        <Line type="monotone" dataKey="sales" name="Sales" stroke="hsl(var(--chart-1))" activeDot={{ r: 8 }} />
-                        <Line type="monotone" dataKey="rentals" name="Rentals" stroke="hsl(var(--chart-2))" />
-                      </LineChart>
-                    </ResponsiveContainer>
+                    <ResponsiveD3Chart aspectRatio={2.2} minHeight={300} maxHeight={400}>
+                      {({ width, height }) => (
+                        <D3LineChart
+                          data={propertyData}
+                          width={width}
+                          height={height}
+                          className="w-full"
+                        />
+                      )}
+                    </ResponsiveD3Chart>
                   </TabsContent>
                 </Tabs>
               </CardContent>
             </Card>
 
             <Card className="shadow-sm" data-aos="fade-up" data-aos-delay="100">
-              <CardHeader>
-                <CardTitle>Property Categories</CardTitle>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-lg">Property Categories</CardTitle>
                 <CardDescription>Distribution of properties by type</CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="h-[350px] flex items-center justify-center">
-                  <ResponsiveContainer width="100%" height={300}>
-                    <PieChart>
-                      <Pie
-                        data={categoryData}
-                        cx="50%"
-                        cy="50%"
-                        labelLine={false}
-                        outerRadius={100}
-                        fill="#8884d8"
-                        dataKey="value"
-                        label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
-                      >
-                        {categoryData.map((entry, index) => (
-                          <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                        ))}
-                      </Pie>
-                      <Tooltip />
-                      <Legend />
-                    </PieChart>
-                  </ResponsiveContainer>
-                </div>
+                <ResponsiveD3Chart aspectRatio={1} minHeight={300} maxHeight={400}>
+                  {({ width, height }) => (
+                    <D3PieChart
+                      data={categoryData}
+                      width={Math.min(width, height)}
+                      height={height}
+                      className="w-full"
+                    />
+                  )}
+                </ResponsiveD3Chart>
               </CardContent>
             </Card>
           </div>
 
-          <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
+          <div className="grid grid-cols-1 gap-4 lg:gap-6 2xl:grid-cols-2">
             <Card className="shadow-sm" data-aos="fade-up">
-              <CardHeader>
-                <CardTitle>Recent Properties</CardTitle>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-lg">Recent Properties</CardTitle>
                 <CardDescription>Latest property listings</CardDescription>
               </CardHeader>
               <CardContent>
@@ -463,7 +403,7 @@ export default function DashboardPage() {
                       data-aos="fade-right"
                       data-aos-delay={index * 100}
                     >
-                      <div className="relative aspect-square h-16 w-16 flex-shrink-0 overflow-hidden rounded-md">
+                      <div className="relative aspect-square h-12 w-12 sm:h-16 sm:w-16 flex-shrink-0 overflow-hidden rounded-md">
                         <img
                           src={property.image}
                           alt={property.title}
@@ -471,10 +411,10 @@ export default function DashboardPage() {
                         />
                       </div>
                       <div className="flex-1 overflow-hidden">
-                        <h4 className="truncate font-medium">{property.title}</h4>
-                        <p className="text-sm text-muted-foreground">{property.location}</p>
-                        <div className="flex items-center justify-between">
-                          <span className="font-medium">
+                        <h4 className="truncate font-medium text-sm sm:text-base">{property.title}</h4>
+                        <p className="text-xs sm:text-sm text-muted-foreground">{property.location}</p>
+                        <div className="flex items-center justify-between mt-1">
+                          <span className="font-medium text-sm sm:text-base">
                             {typeof property.price === 'number' && property.price >= 10000
                               ? `$${(property.price).toLocaleString()}`
                               : `$${property.price}/mo`}
@@ -494,8 +434,8 @@ export default function DashboardPage() {
             </Card>
 
             <Card className="shadow-sm" data-aos="fade-up" data-aos-delay="100">
-              <CardHeader>
-                <CardTitle>Recent Activity</CardTitle>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-lg">Recent Activity</CardTitle>
                 <CardDescription>Latest actions and updates</CardDescription>
               </CardHeader>
               <CardContent>
@@ -507,12 +447,12 @@ export default function DashboardPage() {
                       data-aos="fade-left"
                       data-aos-delay={index * 100}
                     >
-                      <div className="rounded-full bg-primary/10 p-2 text-primary">
-                        <activity.icon className="h-5 w-5" />
+                      <div className="rounded-full bg-primary/10 p-2 text-primary flex-shrink-0">
+                        <activity.icon className="h-4 w-4 sm:h-5 sm:w-5" />
                       </div>
-                      <div className="flex-1">
-                        <p className="font-medium">{activity.action}</p>
-                        <p className="text-sm text-muted-foreground">{activity.details}</p>
+                      <div className="flex-1 min-w-0">
+                        <p className="font-medium text-sm sm:text-base">{activity.action}</p>
+                        <p className="text-xs sm:text-sm text-muted-foreground truncate">{activity.details}</p>
                         <p className="text-xs text-muted-foreground">{activity.time}</p>
                       </div>
                     </div>
@@ -521,58 +461,7 @@ export default function DashboardPage() {
               </CardContent>
             </Card>
           </div>
-        </TabsContent>
-
-        {/* AI Recommendations Tab */}
-        <TabsContent value="ai-recommendations" className="space-y-6">
-          <AIRecommendations />
-        </TabsContent>
-
-        {/* Market Analytics Tab */}
-        <TabsContent value="market-analytics" className="space-y-6">
-          <MarketAnalytics />
-        </TabsContent>
-
-        {/* Chat System Tab */}
-        <TabsContent value="chat-system" className="space-y-6">
-          <div className="p-8 text-center">
-            <h3 className="text-lg font-semibold">Chat System</h3>
-            <p className="text-muted-foreground">Component temporarily disabled</p>
-          </div>
-        </TabsContent>
-
-        {/* Mortgage Calculator Tab */}
-        <TabsContent value="mortgage-calc" className="space-y-6">
-          <div className="p-8 text-center">
-            <h3 className="text-lg font-semibold">Mortgage Calculator</h3>
-            <p className="text-muted-foreground">Component temporarily disabled</p>
-          </div>
-        </TabsContent>
-
-        {/* Investment Analysis Tab */}
-        <TabsContent value="investment" className="space-y-6">
-          <div className="p-8 text-center">
-            <h3 className="text-lg font-semibold">Investment Analysis</h3>
-            <p className="text-muted-foreground">Component temporarily disabled</p>
-          </div>
-        </TabsContent>
-
-        {/* Security Verification Tab */}
-        <TabsContent value="security" className="space-y-6">
-          <div className="p-8 text-center">
-            <h3 className="text-lg font-semibold">Security Verification</h3>
-            <p className="text-muted-foreground">Component temporarily disabled</p>
-          </div>
-        </TabsContent>
-
-        {/* AI Chatbot Tab */}
-        <TabsContent value="ai-chat" className="space-y-6">
-          <div className="p-8 text-center">
-            <h3 className="text-lg font-semibold">AI Chatbot</h3>
-            <p className="text-muted-foreground">Component temporarily disabled</p>
-          </div>
-        </TabsContent>
-      </Tabs>
+        </div>
     </div>
   );
 }
