@@ -2,7 +2,7 @@
 
 const API_BASE_URL =
   process.env.NODE_ENV === "production"
-    ? process.env.CORS_URL
+    ? "" // Use relative URLs in production (same domain)
     : "http://localhost:3000";
 
 interface ApiOptions {
