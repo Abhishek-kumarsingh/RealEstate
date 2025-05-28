@@ -1,5 +1,4 @@
 import { PrismaClient } from "@prisma/client";
-import { withAccelerate } from "@prisma/extension-accelerate";
 
 // Type for the extended Prisma client
 type ExtendedPrismaClient = ReturnType<PrismaClient['$extends']>;
@@ -29,11 +28,7 @@ function createPrismaClient() {
       },
     });
 
-    // Only use Accelerate if URL starts with prisma://
-    if (process.env.DATABASE_URL?.startsWith('prisma://')) {
-      return client.$extends(withAccelerate());
-    }
-
+    // Return client without any extensions for now
     return client;
   } catch (error) {
     console.error("Failed to create Prisma client:", error);
