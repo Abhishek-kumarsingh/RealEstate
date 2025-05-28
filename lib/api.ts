@@ -12,8 +12,19 @@ interface ApiOptions {
   token?: string;
 }
 
+// Get token from localStorage
+function getStoredToken(): string | null {
+  if (typeof window !== 'undefined') {
+    return localStorage.getItem('token');
+  }
+  return null;
+}
+
 async function apiRequest(endpoint: string, options: ApiOptions = {}) {
-  const { method = "GET", headers = {}, body, token } = options;
+  const { method = "GET", headers = {}, body } = options;
+
+  // Use provided token or get from localStorage
+  const token = options.token || getStoredToken();
 
   const config: RequestInit = {
     method,
@@ -104,16 +115,16 @@ export const propertiesApi = {
 
 // Favorites API
 export const favoritesApi = {
-  getAll: (token: string) => apiRequest("/favorites", { token }),
+  getAll: (token?: string) => apiRequest("/favorites", { token }),
 
-  add: (propertyId: string, token: string) =>
+  add: (propertyId: string, token?: string) =>
     apiRequest("/favorites", {
       method: "POST",
       body: { propertyId },
       token,
     }),
 
-  remove: (propertyId: string, token: string) =>
+  remove: (propertyId: string, token?: string) =>
     apiRequest(`/favorites/${propertyId}`, {
       method: "DELETE",
       token,
@@ -122,21 +133,21 @@ export const favoritesApi = {
 
 // Inquiries API
 export const inquiriesApi = {
-  getAll: (token: string, params?: Record<string, string>) => {
+  getAll: (params?: Record<string, string>, token?: string) => {
     const queryString = params
       ? `?${new URLSearchParams(params).toString()}`
       : "";
     return apiRequest(`/inquiries${queryString}`, { token });
   },
 
-  create: (data: any, token: string) =>
+  create: (data: any, token?: string) =>
     apiRequest("/inquiries", {
       method: "POST",
       body: data,
       token,
     }),
 
-  update: (id: string, data: any, token: string) =>
+  update: (id: string, data: any, token?: string) =>
     apiRequest(`/inquiries/${id}`, {
       method: "PUT",
       body: data,
