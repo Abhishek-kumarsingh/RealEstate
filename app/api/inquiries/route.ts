@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { requireAuth, AuthenticatedRequest } from '@/lib/middleware/auth';
+import { createNotificationFromTemplate } from '@/lib/notifications';
+import { sendInquiryNotification } from '@/lib/email';
 
 // GET /api/inquiries - Get user's inquiries
 async function getInquiries(request: AuthenticatedRequest) {
@@ -88,7 +90,18 @@ async function createInquiry(request: AuthenticatedRequest) {
     // Check if property exists and get agent info
     const property = await prisma.property.findUnique({
       where: { id: propertyId },
-      select: { id: true, agentId: true }
+      select: {
+        id: true,
+        agentId: true,
+        title: true,
+        agent: {
+          select: {
+            id: true,
+            name: true,
+            email: true
+          }
+        }
+      }
     });
 
     if (!property) {
@@ -143,6 +156,39 @@ async function createInquiry(request: AuthenticatedRequest) {
         }
       }
     });
+
+    // Send notification to agent
+    try {
+      await createNotificationFromTemplate(
+        property.agentId,
+        'INQUIRY_RECEIVED',
+        {
+          propertyTitle: property.title,
+          userName: contactInfo.name
+        },
+        {
+          inquiryId: inquiry.id,
+          propertyId: propertyId
+        }
+      );
+    } catch (error) {
+      console.error('Error creating notification:', error);
+    }
+
+    // Send email to agent
+    try {
+      await sendInquiryNotification({
+        agentEmail: property.agent.email,
+        agentName: property.agent.name,
+        userName: contactInfo.name,
+        userEmail: contactInfo.email,
+        propertyTitle: property.title,
+        message: message,
+        propertyUrl: `${process.env.NEXTAUTH_URL}/properties/${propertyId}`
+      });
+    } catch (error) {
+      console.error('Error sending email notification:', error);
+    }
 
     return NextResponse.json({
       message: 'Inquiry sent successfully',
